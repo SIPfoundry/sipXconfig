@@ -1,3 +1,0 @@
-# S I P X P B X  / S I P X C O N F I G
-sipxconfig.phone.dir=@SIPX_VARDIR@/configserver/phone
-www.dir=@wwwdir@
