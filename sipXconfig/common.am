@@ -1,4 +1,4 @@
-noeconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
+neoconf_JAVAROOT = $(abspath $(top_builddir)/neoconf/src/classes)
 neoconf_SRCDIR = $(abspath $(top_srcdir)/neoconf/src)
 # NOTE: List should be alphabetical
 neoconf_PKGS = \
@@ -16,10 +16,7 @@ neoconf_PKGS = \
 	commons-lang \
 	commons-logging \
 	commons-net \
-	dbunit \
 	dom4j \
-	easymock \
-	easymockclassextension \
 	gdata-client \
 	gdata-contacts \
 	gdata-contacts \
@@ -32,8 +29,6 @@ neoconf_PKGS = \
 	jaxen \
 	jaxrpc \
 	jettison \
-	junit \
-	junit \
 	ldapbp \
 	lucene-core \
 	mime-dir-j-vcard4j \
@@ -56,13 +51,39 @@ neoconf_PKGS = \
 	postgresql \
 	saxpath \
 	serializer \
-	serializer \
 	sipxcommons \
 	spring-ldap \
-	spring-mock \
 	velocity \
 	velocity-tools-generic \
 	xercesImpl \
 	xmlrpc \
-	xmlunit \
 	xstream
+
+web_PKGS = \
+	$(neoconf_PKGS) \
+	ant \
+	ant-launcher \
+	antlr \
+	backport-util-concurrent \
+	c3p0 \
+	cglib-nodep \
+	commons-pool \
+	hivemind \
+	hivemind-lib \
+	jakarta-oro \
+	jasper-compiler \
+	jasper-runtime \
+	jasperreports \
+	javassist \
+	jce \
+	jdom \
+	jetty \
+	jta \
+	not-yet-commons-ssl \
+	ognl \
+	rome \
+	tapestry \
+	tapestry-annotations \
+	tapestry-contrib \
+	tapestry-framework \
+	xpp3
