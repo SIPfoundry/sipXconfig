@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.List;
 
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCase;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
+import org.sipfoundry.commons.mongo.MongoDbTemplate;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -21,11 +21,11 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-public class RegistrationContextImplTest extends MongoTestCase {
-    private static DBCollection m_collection;
-    public final static String DBNAME = "node";
-    public final static String COLL_NAME = "registrar";
+public class RegistrationContextIntegrationTest extends ImdbTestCase {
     private RegistrationContextImpl m_builder;
+    private MongoDbTemplate m_nodeDb;
+    private LocationsManager m_locationsManager;
+//    private MongoTestCaseHelper m_helper = new MongoTestCaseHelper("node", "registrar"); 
 
     private Object[][] DATA = {
         {
@@ -38,12 +38,14 @@ public class RegistrationContextImplTest extends MongoTestCase {
             "\"John Doe\"<sip:jane.doe@example.org>", false, "3001@example.org", 1299762968, 1299762668, ""
         }
     };
+    
+    private DBCollection getRegistrarCollection() {
+        return m_nodeDb.getDb().getCollection("registrar");
+    }
 
-    protected void setUp() throws Exception {
-
-        MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
-        MongoTestCaseHelper.dropDb(DBNAME);
-        m_collection = MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
         DBObject reg1 = new BasicDBObject();
         reg1.put("contact", DATA[0][3]);
         reg1.put("expirationTime", DATA[0][6]);
@@ -57,15 +59,18 @@ public class RegistrationContextImplTest extends MongoTestCase {
         reg2.put("instrument", DATA[1][8]);
         reg2.put("expired", DATA[1][4]);
 
-        m_collection.insert(reg1, reg2);
+        m_nodeDb.drop();
+        getRegistrarCollection().insert(reg1, reg2);
 
-        Location loc = new Location();
-        LocationsManager lm = EasyMock.createMock(LocationsManager.class);
-        lm.getLocationByBundle("primarySipRouterBundle");
-        EasyMock.expectLastCall().andReturn(loc);
-        EasyMock.replay(lm);
+//        Location loc = new Location();
+//        LocationsManager lm = EasyMock.createMock(LocationsManager.class);
+//        lm.getLocationByBundle("primarySipRouterBundle");
+//        EasyMock.expectLastCall().andReturn(loc);
+//        EasyMock.replay(lm);
+        
         m_builder = new RegistrationContextImpl();
-        m_builder.setLocationsManager(lm);
+        m_builder.setLocationsManager(m_locationsManager);
+        m_builder.setNodedb(m_nodeDb);
     }
 
     public void testGetRegistrations() throws Exception {
@@ -87,5 +92,13 @@ public class RegistrationContextImplTest extends MongoTestCase {
         assertEquals(1299762968, ri.getExpires());
         assertEquals("3001@example.org", ri.getUri());
         assertTrue(ri.getContact().indexOf("Doe") > 0);
+    }
+
+    public void setNodeDb(MongoDbTemplate nodeDb) {
+        m_nodeDb = nodeDb;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

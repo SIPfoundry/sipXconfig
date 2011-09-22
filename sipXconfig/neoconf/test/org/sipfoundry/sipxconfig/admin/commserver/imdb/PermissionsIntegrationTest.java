@@ -29,7 +29,8 @@ import org.sipfoundry.sipxconfig.setting.Group;
 
 import com.mongodb.QueryBuilder;
 
-public class PermissionsTest extends MongoTestCase {
+public class PermissionsIntegrationTest extends ImdbTestCase {
+    
     // needs to be adjusted every time a new permission is added
     private static int PERM_COUNT = 5;
     private static int SPEC_COUNT = SpecialUserType.values().length;
@@ -37,56 +38,38 @@ public class PermissionsTest extends MongoTestCase {
     User m_testUser;
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext());
-
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
         m_testUser = new User();
-        m_testUser.setPermissionManager(pm);
-        DomainManager dm = getDomainManager();
-        m_testUser.setDomainManager(dm);
-
-        CoreContext coreContext;
+        m_testUser.setPermissionManager(getPermissionManager());
+        m_testUser.setDomainManager(getDomainManager());
         m_permissions = new Permissions();
-
-        coreContext = getCoreContext();
-        coreContext.newUser();
-        expectLastCall().andReturn(m_testUser).anyTimes();
-
-        for (SpecialUserType u : SpecialUserType.values()) {
-            coreContext.getSpecialUserAsSpecialUser(u);
-            expectLastCall().andReturn(new SpecialUser(u)).anyTimes();
-        }
-
+        m_permissions.setDbCollection(getEntityCollection());
+        m_permissions.setCoreContext(getCoreContext());
         TlsPeer peer = new TlsPeer();
         InternalUser user = new InternalUser();
         user.setSipPassword("123");
         user.setPintoken("11");
         peer.setInternalUser(user);
-
         AuthCode code = new AuthCode();
         code.setInternalUser(user);
-
-        replay(coreContext, dm);
-        m_permissions.setCoreContext(coreContext);
-        m_permissions.setDbCollection(getCollection());
     }
 
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
-            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u), m_permissions.findOrCreate(getCoreContext().getSpecialUserAsSpecialUser(u)));
+            SpecialUser su = new SpecialUser(u);
+            m_permissions.generate(su, m_permissions.findOrCreate(su));
         }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
-        MongoTestCaseHelper.assertCollectionCount(SPEC_COUNT - 1);
+        assertCollectionCount(SPEC_COUNT - 1);
         // 5 permissions per special user
 
         for (SpecialUserType su : SpecialUserType.values()) {
             // As PHONE_PROVISION does NOT require any permissions, skip it.
             if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
-                MongoTestCaseHelper.assertObjectWithIdPresent(su.getUserName());
-                MongoTestCaseHelper.assertObjectListFieldCount(su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
+                assertObjectWithIdPresent(su.getUserName());
+                assertObjectListFieldCount(su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
             }
         }
     }
@@ -108,9 +91,9 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions.generate(callGroup2, m_permissions.findOrCreate(callGroup2));
         m_permissions.generate(callGroup3, m_permissions.findOrCreate(callGroup3));
 
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdNotPresent("CallGroup3");
+        assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
+        assertObjectWithIdNotPresent("CallGroup3");
 
     }
 
@@ -128,12 +111,12 @@ public class PermissionsTest extends MongoTestCase {
         m_testUser.setUniqueId(1);
         m_permissions.generate(m_testUser, m_permissions.findOrCreate(m_testUser));
 
-        MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
+        assertObjectWithIdPresent("User1");
+        assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
                 .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());
-        MongoTestCaseHelper.assertObjectPresent(qb.get());
+        assertObjectPresent(qb.get());
     }
 }

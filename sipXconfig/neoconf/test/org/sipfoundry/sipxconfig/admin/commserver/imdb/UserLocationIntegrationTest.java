@@ -9,19 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.replay;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public class UserLocationTest extends MongoTestCase {
+public class UserLocationIntegrationTest extends ImdbTestCase {
 
     private final String[][] USER_DATA = {
         {
@@ -36,13 +32,10 @@ public class UserLocationTest extends MongoTestCase {
     private List<User> m_users;
 
     public void testGenerate() throws Exception {
-        PermissionManagerImpl impl = new PermissionManagerImpl();
-        impl.setModelFilesContext(TestHelper.getModelFilesContext());
-        replay(getCoreContext());
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
             User user = new User();
-            user.setPermissionManager(impl);
+            user.setPermissionManager(getPermissionManager());
 
             user.setUniqueId(new Integer(ud[0]));
             user.setFirstName(ud[1]);
@@ -64,14 +57,14 @@ public class UserLocationTest extends MongoTestCase {
             m_users.add(user);
         }
         UserLocation ul = new UserLocation();
-        ul.setDbCollection(getCollection());
+        ul.setDbCollection(getEntityCollection());
         ul.setCoreContext(getCoreContext());
         ul.generate(m_users.get(0), ul.findOrCreate(m_users.get(0)));
         ul.generate(m_users.get(1), ul.findOrCreate(m_users.get(1)));
         ul.generate(m_users.get(2), ul.findOrCreate(m_users.get(2)));
 
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
+        assertObjectWithIdFieldValuePresent("User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
+        assertObjectWithIdFieldValuePresent("User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);
+        assertObjectWithIdFieldValuePresent("User2", MongoConstants.USER_LOCATION, USER_DATA[2][4]);
     }
 }

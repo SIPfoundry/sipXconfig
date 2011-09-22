@@ -5,25 +5,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 import com.mongodb.QueryBuilder;
 
-public class UserStaticTest extends MongoTestCase {
+public class UserStaticIntegrationTest extends ImdbTestCase {
     private final String[][] USER_DATA = {
         {
             "0", "first1", "last1", "8809", "63948809"
@@ -37,42 +27,37 @@ public class UserStaticTest extends MongoTestCase {
     private List<User> m_users;
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        PermissionManagerImpl impl = new PermissionManagerImpl();
-        impl.setModelFilesContext(TestHelper.getModelFilesContext());
-        DomainManager dm = getDomainManager();
-        replay(dm);
+    public void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
             User user = new User();
-            user.setPermissionManager(impl);
+            user.setPermissionManager(getPermissionManager());
 
             user.setUniqueId(new Integer(ud[0]));
             user.setFirstName(ud[1]);
             user.setLastName(ud[2]);
             user.setUserName(ud[3]);
-            user.setDomainManager(dm);
+            user.setDomainManager(getDomainManager());
             user.setSettingValue("voicemail/mailbox/external-mwi", ud[4]);
             m_users.add(user);
         }
-        replay(getCoreContext());
     }
 
     public void testGenerate() throws Exception {
         UserStatic us = new UserStatic();
-        us.setDbCollection(getCollection());
+        us.setDbCollection(getEntityCollection());
         us.setCoreContext(getCoreContext());
         us.generate(m_users.get(0), us.findOrCreate(m_users.get(0)));
         us.generate(m_users.get(1), us.findOrCreate(m_users.get(1)));
         us.generate(m_users.get(2), us.findOrCreate(m_users.get(2)));
-        MongoTestCaseHelper.assertCollectionCount(3);
+        assertCollectionCount(3);
         QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        MongoTestCaseHelper.assertObjectPresent(qb.get());
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
+        assertObjectPresent(qb.get());
+        assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent("User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
+        assertObjectWithIdFieldValuePresent("User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
     }
 }

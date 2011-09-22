@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.replay;
-
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
@@ -22,14 +20,17 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
-public class CallerAliasesTest extends MongoTestCase {
-
+public class CallerAliasesIntegrationTest extends ImdbTestCase {
+    
+    public void onSetupBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        TestHelper.cleanInsert("ClearDb.xml");
+    }
+    
     public void testGenerate() throws Exception {
         CallerAliases cas = new CallerAliases();
-
         cas.setCoreContext(getCoreContext());
-        replay(getCoreContext());
-        cas.setDbCollection(getCollection());
+        cas.setDbCollection(getEntityCollection());
         
         GatewayCallerAliasInfo gcai = new GatewayCallerAliasInfo();
         gcai.setDefaultCallerAlias("gatewayCID");
@@ -48,18 +49,18 @@ public class CallerAliasesTest extends MongoTestCase {
         
         cas.generate(gw, cas.findOrCreate(gw));
         
-        MongoTestCaseHelper.assertObjectWithIdPresent("Gateway1");
+        assertObjectWithIdPresent("Gateway1");
         DBObject ref = new BasicDBObject();
         ref.put(MongoTestCaseHelper.ID, "Gateway1");
         ref.put("ident", "gateway.example.org;sipxecs-lineid=1");
         ref.put("uid", "~~gw");
-        ref.put(MongoConstants.CALLERALIAS, "\"display name\"<sip:gatewayCID@mydomain.org;key=value>");
+        ref.put(MongoConstants.CALLERALIAS, "\"display name\"<sip:gatewayCID@example.org;key=value>");
         ref.put(MongoConstants.IGNORE_USER_CID, gcai.isIgnoreUserInfo());
         ref.put(MongoConstants.CID_PREFIX, gcai.getAddPrefix());
         ref.put(MongoConstants.KEEP_DIGITS, gcai.getKeepDigits());
         ref.put(MongoConstants.TRANSFORM_EXT, gcai.isTransformUserExtension());
         ref.put(MongoConstants.ANONYMOUS, gcai.isAnonymous());
-        MongoTestCaseHelper.assertObjectPresent(ref);
+        assertObjectPresent(ref);
         
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext());
@@ -70,14 +71,13 @@ public class CallerAliasesTest extends MongoTestCase {
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
         
         cas.generate(user, cas.findOrCreate(user));
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "sip:userCID@mydomain.org");
+        assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "sip:userCID@example.org");
 
         User userWithoutClrid = new User();
         userWithoutClrid.setUniqueId(1);
         userWithoutClrid.setPermissionManager(pm);
         
         cas.generate(userWithoutClrid, cas.findOrCreate(userWithoutClrid));
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "");
-        
+        assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "");       
     }
 }
