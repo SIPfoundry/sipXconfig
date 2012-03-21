@@ -1,7 +1,7 @@
 /**
  *
  *
- * Copyright (c) 2012 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
  * This software is free software; you can redistribute it and/or modify it under
@@ -14,26 +14,14 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.cfgmgt;
+package org.sipfoundry.sipxconfig.websocket;
 
-import java.util.Collection;
+import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
-import org.sipfoundry.sipxconfig.commserver.Location;
+public interface WebSocket {
+    public static final LocationFeature FEATURE = new LocationFeature("websocket");
 
+    public WebSocketSettings getSettings();
 
-/**
- * Effectively run config related commands at given locations. It ultimately calls
- * a combination of CFEngine bundles and/or defines.
- */
-public interface ConfigCommands {
-
-    public void restartServices();
-
-    public void restartServices(Collection<Location> locations);
-
-    public void lastSeen();
-
-    public void collectSnapshot(Location location);
-
-    public void uploadSnapshot(Location location);
+    public void saveSettings(WebSocketSettings settings);
 }
