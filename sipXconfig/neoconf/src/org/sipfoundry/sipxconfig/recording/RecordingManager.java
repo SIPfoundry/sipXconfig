@@ -16,12 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.recording;
 
-import org.sipfoundry.sipxconfig.feature.GlobalFeature;
-
-public interface Recording {
-    public static final GlobalFeature FEATURE = new GlobalFeature("bridgeRecording");
-
-    public RecordingSettings getSettings();
-
-    public void saveSettings(RecordingSettings settings);
+public interface RecordingManager {
+    public static final String BEAN_NAME = "recording";
+    public int getJettyPort();
 }
