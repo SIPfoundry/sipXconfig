@@ -14,18 +14,35 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.mwi;
+package org.sipfoundry.commons.userdb;
 
-import org.sipfoundry.sipxconfig.address.AddressType;
-import org.sipfoundry.sipxconfig.feature.LocationFeature;
+public class UserGroup {
+    private String m_sysId;
+    private String m_groupName;
+    private String m_description;
 
-public interface Mwi {
-    public static final LocationFeature FEATURE = new LocationFeature("mwi");
-    public static final AddressType SIP_UDP = AddressType.sipUdp("mwiSipUdp");
-    public static final AddressType SIP_TCP = AddressType.sipTcp("mwiSipTcp");
-    public static final AddressType HTTPS_API = new AddressType("mwiHttpApi", "https://%s:%d/cgi/StatusEvent.cgi");
+    public String getSysId() {
+        return m_sysId;
+    }
 
-    public MwiSettings getSettings();
+    public void setSysId(String id) {
+        m_sysId = id;
+    }
 
-    public void saveSettings(MwiSettings settings);
+    public String getGroupName() {
+        return m_groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        m_groupName = groupName;
+    }
+
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
+    }
+
 }
