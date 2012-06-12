@@ -1,4 +1,6 @@
 /**
+ *
+ *
  * Copyright (c) 2012 eZuce, Inc. All rights reserved.
  * Contributed to SIPfoundry under a Contributor Agreement
  *
@@ -12,8 +14,18 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.backup;
+package org.sipfoundry.commons.userdb.profile;
 
-public enum BackupType {
-    local, ftp, manual
+public enum Salutation {
+    Mr, Mrs, Miss, Ms, Dr, Prof, None;
+    public static Salutation getSalutation(String salutation) {
+        if (salutation == null) {
+            return None;
+        }
+        try {
+            return valueOf(salutation);
+        } catch (IllegalArgumentException e) {
+            return None;
+        }
+    }
 }

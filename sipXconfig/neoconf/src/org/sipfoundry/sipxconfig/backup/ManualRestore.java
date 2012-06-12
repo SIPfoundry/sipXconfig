@@ -15,39 +15,46 @@
 package org.sipfoundry.sipxconfig.backup;
 
 import java.io.File;
+import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.WaitingListener;
 
 /**
- * Summary of steps to perform a backup:
- * 1.) write custom backup plan in each CFDATA/$location for each location
- * 2.) write custom cluster backup plan in CFDATA/primary location
- * 3.) call cluster backup script for plan
- * 4.) check for new backup, otherwise there was a failure
+ * There's no other type other than manual restore, but I wanted name to match ManualBackup
+ * because they are similar.
+ *
+ * Summary of steps to perform a backup: 1.) write custom restore plan in each CFDATA/$location
+ * for each location 2.) write custom cluster restore plan in CFDATA/primary location 3.) stage
+ * cluster restore files 4.) call restore on all nodes
  */
-public class ManualBackup {
+public class ManualRestore implements WaitingListener {
     private BackupManager m_backupManager;
     private BackupConfig m_backupConfig;
 
-    public void backup(BackupPlan plan) {
-        BackupSettings settings = getBackupManager().getSettings();
-        backup(plan, settings);
+    /**
+     * Files are already staged and we can skip right to node restore
+     */
+    public void restoreFromStage(Collection<String> defIds) {
+        writePlan(defIds).restoreFromStage();
     }
 
-    public void backup(BackupPlan plan, BackupSettings settings) {
-        File planFile = getBackupConfig().writeConfigs(plan, settings);
+    BackupCommandRunner writePlan(Collection<String> defIds) {
+        // doesn't matter which plan, we already staged the files
+        BackupPlan plan = getBackupManager().findOrCreateBackupPlan(BackupType.local);
+        plan.getManualModeDefinitionIds().addAll(defIds);
+        File planFile = getBackupConfig().writeConfigs(plan, getBackupManager().getSettings());
         BackupCommandRunner runner = new BackupCommandRunner(planFile, getBackupManager().getBackupScript());
-        String beforeBackup = runner.lastBackup(); // null is ok
-        runner.backup();
-        String afterBackup = runner.lastBackup();
-        if (afterBackup.equals(beforeBackup)) {
-            throw new UserException("Failed to perform backup");
-        }
+        return runner;
+    }
+
+    public void restore(Collection<String> defIds) {
+        writePlan(defIds).restore(defIds);
     }
 
     public void setBackupManager(BackupManager backupManager) {
         m_backupManager = backupManager;
     }
+
     public void setBackupConfig(BackupConfig backupConfig) {
         m_backupConfig = backupConfig;
     }
@@ -58,5 +65,10 @@ public class ManualBackup {
 
     public BackupConfig getBackupConfig() {
         return m_backupConfig;
+    }
+
+    @Override
+    public void afterResponseSent() {
+        // TODO Auto-generated method stub
     }
 }
