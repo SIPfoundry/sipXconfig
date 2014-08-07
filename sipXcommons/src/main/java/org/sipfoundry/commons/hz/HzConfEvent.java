@@ -14,14 +14,15 @@
  */
 package org.sipfoundry.commons.hz;
 
-public class HzVmEvent extends HzMediaEvent {
+public class HzConfEvent extends HzMediaEvent {
     private static final long serialVersionUID = 1L;
 
-    public enum VmType implements HzMediaEvent.Type {
-        START_LEAVE_VM,
-        END_LEAVE_VM
+    public enum ConfType implements HzMediaEvent.Type {
+        ENTER_CONFERENCE,
+        EXIT_CONFERENCE
     }
-    public HzVmEvent(String userIdFrom, String userIdTo, String description, Type type) {
+    public HzConfEvent(String userIdFrom, String userIdTo, String description, Type type) {
         super(userIdFrom, userIdTo, description, type);
     }
+
 }
