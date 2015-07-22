@@ -1,0 +1,47 @@
+#!BuildIgnore: post-build-checks
+%define debug_package %{nil}
+
+Name: @PACKAGE@
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
+
+Summary: sipXecs release information
+License: AGPL
+Group: Telcommunications
+Vendor: SIPfoundry
+Packager: Douglas Hubler <dhubler@ezuce.com>
+Url: http://www.sipfoundry.org
+BuildRequires: automake
+
+Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+# determines which package list to put into rpm
+%if %{!?rel_id:1}
+%define rel_id %{?fedora:Fedora_%{fedora}}%{?rhel:CentOS_%{rhel}}-%{_arch}
+%endif
+
+%description
+Just contains release information so sipXecs can check what update
+number is installed.
+
+%prep
+%setup -q
+
+%build
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-package-info
+%{_sysconfdir}/sipxpbx/release
+%{_sysconfdir}/sipxpbx/packages

@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Take all the rpms for all distributions and generate version lists
+# that can be used to check if an installation has rpms that come with
+# a particular release update number.  Output is a tarfile that would
+# normally go into sipXrelease rpm and get installed into a system
+
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 repository-directory number"
+  echo "Example: $0 repo 4"
+  exit 1
+fi
+
+destDir=`dirname $0`
+repoDir=$1
+updateNum=$2
+
+echo "$updateNum" > $destDir/release
+find $repoDir -name 'packages-*' -exec rm {} \;
+for d in $repoDir/*/*; do
+    rel_id=(${d//\// })
+    len="${#rel_id[@]}"
+    arch="${rel_id[${len} - 1]}"
+    distro="${rel_id[${len} - 2]}"
+    test "${arch}" == "source" && continue
+    echo "${distro} ${arch}"
+    rpm -qp --queryformat '%{NAME} %{VERSION} %{RELEASE}\n' $d/*.rpm | \
+	grep -v sipxrelease |
+	> $destDir/packages-${distro}-${arch}
+done
