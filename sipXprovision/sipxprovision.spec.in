@@ -13,11 +13,8 @@ BuildRequires: automake
 BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
-BuildRequires: sipxopenfire >= %version
 
 Source: %name-%version.tar.gz
-
-Obsoletes: sipxvxml
 
 Requires: sipxcommons >= %version
 Requires: chkconfig

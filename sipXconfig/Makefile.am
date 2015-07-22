@@ -44,7 +44,7 @@ noinst_DATA = $(SRC_PUB_PACKAGES)
 pub-get $(SRC_PUB_PACKAGES) : pubspec.yaml
 	cd $(srcdir); $(DART_HOME)/bin/pub get
 	touch $(SRC_PUB_PACKAGES)
-	$(MAKE) remove-extraneous-packages-symlinks
+#	$(MAKE) remove-extraneous-packages-symlinks
 
 # Dart's package manager has an annoying feature that generates packages symlinks in
 # web directory.  This removes all the copies that are not needed by how sipXconfig has integrated

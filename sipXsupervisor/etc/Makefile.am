@@ -40,7 +40,6 @@ dist_cfplugins_DATA = \
 	firewall.cf \
 	security.cf \
 	redis.cf \
-	mysql.cf \
 	dhcpd.cf \
 	ntpd.cf \
 	phonelog.cf \

@@ -164,6 +164,12 @@ body copy_from file_remote_cp(from,server) {
   compare  => "mtime";
 }
 
+body copy_from local_cp_by_digest(filename) {
+  source => "$(filename)";
+  compare => "digest";
+  purge => "true";
+}
+
 bundle agent sipx_init {
   vars:
 
