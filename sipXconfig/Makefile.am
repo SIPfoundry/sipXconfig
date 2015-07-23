@@ -12,7 +12,8 @@ TEST_DB = SIPXCONFIG_TEST
 	$(PUB_PACKAGES) \
 	pubspec.yaml \
 	packages/sipxconfig/sipxconfig.dart \
-	meta
+	meta \
+	.pub
 
 PUB_PACKAGES = \
 	packages/browser \
