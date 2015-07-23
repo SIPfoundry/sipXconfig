@@ -35,3 +35,4 @@ sipXconfig/packages/logging
 sipXconfig/packages/path
 sipXconfig/packages/unmodifiable_collection
 pubspec.lock
+/nbproject/private/
