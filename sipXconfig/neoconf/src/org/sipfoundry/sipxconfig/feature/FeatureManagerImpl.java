@@ -389,10 +389,11 @@ public class FeatureManagerImpl extends SipxHibernateDaoSupport implements BeanF
 
     @Override
     public Collection<Bundle> getBundles(FeatureManager manager) {
-        List<Bundle> bundles = new ArrayList<Bundle>(Arrays.asList(Bundle.CORE, Bundle.CORE_TELEPHONY,
-                Bundle.CALL_CENTER, Bundle.IM, Bundle.PROVISION));
+        List<Bundle> bundles = new ArrayList<Bundle>(Arrays.asList(Bundle.CORE, Bundle.CORE_TELEPHONY, Bundle.PROVISION));
         if (m_showExperimentalBundles) {
             bundles.add(Bundle.EXPERIMENTAL);
+            bundles.add(Bundle.IM);
+            bundles.add(Bundle.CALL_CENTER);
         }
         return bundles;
     }

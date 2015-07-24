@@ -112,7 +112,7 @@ public class RlsImpl implements AddressProvider, FeatureProvider, Rls, ProcessPr
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CORE_TELEPHONY) {
+        if (b == Bundle.EXPERIMENTAL) {
             b.addFeature(FEATURE);
         }
     }

@@ -110,7 +110,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CORE_TELEPHONY) {
+        if (b == Bundle.EXPERIMENTAL) {
             b.addFeature(FEATURE);
         }
     }
