@@ -10,8 +10,6 @@ sipx_core = \
   sipXcommons \
   sipXcdr \
   sipXconfig \
-  sipXpolycom \
-  sipXacccode \
   sipXviewer \
   sipXrest \
   sipXcdrLog \
