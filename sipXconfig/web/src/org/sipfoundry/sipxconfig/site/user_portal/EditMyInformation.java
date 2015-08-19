@@ -178,8 +178,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("distributionLists");
         }
         tabNames.add(TAB_CONFERENCES);
-        tabNames.add("openfire");
-
+        
         String mohPermissionValue = getLoadedUser().getSettingValue("permission/application/music-on-hold");
         if (isVoicemailEnabled() && Permission.isEnabled(mohPermissionValue)) {
             tabNames.add("moh");
@@ -190,9 +189,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("menu");
         }
 
-        if (getFeatureManager().isFeatureEnabled(ImBot.FEATURE)) {
-            tabNames.add("myAssistant");
-        }
         tabNames.add("timeZone");
         setAvailableTabNames(tabNames);
     }

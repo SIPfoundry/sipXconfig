@@ -210,13 +210,12 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add("timezone");
         names.add("hotelling");
         names.add("e911");
+        names.add("im");
+        names.add("im_notification");
         if (phantom) {
             names.add("user-domain");
-            names.add("im");
         }
-        if (!getFeatureManager().isFeatureEnabled(ImBot.FEATURE) || phantom) {
-            names.add("im_notification");
-        }
+        
         return StringUtils.join(names, ",");
     }
 
