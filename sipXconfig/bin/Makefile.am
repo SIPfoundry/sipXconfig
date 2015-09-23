@@ -27,7 +27,8 @@ bin_SCRIPTS = \
 	system-audit-cleanup \
 	system-audit-cleanup.rb \
 	sipx-dns-validator-regions \
-	postgres_change_pwd
+	postgres_change_pwd \
+	mysql_change_pwd
 
 libexecdir = $(SIPX_LIBEXECDIR)
 libexec_SCRIPTS = \

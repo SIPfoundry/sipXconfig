@@ -1,0 +1,183 @@
+# Copyright (C) 2015 SIPFoundry., certain elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+
+#
+# MySQL configuration for working with sipxecs
+#
+
+bundle agent mysql {
+  methods:
+    mysql::
+      "any" usebundle => mysql_conf;
+
+    fedora16_or_greater::
+      "any" usebundle => mysql_sysctl_running;
+    !fedora16_or_greater::
+      "any" usebundle => mysql_sysv_running;
+    
+    mysql.mysql_change_password::  
+      "any" usebundle => mysql_activate_new_password;      
+}
+
+bundle agent mysql_conf {
+  files:
+    mysql::
+      "/etc/my.cnf"
+        comment => "MySQL server config $(this.promiser)",
+        create => "false",
+        perms => mog("644", "root", "root"),
+        edit_line => my_cnf,
+        classes => if_repaired("restart_mysql");
+}
+
+bundle edit_line my_cnf {
+  vars:
+    # in 4.6, around 08/14/12 timezone was explicitly set, here we remove it
+    # so it defaults to using system timezone
+    "k" slist => { 
+      "default-time-zone" 
+    };
+
+  delete_lines:
+    "^$(k)\s*=.*$";
+}
+
+bundle agent mysql_ensure_db(name, schema_sql) {
+  classes:
+    mysql::
+      "db_exists" expression => fileexists("/var/lib/mysql/$(name)");
+
+  commands:
+   !db_exists.mysql::
+     "/usr/bin/mysql"
+       comment => "create mysql db $(name)",
+       args => "--user=root -e 'create database $(name)'";
+
+     "/usr/bin/mysql"
+       comment => "adding schema $(schema_sql) to db $(name)",
+       args => "--user=root $(name) -e 'source $(schema_sql)'";
+}
+
+bundle agent mysql_ensure_table(dbname, table, schema_sql) {
+  vars:
+    mysql::
+      "rc" string => execresult("/usr/bin/mysql -u root $(dbname) -e 'select count(*) from $(table)'", "noshell");
+      
+  classes:
+    mysql::
+      "table_exists" expression => strcmp("0", "$(rc)");
+
+  commands:
+   !table_exists.mysql::
+     "/usr/bin/mysql"
+       comment => "create mysql table $(table) in $(dbname)",
+       args => "--user=root $(dbname) -e 'source $(schema_sql)'";
+}
+
+body contain useshell {
+  useshell => "true";
+}
+
+bundle agent mysql_activate_new_password {
+  files:
+    "/root/.my.cnf"
+      comment => "create mysql config file",
+      create => "true",
+      perms => mog("600", root, root),
+      edit_line => mysql_mypass;
+}
+
+bundle edit_line mysql_mypass {
+  insert_lines:
+    any::
+      '[client]';
+      'user=root';
+      'password=$(sipx.NEW_MYSQL_PASSWORD)';
+
+  delete_lines:  
+    any::
+      ".*";  
+}
+
+bundle agent mysql_sysv_running {
+  vars:
+    any::
+      "service_command" string => "/usr/libexec/mysqld";
+      "daemon" string => "/etc/init.d/mysqld";
+      "service_user" string => "mysql";
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "mysql_running", "$(service_user)");
+    mysql::
+      "any" usebundle => rh_chkconfig_status("mysqld on");
+    !mysql::
+      "any" usebundle => rh_chkconfig_status("mysqld off");
+
+  commands:
+    !mysql.mysql_running::
+      "$(daemon)"
+        comment => "stop mysqld",
+        args => "stop";
+
+    mysql.!mysql_running::
+      "$(daemon)"
+        comment => "start mysqld",
+        args => "start";
+
+    mysql.mysql_running.(restart_mysql|mysql_change_password)::
+      "$(daemon)"
+        comment => "restart mysqld",
+        args => "restart";
+
+    mysql.mysql_running.mysql_change_password::
+       "$(sipx.SIPX_BINDIR)/mysql_change_pwd"
+         comment => "change mysql password ",
+         args => '$(sipx.NEW_MYSQL_PASSWORD)';        
+
+}
+
+bundle agent mysql_sysctl_running {
+  vars:
+    any::
+      "service" string => "mysqld.service";
+
+  classes:
+    fedora16_or_greater::
+      "mysql_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
+
+  commands:
+    !mysql.mysql_running::
+      "$(sipx.systemctl)"
+        comment => "stop $(service)",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable $(service)",
+        args => "disable $(service)";
+
+    mysql.!mysql_running::
+      "$(sipx.systemctl)"
+        comment => "start $(service)",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable $(service)",
+        args => "enable $(service)";
+
+    mysql.mysql_running.(restart_mysql|mysql_change_password)::
+      "$(sipx.systemctl)"
+        comment => "restart $(service)",
+        args => "restart $(service)";
+
+    mysql.mysql_running.mysql_change_password::
+       "$(sipx.SIPX_BINDIR)/mysql_change_pwd"
+         comment => "change mysql password ",
+         args => '$(sipx.NEW_MYSQL_PASSWORD)';        
+}

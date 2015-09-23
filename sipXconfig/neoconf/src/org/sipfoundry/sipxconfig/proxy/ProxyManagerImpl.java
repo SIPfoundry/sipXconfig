@@ -47,7 +47,6 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
-import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -86,7 +85,7 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
-        return DefaultFirewallRule.rules(ADDRESS_TYPES, FirewallRule.SystemId.PUBLIC);
+        return DefaultFirewallRule.rules(ADDRESS_TYPES);
     }
 
     @Override
@@ -101,11 +100,11 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         for (Location location : locations) {
             Address address = null;
             if (type.equals(TCP_ADDRESS)) {
-                address = new Address(TCP_ADDRESS, location.getAddress(), 5060);
+                address = new Address(TCP_ADDRESS, location.getAddress(), 5062);
             } else if (type.equals(UDP_ADDRESS)) {
-                address = new Address(UDP_ADDRESS, location.getAddress(), 5060);
+                address = new Address(UDP_ADDRESS, location.getAddress(), 5062);
             } else if (type.equals(TLS_ADDRESS)) {
-                address = new Address(TCP_ADDRESS, location.getAddress(), 5061);
+                address = new Address(TCP_ADDRESS, location.getAddress(), 5063);
             }
             addresses.add(address);
         }
@@ -191,12 +190,12 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
             return Collections.emptyList();
         }
 
-        String root = ""; // THE sip root resource and no resource name
+        String root = "ip";
         ResourceRecords[] records = new ResourceRecords[] {
-            new ResourceRecords("_sip._tcp", root, false),
-            new ResourceRecords("_sip._udp", root, false),
-            new ResourceRecords("_sips._tcp", root, false),
-            new ResourceRecords("_sip._tls", root, false)
+            new ResourceRecords("_sip._tcp", root, true),
+            new ResourceRecords("_sip._udp", root, true),
+            new ResourceRecords("_sips._tcp", root, true),
+            new ResourceRecords("_sip._tls", root, true)
         };
         ProxySettings settings = getSettings();
         int[] ports = new int[] {

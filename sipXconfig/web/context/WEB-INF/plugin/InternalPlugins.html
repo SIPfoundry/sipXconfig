@@ -47,6 +47,9 @@
    <span jwcid="@If" condition="ognl:isOn('dhcpd')">
       <span jwcid="@common/AdminNavigationMenu" pagePath="dhcp/EditDhcpd" label="ognl:messages.getMessage('menu.dhcpd.featureMenu')" />
    </span>
+   <span jwcid="@If" condition="ognl:isOn('kamailio')">
+      <span jwcid="@common/AdminNavigationMenu" pagePath="kamailio/EditKamailio" label="ognl:messages.getMessage('menu.kamailio.featureMenu')" />
+   </span>   
    <span jwcid="@If" condition="ognl:isOn('proxy')">
       <span jwcid="@common/AdminNavigationMenu" pagePath="proxy/EditProxy" label="ognl:messages.getMessage('menu.proxy.featureMenu')" />
    </span>

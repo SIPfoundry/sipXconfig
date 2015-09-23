@@ -1,0 +1,5 @@
+SIPX_PROXY_LOG_LEVEL : $settings.getSetting('SIPX_PROXY_LOG_LEVEL').Value
+SIPX_INGRESS_TLS_PORT : $!{kamailioService.secureSipPort}
+SIPX_INGRESS_TCP_PORT : $!{kamailioService.sipTCPPort}
+SIPX_INGRESS_UDP_PORT : $!{kamailioService.sipUDPPort}
+MYSQL_PASSWORD :

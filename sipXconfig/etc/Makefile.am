@@ -30,6 +30,8 @@ dist_cfinputs_DATA = \
 	ftp.cf \
 	mongodb.cf \
 	postgres.cf \
+	mysql.cf \
+	kamailio.cf \
 	sipxfreeswitch.cf \
 	sipxconfig.cf \
 	sipxdns.cf \
@@ -41,6 +43,7 @@ dist_cfinputs_DATA = \
 cfdefaultsdir = $(SIPX_CFDATA)/defaults
 cfdefaults_DATA = \
 	sipxfreeswitch.cfdat \
+	sipxingress.cfdat \
 	apache.cfdat \
 	postgres.cfdat
 
@@ -67,6 +70,13 @@ apachevars = \
 	$(filter APACHE%,$(.VARIABLES))
 
 apache.cfdat : Makefile
+	! test -f $@ || rm $@
+	$(foreach V,$(apachevars), echo '=$(V)=$($(V))' >> $@;)
+
+ingressvars = \
+	$(filter INGRESS%,$(.VARIABLES))
+
+sipxingress.cfdat : Makefile
 	! test -f $@ || rm $@
 	$(foreach V,$(apachevars), echo '=$(V)=$($(V))' >> $@;)
 
@@ -121,4 +131,4 @@ SETTINGS_XML = \
 	  \) \
 	)
 
-CLEANFILES = apache.cfdat postgres.cfdat sipxfreeswitch.cfdat
+CLEANFILES = apache.cfdat postgres.cfdat sipxingress.cfdat sipxfreeswitch.cfdat

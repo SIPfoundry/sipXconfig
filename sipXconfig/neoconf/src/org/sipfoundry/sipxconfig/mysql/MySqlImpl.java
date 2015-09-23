@@ -42,12 +42,14 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.setup.SetupListener;
+import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, FirewallProvider, AddressProvider,
-        FeatureProvider {
+        SetupListener, FeatureProvider {
 
     @Override
     public void avoidCheckstyleError() {
@@ -93,6 +95,16 @@ public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, Firewa
         List<Address> addresses = Location.toAddresses(SERVER, locations);
         return addresses;
     }
+    
+    @Override
+    public boolean setup(SetupManager manager) {
+        if (manager.isFalse(FEATURE.getId())) {
+            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
+            manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
+            manager.setTrue(FEATURE.getId());
+        }
+        return true;
+    }    
 
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {

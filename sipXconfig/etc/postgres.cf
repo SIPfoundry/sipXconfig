@@ -24,7 +24,7 @@ bundle agent postgres {
       "any" usebundle => postgres_sysctl_running;
     !fedora16_or_greater::
       "any" usebundle => postgres_sysv_running;
-    postgres.change_password::  
+    postgres.psql_change_password::  
       "any" usebundle => postgres_activate_new_password;
 }
 
@@ -169,12 +169,12 @@ bundle agent postgres_sysv_running {
         comment => "start postgres",
         args => "start";
         
-    postgres.change_password::
+    postgres.psql_change_password::
        "$(sipx.SIPX_BINDIR)/postgres_change_pwd"
          comment => "change postgres password ",
          args => '$(sipx.NEW_POSTGRESQL_PASSWORD)';        
 
-    postgres.postgres_running.(restart_postgres|change_password)::
+    postgres.postgres_running.(restart_postgres|psql_change_password)::
       "$(sipx.PG_DAEMON)"
         comment => "restart postgres",
         args => "restart";
@@ -208,12 +208,12 @@ bundle agent postgres_sysctl_running {
         comment => "enable $(service)",
         args => "enable $(service)";
     
-    postgres.change_password::
+    postgres.psql_change_password::
        "$(sipx.SIPX_BINDIR)/postgres_change_pwd"
          comment => "change postgres password",
          args => '$(sipx.NEW_POSTGRESQL_PASSWORD)';
          
-    postgres.postgres_running.(restart_postgres|change_password)::
+    postgres.postgres_running.(restart_postgres|psql_change_password)::
       "$(sipx.systemctl)"
         comment => "restart $(service)",
         args => "restart $(service)";    

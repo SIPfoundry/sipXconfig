@@ -1,0 +1,167 @@
+# Copyright (C) 2015 SIPFoundry., certain elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+
+#
+# Kamailio configuration for working with sipxecs
+#
+
+bundle agent kamailio {
+  methods:
+    kamailio::
+      "any" usebundle => "mysql";
+      "any" usebundle => kamailio_init;
+      "any" usebundle => kamailio_config;
+    any::
+      "any" usebundle => kamailio_sys_running;
+}
+
+bundle agent kamailio_init {
+  vars:
+    any::
+      "runKamailio" string => "/var/run/kamailio/.";
+      "kamctlrc" string => "/etc/kamailio/kamctlrc";
+
+  classes:
+    kamailio::
+      "kamailioDbExists" expression => fileexists("/var/lib/mysql/kamailio");
+
+  files:
+    "$(runKamailio)"
+      perms => kamailio_dir_perms,
+      create => "true";
+
+    "$(kamctlrc)"
+      perms => m("644"),
+      create => "true",
+      edit_line => kamctlrc_config_contents();
+
+  commands:
+    kamailio.!kamailioDbExists::
+      "/usr/sbin/kamdbctl"
+       comment => "create kamailio db",
+       args => "create";
+
+}
+
+bundle agent kamailio_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipXingress-config"
+        comment => "install $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipXingress_config_contents(),
+        classes => if_repaired("kamailio_properties_changed");
+
+      "/etc/kamailio/kamailio.cfg"
+        comment => "install $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => kamailio_config_contents();
+}
+
+bundle edit_line kamctlrc_config_contents() {
+ insert_lines:
+    any::
+      "DBENGINE=MYSQL";
+      "INSTALL_EXTRA_TABLES=yes";
+      "INSTALL_PRESENCE_TABLES=yes";
+      "INSTALL_DBUID_TABLES=yes";
+      "PWSKIP=true";
+
+  delete_lines:
+    any::
+      ".*"; 
+}
+
+bundle edit_line sipXingress_config_contents() {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXingress-config.part"
+        insert_type => "file",
+        expand_scalars => "true";
+      "SIPX_INGRESS_BIND_IP : $(sipx.bind_ip)";
+
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line kamailio_config_contents() {
+ insert_lines:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxingress/kamailio.cfg.template"
+        insert_type => "file",
+        expand_scalars => "true";
+
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/kamailio.cfg.part"
+        insert_type => "file",
+        expand_scalars => "true",
+        location => kamailio_global_param_location;
+
+  delete_lines:
+    any::
+      ".*"; 
+}
+
+body location kamailio_global_param_location {
+  select_line_matching => "^#+\sGlobal\sParameters\s#+";
+  before_after => "after";
+  first_last => "first";
+}
+
+body perms kamailio_dir_perms
+{
+  mode => "0740";
+}
+
+bundle agent kamailio_sys_running 
+{
+  vars:
+    any::
+      "service_command" string => "/usr/sbin/kamailio";
+      "daemon" string => "/etc/init.d/kamailio";
+      "service_user" string => "kamailio";
+
+classes:
+    mysql.mysql_running.restart_mysql::
+      "restart_kamailio" expression => "any";
+    kamailio.kamailio_properties_changed::
+      "restart_kamailio" not => fileexists("$(sipx.SIPX_CONFDIR)/sipXingress-config.cf-before-edit");
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "kamailio_running", "$(service_user)");
+    kamailio::
+      "any" usebundle => rh_chkconfig_status("kamailio on");
+    !kamailio::
+      "any" usebundle => rh_chkconfig_status("kamailio off");
+    kamailio.kamailio_properties_changed.!restart_kamailio::
+      "kamailio_properties_changed" usebundle => refresh_sip_service("SIPX_INGRESS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
+                           "$(sipx.SIPX_CONFDIR)/sipXingress-config",
+                           "$(sipx.SIPX_CONFDIR)/sipXingress-config.cf-before-edit",
+                           "kamailio");
+
+  commands:
+    !kamailio.kamailio_running::
+      "$(daemon)"
+        comment => "stop kamailio",
+        args => "stop";
+
+    kamailio.!kamailio_running::
+      "$(daemon)"
+        comment => "start kamailio",
+        args => "start";
+
+    kamailio.kamailio_running.(restart_kamailio|refresh_kamailio|restart_mysql|mysql_change_password)::
+      "$(daemon)"
+        comment => "restart kamailio",
+        args => "restart";
+}
