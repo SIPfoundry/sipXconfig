@@ -13,9 +13,6 @@
     <condition field="destination_number" expression="^IVR${dollar}">
       <action application='set' data='sip_callee_id_name=IVR'/>
       <action application="socket" data="${location.address}:8084 async full"/>
-#foreach($other in $locations)
-      <action application="redirect" data="sip:IVR@${other.address}:15060;${sip_req_params}"/>
-#end
     </condition>
   </extension>
 #if ($acccode)
