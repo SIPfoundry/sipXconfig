@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.mysql.MySql;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
 
@@ -52,7 +53,9 @@ public class KamailioConfiguration implements ConfigProvider {
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(KamailioManager.FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "kamailio.cfdat", enabled, KamailioManager.FEATURE.getId());
+            ConfigUtils.enableCfengineClass(dir, "kamailio.cfdat", enabled
+                    , MySql.FEATURE.getId()
+                    , KamailioManager.FEATURE.getId());
             
             if (enabled) {
                 String password = settings.getMysqlPassword();

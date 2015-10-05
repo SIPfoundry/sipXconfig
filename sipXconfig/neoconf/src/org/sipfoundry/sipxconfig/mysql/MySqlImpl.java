@@ -42,14 +42,11 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
-import org.sipfoundry.sipxconfig.setup.SetupListener;
-import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
-public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, FirewallProvider, AddressProvider,
-        SetupListener, FeatureProvider {
+public class MySqlImpl implements MySql, ProcessProvider, FirewallProvider, AddressProvider, FeatureProvider {
 
     @Override
     public void avoidCheckstyleError() {
@@ -73,20 +70,6 @@ public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, Firewa
     }
 
     @Override
-    public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(FEATURE)) {
-            return;
-        }
-
-        Set<Location> locations = request.locations(manager);
-        for (Location location : locations) {
-            File dir = manager.getLocationDataDirectory(location);
-            boolean on = manager.getFeatureManager().isFeatureEnabled(FEATURE, location);
-            ConfigUtils.enableCfengineClass(dir, "mysql.cfdat", on, FEATURE.getId());
-        }
-    }
-
-    @Override
     public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(MySql.SERVER)) {
             return null;
@@ -96,16 +79,6 @@ public class MySqlImpl implements MySql, ConfigProvider, ProcessProvider, Firewa
         return addresses;
     }
     
-    @Override
-    public boolean setup(SetupManager manager) {
-        if (manager.isFalse(FEATURE.getId())) {
-            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
-            manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
-            manager.setTrue(FEATURE.getId());
-        }
-        return true;
-    }    
-
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
     }

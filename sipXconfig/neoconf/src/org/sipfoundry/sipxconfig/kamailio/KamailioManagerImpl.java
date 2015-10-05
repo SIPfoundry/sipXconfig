@@ -42,16 +42,14 @@ import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
-import org.sipfoundry.sipxconfig.setup.SetupListener;
-import org.sipfoundry.sipxconfig.setup.SetupManager;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class KamailioManagerImpl implements KamailioManager, FeatureProvider, AddressProvider
-            , ProcessProvider, AlarmProvider, FirewallProvider, DnsProvider
-            , SetupListener {
+            , ProcessProvider, AlarmProvider, FirewallProvider, DnsProvider {
 
     private static final Collection<AddressType> ADDRESS_TYPES = Arrays.asList(new AddressType[] {
             TCP_ADDRESS, UDP_ADDRESS, TLS_ADDRESS
@@ -63,13 +61,17 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
     
     @Override
     public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-        //Add later on for dependency in configuration
+        boolean ingressOn = validator.isEnabledSomewhere(FEATURE);
+        if (validator.isEnabledSomewhere(ProxyManager.FEATURE) != ingressOn) {
+            validator.requiresAtLeastOne(FEATURE, ProxyManager.FEATURE);
+        }
     }
 
     @Override
     public void featureChangePostcommit(FeatureManager manager, FeatureChangeRequest request) {
         if (request.hasChanged(FEATURE)) {
-            m_configManager.configureEverywhere(DnsManager.FEATURE, DialPlanContext.FEATURE);
+            m_configManager.configureEverywhere(ProxyManager.FEATURE
+                    , DnsManager.FEATURE, DialPlanContext.FEATURE);
         }
     }
 
@@ -181,17 +183,7 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
     public void saveSettings(KamailioSettings settings) {
         m_settingsDao.upsert(settings);
     }
-    
-    @Override
-    public boolean setup(SetupManager manager) {
-        if (manager.isFalse(FEATURE.getId())) {
-            Location primary = manager.getConfigManager().getLocationManager().getPrimaryLocation();
-            manager.getFeatureManager().enableLocationFeature(FEATURE, primary, true);
-            manager.setTrue(FEATURE.getId());
-        }
-        return true;
-    }
-    
+        
     public FeatureManager getFeatureManager() {
         return m_featureManager;
     }

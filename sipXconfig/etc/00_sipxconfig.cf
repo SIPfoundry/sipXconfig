@@ -27,7 +27,6 @@ bundle agent 00_sipxconfig {
 
       "any" usebundle => mongodb;
       "any" usebundle => postgres;
-      "any" usebundle => mysql;
       "any" usebundle => sipxcommserverlib;
       "any" usebundle => sipxsupervisor;
 

@@ -4,6 +4,7 @@
 #!define WITH_AUTH
 #!define WITH_USRLOCDB
 #!define WITH_PRESENCE
+#!define WITH_SIPX
 
 #
 # Kamailio (OpenSER) SIP Server v4.3 - default configuration script
@@ -514,9 +515,6 @@ request_route {
 	}
 	t_check_trans();
 
-	# authentication
-	route(AUTH);
-
 	# record routing for dialog forming requests (in case they are routed)
 	# - remove preloaded route headers
 	remove_hf("Route");
@@ -528,16 +526,10 @@ request_route {
 		setflag(FLT_ACC); # do accounting
 	}
 
-	# dispatch requests to foreign domains
-	route(SIPOUT);
-
 	### requests for my local domains
 
 	# handle presence related requests
 	route(PRESENCE);
-
-	# handle registrations
-	route(REGISTRAR);
 
 	if ($rU==$null) {
 		# request with no Username in RURI
@@ -545,11 +537,8 @@ request_route {
 		exit;
 	}
 
-	# dispatch destinations to PSTN
-	route(PSTN);
-
-	# user location service
-	route(LOCATION);
+	# dispatch destinations to SIPX
+	route(SIPX);
 }
 
 # Wrapper for relaying requests
@@ -626,11 +615,7 @@ route[WITHINDLG] {
 	# take the path determined by record-routing
 	if (loose_route()) {
 		route(DLGURI);
-		if (is_method("BYE")) {
-			setflag(FLT_ACC); # do accounting ...
-			setflag(FLT_ACCFAILED); # ... even if the transaction fails
-		}
-		else if ( is_method("ACK") ) {
+		if ( is_method("ACK") ) {
 			# ACK is forwarded statelessy
 			route(NATMANAGE);
 		}
@@ -855,6 +840,17 @@ route[SIPOUT] {
 	append_hf("P-hint: outbound\r\n");
 	route(RELAY);
 	exit;
+}
+
+route[SIPX] {
+#!ifdef WITH_SIPX
+	$ru = "sip:" + $rU + "@" + "ip.$(sipx.domain)";
+
+	route(RELAY);
+	exit;
+#!endif
+
+	return;
 }
 
 # PSTN GW routing

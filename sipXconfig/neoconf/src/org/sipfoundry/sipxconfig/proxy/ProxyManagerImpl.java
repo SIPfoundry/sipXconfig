@@ -47,6 +47,7 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.firewall.DefaultFirewallRule;
 import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
+import org.sipfoundry.sipxconfig.kamailio.KamailioManager;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversal;
 import org.sipfoundry.sipxconfig.registrar.Registrar;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -165,6 +166,12 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         // Do not auto resolve to avoid circular dependency
         if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(Registrar.FEATURE)) {
             InvalidChange requires = InvalidChange.requires(FEATURE, Registrar.FEATURE);
+            requires.setAllowAutoResolve(false);
+            validator.getInvalidChanges().add(requires);
+        }
+        
+        if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(KamailioManager.FEATURE)) {
+            InvalidChange requires = InvalidChange.requires(FEATURE, KamailioManager.FEATURE);
             requires.setAllowAutoResolve(false);
             validator.getInvalidChanges().add(requires);
         }
