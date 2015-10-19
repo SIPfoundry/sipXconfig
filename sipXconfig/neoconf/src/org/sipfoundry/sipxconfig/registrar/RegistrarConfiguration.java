@@ -161,7 +161,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
             file.write("SIP_REDIRECT.900-PRESENCE.REALM", domain.getSipRealm());
             file.write("SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN", domain.getName());
         }
-        file.write("SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY", domain.getName() + ";transport=tcp");
+        file.write("SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY", "ip." + domain.getName() + ";transport=tcp");
 
         // add entries configurable in registrar plugins
         Map<String, RegistrarConfigurationPlugin> beans = m_context.getBeansOfType(RegistrarConfigurationPlugin.class);

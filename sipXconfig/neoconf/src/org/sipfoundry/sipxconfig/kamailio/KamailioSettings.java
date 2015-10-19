@@ -24,6 +24,8 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String SIP_PORT_SETTING = "ingress-configuration/SIPX_INGRESS_TCP_PORT";
     public static final String SIP_UDP_PORT_SETTING = "ingress-configuration/SIPX_INGRESS_UDP_PORT";
     public static final String SIP_SECURE_PORT_SETTING = "ingress-configuration/SIPX_INGRESS_TLS_PORT";
+    public static final String TABLE_DIALOG_VERSION = "ingress-configuration/SIPX_INGRESS_TABLE_DIALOG_VERSION";
+    public static final String TABLE_DIALOG_VARS_VERSION = "ingress-configuration/SIPX_INGRESS_TABLE_DIALOG_VARS_VERSION";
     public static final String MYSQL_PASSWORD = "ingress-configuration/MYSQL_PASSWORD";
 
     public int getSipTcpPort() {
@@ -36,6 +38,14 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
 
     public int getSecureSipPort() {
         return (Integer) getSettingTypedValue(SIP_SECURE_PORT_SETTING);
+    }
+    
+    public int getDialogVersion() {
+        return (Integer) getSettingTypedValue(TABLE_DIALOG_VERSION);
+    }
+    
+    public int getDialogVarsVersion() {
+        return (Integer) getSettingTypedValue(TABLE_DIALOG_VARS_VERSION);
     }
 
     public String getMysqlPassword() {

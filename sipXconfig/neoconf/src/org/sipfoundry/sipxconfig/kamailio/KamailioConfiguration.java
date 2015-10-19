@@ -34,10 +34,27 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.mysql.MySql;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.tls.TlsPeer;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+
+/**
+ * @author ryan
+ *
+ */
 public class KamailioConfiguration implements ConfigProvider {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00";
+    
+    private static final String VERSION_COLLECTION = "version";
+    private static final String FIELD_TABLE_NAME = "table_name";
+    private static final String FIELD_TABLE_VERSION = "table_version";
+    private static final String DIALOG_TABLE_NAME = "dialog";
+    private static final String DIALOG_VARS_TABLE_NAME = "dialog_vars";
+    
+    
     private KamailioManager m_kamailioManager;
+    private MongoTemplate m_template;
     private Map<String, String> m_kamailioLogMap;
 
     @Override
@@ -48,6 +65,9 @@ public class KamailioConfiguration implements ConfigProvider {
         
         KamailioSettings settings = m_kamailioManager.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
+        
+        //Make sure the required mongo kamailio db is initialized properly 
+        ensureVersionTable(settings);
 
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
@@ -131,6 +151,21 @@ public class KamailioConfiguration implements ConfigProvider {
         
         throw new IllegalArgumentException("Unable to translate sipx log level to kamailio log: " + logLevel);
     }
+    
+    private void ensureVersionTable(KamailioSettings settings) {
+        DBCollection collection = m_template.getCollection(VERSION_COLLECTION);
+        collection.findAndModify(new BasicDBObject(FIELD_TABLE_NAME, DIALOG_TABLE_NAME)
+                , null, null, false
+                , new BasicDBObject(FIELD_TABLE_NAME, DIALOG_TABLE_NAME)
+                            .append(FIELD_TABLE_VERSION, settings.getDialogVersion())
+                , true, true);
+        
+        collection.findAndModify(new BasicDBObject(FIELD_TABLE_NAME, DIALOG_VARS_TABLE_NAME)
+                , null, null, false
+                , new BasicDBObject(FIELD_TABLE_NAME, DIALOG_VARS_TABLE_NAME)
+                            .append(FIELD_TABLE_VERSION, settings.getDialogVarsVersion())
+                , true, true);
+    }
 
     public void setKamailioManager(KamailioManager kamailioManager) {
         this.m_kamailioManager = kamailioManager;
@@ -138,6 +173,14 @@ public class KamailioConfiguration implements ConfigProvider {
     
     public void setKamailioLogMap(Map<String, String> kamailioLogMap) {
         this.m_kamailioLogMap = kamailioLogMap;
+    }
+
+    public MongoTemplate getTemplate() {
+        return m_template;
+    }
+
+    public void setTemplate(MongoTemplate template) {
+        this.m_template = template;
     }
 
 }

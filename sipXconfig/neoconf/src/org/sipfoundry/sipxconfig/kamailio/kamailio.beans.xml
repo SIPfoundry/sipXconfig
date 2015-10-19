@@ -30,8 +30,14 @@
     </property>
   </bean>
   
+  <bean id="kamailioDB" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
+    <constructor-arg ref="mongoDbFactory"/>
+    <property name="dbname" value="kamailio"/> 
+  </bean>
+  
   <bean id="kamailioConfiguration" class="org.sipfoundry.sipxconfig.kamailio.KamailioConfiguration">
     <property name="kamailioManager" ref="kamailioManager" />
+    <property name="template" ref="kamailioDB" />
     <property name="kamailioLogMap">
     	<map>
     		<entry key="DEBUG" value="4"/>

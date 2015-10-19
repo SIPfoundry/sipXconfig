@@ -1,10 +1,12 @@
 #!KAMAILIO
 
 #!define WITH_MYSQL
+#!define WITH_MONGODB
 #!define WITH_AUTH
 #!define WITH_USRLOCDB
 #!define WITH_PRESENCE
 #!define WITH_SIPX
+
 
 #
 # Kamailio (OpenSER) SIP Server v4.3 - default configuration script
@@ -127,6 +129,12 @@ import_file "kamailio-local.cfg"
 #!define MULTIDOMAIN 0
 #!endif
 
+#!ifdef WITH_MONGODB
+#!ifndef MONGOURL
+#!define MONGOURL "mongodb://localhost/kamailio"
+#!endif
+#!endif
+
 # - flags
 #   FLT_ - per transaction (message) flags
 #	FLB_ - per branch flags
@@ -213,6 +221,10 @@ mpath="/usr/lib64/kamailio/modules/"
 loadmodule "db_mysql.so"
 #!endif
 
+#!ifdef WITH_MONGODB
+loadmodule "db_mongodb.so"
+#!endif
+
 loadmodule "mi_fifo.so"
 loadmodule "kex.so"
 loadmodule "corex.so"
@@ -285,6 +297,10 @@ loadmodule "debugger.so"
 #!endif
 
 loadmodule "dialog.so"
+
+#!ifdef WITH_SIPX
+loadmodule "path.so"
+#!endif
 
 # ----------------- setting module-specific parameters ---------------
 
@@ -399,7 +415,7 @@ modparam("domain", "register_myself", 1)
 #!ifdef WITH_PRESENCE
 # ----- presence params -----
 modparam("presence", "db_url", DBURL)
-modparam("presence", "server_address", "sip:206.72.192.92:5058" )
+modparam("presence", "server_address", "sip:$(sipx.domain)" )
 modparam("presence", "send_fast_notify", 0)
 modparam("presence", "db_update_period", 20)
 modparam("presence", "clean_period", 40)
@@ -432,7 +448,11 @@ modparam("pua_dialoginfo", "override_lifetime", 124)
 #!endif
 
 # ----- dialog params -----
+#!ifdef WITH_MONGODB
+modparam("dialog", "db_url", MONGOURL)
+#!else
 modparam("dialog", "db_url", DBURL)
+#!endif
 modparam("dialog", "enable_stats", 1)
 modparam("dialog", "db_mode", 1)
 modparam("dialog", "dlg_flag", FLT_DLG)
@@ -479,6 +499,10 @@ modparam("xmlrpc", "url_match", "^/RPC")
 # ----- debugger params -----
 modparam("debugger", "cfgtrace", 1)
 modparam("debugger", "log_level_name", "exec")
+#!endif
+
+#!ifdef WITH_SIPX
+modparam("path", "use_received", 1)
 #!endif
 
 ####### Routing Logic ########
@@ -531,14 +555,9 @@ request_route {
 	# handle presence related requests
 	route(PRESENCE);
 
-	if ($rU==$null) {
-		# request with no Username in RURI
-		sl_send_reply("484","Address Incomplete");
-		exit;
-	}
+	route(REGISTRAR);
 
-	# dispatch destinations to SIPX
-	route(SIPX);
+	route(RELAY);
 }
 
 # Wrapper for relaying requests
@@ -560,6 +579,13 @@ route[RELAY] {
 		setflag(FLT_DLGINFO);
 		dlg_manage();
 	}
+
+#!ifdef WITH_SIPX
+	# dispatch destinations to SIPX
+	if($rd == "$(sipx.domain)") {
+		$du = "sip:ip.$(sipx.domain)";
+	}
+#!endif	
 
 	if (!t_relay()) {
 		sl_reply_error();
@@ -652,6 +678,10 @@ route[WITHINDLG] {
 route[REGISTRAR] {
 	if (!is_method("REGISTER")) return;
 
+#!ifdef WITH_SIPX
+		add_path_received();
+#!endif
+
 	if(isflagset(FLT_NATS)) {
 		setbflag(FLB_NATB);
 #!ifdef WITH_NATSIPPING
@@ -659,9 +689,15 @@ route[REGISTRAR] {
 		setbflag(FLB_NATSIPPING);
 #!endif
 	}
+
+#!ifdef WITH_SIPX
+	//Let kamailio relay register message to SIPX
+	return;
+#!else	
 	if (!save("location"))
 		sl_reply_error();
 	exit;
+#!endif
 }
 
 # User location service
@@ -711,10 +747,11 @@ route[PRESENCE] {
 		return;
 
 	if(is_method("SUBSCRIBE") && $hdr(Event)=="message-summary") {
-		route(TOVOICEMAIL);
-		# returns here if no voicemail server is configured
-		sl_send_reply("404", "No voicemail service");
+#!ifdef WITH_SIPX
+	    route(RELAY);
 		exit;
+#!endif
+		return;
 	}
 
 #!ifdef WITH_PRESENCE
@@ -842,17 +879,6 @@ route[SIPOUT] {
 	exit;
 }
 
-route[SIPX] {
-#!ifdef WITH_SIPX
-	$ru = "sip:" + $rU + "@" + "ip.$(sipx.domain)";
-
-	route(RELAY);
-	exit;
-#!endif
-
-	return;
-}
-
 # PSTN GW routing
 route[PSTN] {
 #!ifdef WITH_PSTN
@@ -975,3 +1001,4 @@ failure_route[MANAGE_FAILURE] {
 	}
 #!endif
 }
+

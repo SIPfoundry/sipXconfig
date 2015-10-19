@@ -116,7 +116,7 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
         config.writeSetting("SIPX_PROXY.210_msftxchghack.", root.getSetting("msftxchghack/USERAGENT"));
         config.write("SIPX_PROXY_HOST_NAME", location.getFqdn());
         int port = settings.getSipTcpPort();
-        String aliases = format("%s:%d %s:%d", location.getAddress(), port, location.getFqdn(), port);
+        String aliases = format("%s:%d %s:%d %s", location.getAddress(), port, location.getFqdn(), port, "ip." + domain.getName());
         config.write("SIPX_PROXY_HOST_ALIASES", aliases);
         config.write("SIPX_PROXY_CALL_STATE_DB", isCdrOn ? "ENABLE" : "DISABLE");
         config.write("SIPX_PROXY_HOSTPORT", location.getAddress() + ':' + port);

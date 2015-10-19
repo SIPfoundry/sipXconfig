@@ -75,6 +75,18 @@
       </type>
       <value>5061</value>
     </setting>
+    <setting name="SIPX_INGRESS_TABLE_DIALOG_VERSION" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="SIPX_INGRESS_TABLE_DIALOG_VARS_VERSION" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>1</value>
+    </setting>
   </group>
   
 </model>
