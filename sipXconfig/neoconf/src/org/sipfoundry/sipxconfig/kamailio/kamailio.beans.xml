@@ -24,7 +24,7 @@
     <property name="configManager" ref="configManager" />
   </bean>
 
-  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+  <bean id="kamailioAlarm" class="org.springframework.context.support.ResourceBundleMessageSource">
     <property name="basename">
       <value>org.sipfoundry.sipxconfig.kamailio.kamailio</value>
     </property>
