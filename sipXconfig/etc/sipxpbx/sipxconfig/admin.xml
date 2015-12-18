@@ -62,9 +62,9 @@
       <type refid="true-false"/>
       <value>true</value>
     </setting>
-    <setting name="hazelcastNotification">
+    <setting name="hazelcastNotification" hidden="yes">
       <type refid="true-false"/>
-      <value>true</value>
+      <value>false</value>
     </setting>
     <setting name="password-policy">
       <type refid="policy-type" />
