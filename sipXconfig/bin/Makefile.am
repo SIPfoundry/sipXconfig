@@ -4,7 +4,7 @@ include $(top_srcdir)/common.am
 
 EXTRA_DIST = \
 	$(bin_SCRIPTS:=.in) \
-	$(initd_SCRIPTS:=.in) \	
+	$(initd_SCRIPTS:=.in) \
 	$(libexec_SCRIPTS:=.in) \
 	mongo-test-data
 

@@ -1,0 +1,398 @@
+#!KAMAILIO
+
+#!define WITH_MYSQL
+#!define WITH_MONGODB
+#!define WITH_PRESENCE
+#!define WITH_SIPX
+
+####### Include Local Config If Exists #########
+
+import_file "kamailio-local.cfg"
+
+####### Defined Values #########
+
+# *** Value defines - IDs used later in config
+#!ifdef WITH_MYSQL
+# - database URL - used to connect to database server by modules such
+#       as: auth_db, acc, usrloc, a.s.o.
+#!ifndef DBURL
+#!define DBURL "mysql://kamailio:kamailiorw@localhost/kamailiopresence"
+#!endif
+#!endif
+
+#!ifdef WITH_MONGODB
+#!ifndef MONGOURL
+#!define MONGOURL "mongodb://localhost/kamailio-presence"
+#!define MONGOSIPX_IMDB_URL "mongodb://localhost/imdb"
+#!endif
+#!endif
+
+# - flags
+#   FLT_ - per transaction (message) flags
+#	FLB_ - per branch flags
+#!define FLT_ACC 1
+#!define FLT_ACCMISSED 2
+#!define FLT_ACCFAILED 3
+#!define FLT_NATS 5
+#!define FLT_DLG 9
+#!define FLT_DLGINFO 10
+
+#!define FLB_NATB 6
+#!define FLB_NATSIPPING 7
+
+####### Global Parameters #########
+
+memdbg=5
+memlog=5
+
+log_facility=LOG_LOCAL0
+
+fork=yes
+children=4
+
+/* add local domain aliases */
+alias="gobitech.inc"
+
+tcp_connection_lifetime=3605
+
+####### Custom Parameters #########
+
+
+
+####### Modules Section ########
+
+# set paths to location of modules (to sources or installation folders)
+#!ifdef WITH_SRCPATH
+mpath="modules/"
+#!else
+mpath="/usr/lib64/kamailio/modules/"
+#!endif
+
+#!ifdef WITH_MYSQL
+loadmodule "db_mysql.so"
+#!endif
+
+#!ifdef WITH_MONGODB
+loadmodule "db_mongodb.so"
+#!endif
+
+loadmodule "mi_fifo.so"
+loadmodule "kex.so"
+loadmodule "corex.so"
+loadmodule "tm.so"
+loadmodule "tmx.so"
+loadmodule "sl.so"
+loadmodule "rr.so"
+loadmodule "pv.so"
+loadmodule "maxfwd.so"
+loadmodule "usrloc.so"
+loadmodule "registrar.so"
+loadmodule "textops.so"
+loadmodule "siputils.so"
+loadmodule "xlog.so"
+loadmodule "sanity.so"
+loadmodule "ctl.so"
+loadmodule "cfg_rpc.so"
+loadmodule "mi_rpc.so"
+loadmodule "acc.so"
+
+#!ifdef WITH_AUTH
+loadmodule "auth.so"
+loadmodule "auth_db.so"
+#!ifdef WITH_IPAUTH
+loadmodule "permissions.so"
+#!endif
+#!endif
+
+#!ifdef WITH_ALIASDB
+loadmodule "alias_db.so"
+#!endif
+
+#!ifdef WITH_SPEEDDIAL
+loadmodule "speeddial.so"
+#!endif
+
+#!ifdef WITH_MULTIDOMAIN
+loadmodule "domain.so"
+#!endif
+
+#!ifdef WITH_PRESENCE
+loadmodule "presence.so"
+loadmodule "presence_xml.so"
+loadmodule "presence_reginfo.so"
+loadmodule "presence_dialoginfo.so"
+loadmodule "pua.so"
+#!endif
+
+#!ifdef WITH_NAT
+loadmodule "nathelper.so"
+loadmodule "rtpproxy.so"
+#!endif
+
+#!ifdef WITH_TLS
+loadmodule "tls.so"
+#!endif
+
+#!ifdef WITH_ANTIFLOOD
+loadmodule "htable.so"
+loadmodule "pike.so"
+#!endif
+
+#!ifdef WITH_XMLRPC
+loadmodule "xmlrpc.so"
+#!endif
+
+#!ifdef WITH_DEBUG
+loadmodule "debugger.so"
+#!endif
+
+loadmodule "dialog.so"
+
+#!ifdef WITH_SIPX
+#!ifdef WITH_MONGODB
+loadmodule "sipx_bla.so"
+#!endif
+loadmodule "path.so"
+#!endif
+
+# ----------------- setting module-specific parameters ---------------
+
+
+# ----- mi_fifo params -----
+modparam("mi_fifo", "fifo_name", "/tmp/kamailio_fifo")
+
+
+# ----- tm params -----
+# auto-discard branches from previous serial forking leg
+modparam("tm", "failure_reply_mode", 3)
+# default retransmission timeout: 30sec
+modparam("tm", "fr_timer", 30000)
+# default invite retransmission timeout after 1xx: 120sec
+modparam("tm", "fr_inv_timer", 120000)
+
+
+# ----- rr params -----
+# set next param to 1 to add value to ;lr param (helps with some UAs)
+modparam("rr", "enable_full_lr", 0)
+# do not append from tag to the RR (no need for this script)
+modparam("rr", "append_fromtag", 0)
+
+
+# ----- registrar params -----
+modparam("registrar", "method_filtering", 1)
+/* uncomment the next line to disable parallel forking via location */
+# modparam("registrar", "append_branches", 0)
+/* uncomment the next line not to allow more than 10 contacts per AOR */
+#modparam("registrar", "max_contacts", 10)
+# max value for expires of registrations
+modparam("registrar", "max_expires", 3600)
+# set it to 1 to enable GRUU
+modparam("registrar", "gruu_enabled", 0)
+
+
+# ----- acc params -----
+/* what special events should be accounted ? */
+modparam("acc", "early_media", 0)
+modparam("acc", "report_ack", 0)
+modparam("acc", "report_cancels", 0)
+/* by default ww do not adjust the direct of the sequential requests.
+   if you enable this parameter, be sure the enable "append_fromtag"
+   in "rr" module */
+modparam("acc", "detect_direction", 0)
+/* account triggers (flags) */
+modparam("acc", "log_flag", FLT_ACC)
+modparam("acc", "log_missed_flag", FLT_ACCMISSED)
+modparam("acc", "log_extra", 
+	"src_user=$fU;src_domain=$fd;src_ip=$si;"
+	"dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
+modparam("acc", "failed_transaction_flag", FLT_ACCFAILED)
+/* enhanced DB accounting */
+#!ifdef WITH_ACCDB
+modparam("acc", "db_flag", FLT_ACC)
+modparam("acc", "db_missed_flag", FLT_ACCMISSED)
+modparam("acc", "db_url", DBURL)
+modparam("acc", "db_extra",
+	"src_user=$fU;src_domain=$fd;src_ip=$si;"
+	"dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
+#!endif
+
+
+# ----- alias_db params -----
+#!ifdef WITH_ALIASDB
+modparam("alias_db", "db_url", DBURL)
+modparam("alias_db", "use_domain", MULTIDOMAIN)
+#!endif
+
+
+# ----- speeddial params -----
+#!ifdef WITH_SPEEDDIAL
+modparam("speeddial", "db_url", DBURL)
+modparam("speeddial", "use_domain", MULTIDOMAIN)
+#!endif
+
+
+# ----- domain params -----
+#!ifdef WITH_MULTIDOMAIN
+modparam("domain", "db_url", DBURL)
+# register callback to match myself condition with domains list
+modparam("domain", "register_myself", 1)
+#!endif
+
+
+#!ifdef WITH_PRESENCE
+# ----- presence params -----
+modparam("presence", "db_url", DBURL)
+modparam("presence", "server_address", "sip:$(sipx.domain)" )
+modparam("presence", "send_fast_notify", 1)
+modparam("presence", "db_update_period", 20)
+modparam("presence", "clean_period", 40)
+modparam("presence", "subs_db_mode", 2)
+modparam("presence", "fetch_rows", 1000)
+
+# ----- presence_xml params -----
+modparam("presence_xml", "db_url", DBURL)
+modparam("presence_xml", "force_active", 1)
+modparam("presence_xml", "disable_bla", 1)
+
+# ----- presence_dialoginfo params -----
+modparam("presence_dialoginfo", "force_single_dialog", 1)
+modparam("presence_dialoginfo", "use_dialog_event_collator", $(sipx.kamailioPresenceEnableSipXPlugin))
+modparam("presence_dialoginfo", "dialog_collator_plugin_path", "$(sipx.SIPX_LIBDIR)")
+modparam("presence_dialoginfo", "dialog_collator_log_file", "$(sipx.SIPX_LOGDIR)/dialog_collator.log")
+modparam("presence_dialoginfo", "dialog_collator_log_level", $(sipx.kamailioPresenceSipXPluginLogLevel))
+
+# ----- pua params -----
+modparam("pua", "db_url", DBURL)
+modparam("pua", "db_mode", 2)
+modparam("pua", "update_period", 60)
+modparam("pua", "dlginfo_increase_version", 0)
+modparam("pua", "reginfo_increase_version", 0)
+modparam("pua", "check_remote_contact", 1)
+modparam("pua", "fetch_rows", 1000)
+
+# ----- sipx_bla params -----
+#!ifdef WITH_SIPX
+#!ifdef WITH_MONGODB
+modparam("sipx_bla", "db_sipx_im_url", MONGOSIPX_IMDB_URL)
+modparam("sipx_bla", "server_address", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort)")
+modparam("sipx_bla", "outbound_proxy", "sip:$(sipx.domain)")
+modparam("sipx_bla", "bla_header_name", "SIPXSender")
+modparam("sipx_bla", "poll_sipx_bla_user", $(sipx.kamailioPresenceEnablePollBlaUser))
+modparam("sipx_bla", "poll_sipx_interval", $(sipx.kamailioPresenceBlaPollInterval))
+#!endif
+#!endif
+
+#!endif
+
+# ----- dialog params -----
+#!ifdef WITH_MONGODB
+modparam("dialog", "db_url", MONGOURL)
+#!else
+modparam("dialog", "db_url", DBURL)
+#!endif
+modparam("dialog", "enable_stats", 1)
+modparam("dialog", "db_mode", 1)
+modparam("dialog", "dlg_flag", FLT_DLG)
+
+#!ifdef WITH_NAT
+# ----- rtpproxy params -----
+modparam("rtpproxy", "rtpproxy_sock", "udp:127.0.0.1:7722")
+
+# ----- nathelper params -----
+modparam("nathelper", "natping_interval", 30)
+modparam("nathelper", "ping_nated_only", 1)
+modparam("nathelper", "sipping_bflag", FLB_NATSIPPING)
+modparam("nathelper", "sipping_from", "sip:pinger@kamailio.org")
+
+# params needed for NAT traversal in other modules
+modparam("nathelper|registrar", "received_avp", "$avp(RECEIVED)")
+modparam("usrloc", "nat_bflag", FLB_NATB)
+#!endif
+
+
+#!ifdef WITH_TLS
+# ----- tls params -----
+modparam("tls", "config", "/usr/local/etc/kamailio/tls.cfg")
+#!endif
+
+#!ifdef WITH_ANTIFLOOD
+# ----- pike params -----
+modparam("pike", "sampling_time_unit", 2)
+modparam("pike", "reqs_density_per_unit", 16)
+modparam("pike", "remove_latency", 4)
+
+# ----- htable params -----
+# ip ban htable with autoexpire after 5 minutes
+modparam("htable", "htable", "ipban=>size=8;autoexpire=300;")
+#!endif
+
+#!ifdef WITH_XMLRPC
+# ----- xmlrpc params -----
+modparam("xmlrpc", "route", "XMLRPC");
+modparam("xmlrpc", "url_match", "^/RPC")
+#!endif
+
+#!ifdef WITH_DEBUG
+# ----- debugger params -----
+modparam("debugger", "cfgtrace", 1)
+modparam("debugger", "log_level_name", "exec")
+#!endif
+
+#!ifdef WITH_SIPX
+modparam("path", "use_received", 1)
+#!endif
+
+####### Routing Logic ########
+
+# Main SIP request routing logic
+# - processing of any incoming SIP request starts with this route
+# - note: this is the same as route { ... }
+request_route {
+	if(!is_method("PUBLISH|SUBSCRIBE|NOTIFY"))
+	{
+		# Handle presence methods only
+		sl_send_reply("404", "Not here");
+		exit;
+	}
+		
+	if(is_method("SUBSCRIBE") && ($hdr(Event)=="message-summary" || $hdr(Event)=="reg")) 
+	{
+		# Kamailio proxy should handle message-summary event routes
+		sl_send_reply("404", "Not here");
+		exit;
+	}
+
+	if (!t_newtran()) 
+	{
+		sl_reply_error();
+		exit;
+	}
+
+	if(is_method("PUBLISH")) 
+	{
+		if($hdr(Sender)!= $null)
+			handle_publish("$hdr(SIPXSender)");
+		else
+			handle_publish();
+		t_release();
+	} else if(is_method("SUBSCRIBE")) 
+	{
+		handle_subscribe();
+		t_release();
+	} else if ( is_method("NOTIFY") ) 
+	{
+        if( $hdr(event)=="reg" && sipx_handle_reginfo_notify()) 
+        {
+           send_reply("202", "Accepted");
+        } else 
+        {
+           send_reply("481", "Transaction does not exist");
+        }
+        t_release();
+    }
+	exit;
+}
+
+
+
+

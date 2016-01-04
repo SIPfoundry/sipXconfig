@@ -23,33 +23,9 @@
     <property name="featureManager" ref="featureManager" />
     <property name="configManager" ref="configManager" />
   </bean>
-
-  <bean id="kamailioAlarm" class="org.springframework.context.support.ResourceBundleMessageSource">
-    <property name="basename">
-      <value>org.sipfoundry.sipxconfig.kamailio.kamailio</value>
-    </property>
-  </bean>
-  
-  <bean id="kamailioDB" class="org.sipfoundry.commons.mongo.MongoSpringTemplate">
-    <constructor-arg ref="mongoDbFactory"/>
-    <property name="dbname" value="kamailio"/> 
-  </bean>
-  
+    
   <bean id="kamailioConfiguration" class="org.sipfoundry.sipxconfig.kamailio.KamailioConfiguration">
     <property name="kamailioManager" ref="kamailioManager" />
-    <property name="template" ref="kamailioDB" />
-    <property name="kamailioLogMap">
-    	<map>
-    		<entry key="DEBUG" value="4"/>
-    		<entry key="INFO" value="3"/>
-    		<entry key="NOTICE" value="2"/>
-    		<entry key="WARNING" value="1"/>
-    		<entry key="ERR" value="-1"/>
-    		<entry key="CRIT" value="-1"/>
-    		<entry key="ALERT" value="-1"/> 
-    		<entry key="EMERG" value="-1"/>
-    	</map>
-    </property>
   </bean>
-
+  
 </beans>

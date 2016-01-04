@@ -1,0 +1,7 @@
+KAMAILIO_LOG_LEVEL : $!{kamailioService.logSetting}
+KAMAILIO_PROXY_TCP_PORT : $!{kamailioService.proxySipTcpPort}
+KAMAILIO_PROXY_UDP_PORT : $!{kamailioService.proxySipUdpPort}
+KAMAILIO_PROXY_TLS_PORT : $!{kamailioService.proxySipTlsPort}
+KAMAILIO_PRESENCE_TCP_PORT : $!{kamailioService.presenceSipTcpPort}
+KAMAILIO_PRESENCE_UDP_PORT : $!{kamailioService.presenceSipUdpPort}
+KAMAILIO_PRESENCE_TLS_PORT : $!{kamailioService.presenceSipTlsPort}

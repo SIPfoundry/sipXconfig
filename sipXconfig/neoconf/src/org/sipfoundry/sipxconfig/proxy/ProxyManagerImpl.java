@@ -171,8 +171,8 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
             validator.getInvalidChanges().add(requires);
         }
         
-        if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(KamailioManager.FEATURE)) {
-            InvalidChange requires = InvalidChange.requires(FEATURE, KamailioManager.FEATURE);
+        if (validator.isEnabledSomewhere(FEATURE) && !validator.isEnabledSomewhere(KamailioManager.FEATURE_PROXY)) {
+            InvalidChange requires = InvalidChange.requires(FEATURE, KamailioManager.FEATURE_PROXY);
             requires.setAllowAutoResolve(false);
             validator.getInvalidChanges().add(requires);
         }

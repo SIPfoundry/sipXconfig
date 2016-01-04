@@ -3,7 +3,7 @@
    <span jwcid="@common/ErrorMsg"/>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
-        settings="ognl:settings.settings.getSetting('ingress-configuration')" />
+        settings="ognl:settings.settings.getSetting('kamailio-configuration')" />
     <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
         listener="listener:apply"/>
   </form>

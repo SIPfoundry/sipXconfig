@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.cfgmgt.LoggerKeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.kamailio.KamailioManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
@@ -45,11 +46,11 @@ public class AdminConfig implements ConfigProvider {
         Set<Location> locations = request.locations(manager);
         AdminSettings settings = m_adminContext.getSettings();
         Setting adminSettings = settings.getSettings().getSetting(m_adminSettingsKey);
-        String password = settings.getPostgresPassword();
 
         for (Location l : locations) {
             File dir = manager.getLocationDataDirectory(l);
             if (l.isPrimary() || manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, l)) {
+                String password = settings.getPostgresPassword();
                 Writer pwd = new FileWriter(new File(dir, "postgres-pwd.properties"));
                 Writer pwdCfdat = new FileWriter(new File(dir, "postgres-pwd.cfdat"));
                 try {
@@ -62,6 +63,23 @@ public class AdminConfig implements ConfigProvider {
                     IOUtils.closeQuietly(pwdCfdat);
                 }
             }
+            
+            if (l.isPrimary() || manager.getFeatureManager().isFeatureEnabled(KamailioManager.FEATURE_PROXY, l)
+                    || manager.getFeatureManager().isFeatureEnabled(KamailioManager.FEATURE_PRESENCE, l)) {
+                String password = settings.getMysqlPassword();
+                Writer pwd = new FileWriter(new File(dir, "mysql-pwd.properties"));
+                Writer pwdCfdat = new FileWriter(new File(dir, "mysql-pwd.cfdat"));
+                try {
+                    KeyValueConfiguration cfg = KeyValueConfiguration.equalsSeparated(pwd);
+                    CfengineModuleConfiguration cfgCfdat = new CfengineModuleConfiguration(pwdCfdat);
+                    cfg.write("password", password);
+                    cfgCfdat.write("NEW_MYSQL_PASSWORD", password);
+                } finally {
+                    IOUtils.closeQuietly(pwd);
+                    IOUtils.closeQuietly(pwdCfdat);
+                }
+            }
+            
             if (!l.isPrimary()) {
                 continue;
             }

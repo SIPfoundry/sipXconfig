@@ -11,19 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.site.kamailio;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.kamailio.KamailioManager;
 import org.sipfoundry.sipxconfig.kamailio.KamailioSettings;
 
-public abstract class EditKamailio extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "kamailio/EditKamailio";
+public abstract class EditPresenceKamailio extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "kamailio/EditPresenceKamailio";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -43,13 +41,6 @@ public abstract class EditKamailio extends PageWithCallback implements PageBegin
     }
 
     public void apply() {
-        String password = getSettings().getMysqlPassword();
-        if (StringUtils.contains(password, '%') || StringUtils.contains(password, '\'') || StringUtils.contains(password, '/')
-            || StringUtils.contains(password, '\\') || StringUtils.contains(password, '`') 
-            || StringUtils.contains(password, ':') || StringUtils.contains(password, '\"') || StringUtils.contains(password, ' ')) {
-            throw new UserException(getMessages().getMessage("error.invalid.password"));
-        }
-        
         getKamailioManager().saveSettings(getSettings());
     }
 }

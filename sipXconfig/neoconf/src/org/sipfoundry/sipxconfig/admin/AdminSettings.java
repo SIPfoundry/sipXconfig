@@ -46,6 +46,7 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String CORS_DOMAIN_SETTING = "configserver-config/corsDomains";
     private static final String NEW_LDAP_USERS_GROUP_PREFIX = "ldap-management/newUserGroupPrefix";
     private static final String POSTGRES_PASSWORD = "configserver-config/postgres-pwd";
+    private static final String MYSQL_PASSWORD = "configserver-config/mysql-pwd";
 
     private PasswordPolicy m_passwordPolicy;
     private String[] m_logLevelKeys;
@@ -77,6 +78,10 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public String getPostgresPassword() {
         return getSettingValue(POSTGRES_PASSWORD);
+    }
+    
+    public String getMysqlPassword() {
+        return getSettingValue(MYSQL_PASSWORD);
     }
 
     public String getDefaultVmPin() {
