@@ -71,18 +71,30 @@ bundle agent kamailio_config {
         perms => m("644"),
         edit_line => kamailio_default_contents();
 
-      "/etc/rsyslog.d/kamailio-log.conf"
-        comment => "Configure kamailio log",
+      "/etc/rsyslog.d/kamailio-proxy-log.conf"
+        comment => "Configure kamailio proxy log",
         perms => mog("0600","root","root"),
         create => "true",
-        edit_line => kamailio_log_contents,
+        edit_line => kamailio_proxy_log_contents,
         classes => if_repaired("restart_kamailio_log");
+
+      "/etc/rsyslog.d/kamailio-presence-log.conf"
+        comment => "Configure kamailio presence log",
+        perms => mog("0600","root","root"),
+        create => "true",
+        edit_line => kamailio_presence_log_contents,
+        classes => if_repaired("restart_kamailio_log");  
 
   commands:
     restart_kamailio_log.!fedora16_or_greater::
        "/etc/init.d/rsyslog"
-        comment => "firewall - restart rsyslog",
-        args => "restart";      
+        comment => "kamailio - restart rsyslog",
+        args => "restart";
+
+    restart_kamailio_log.fedora16_or_greater::
+       "$(sipx.systemctl)"
+        comment => "kamailio - restart rsyslog",
+        args => "restart rsyslogd.service";
 }
 
 bundle edit_line kamailio_default_contents() {
@@ -97,10 +109,18 @@ bundle edit_line kamailio_default_contents() {
       ".*"; 
 }
 
-bundle edit_line kamailio_log_contents {
+bundle edit_line kamailio_proxy_log_contents {
   insert_lines:
-    "if $syslogfacility-text == 'local0' and $msg contains 'kamailio' then /var/log/somelog.log -$(sipx.SIPX_LOGDIR)/kamailio.log";
-    "& ~";
+    "local1.*                                                -$(sipx.SIPX_LOGDIR)/kamailio-proxy.log";
+
+  delete_lines:
+    any::
+      ".*";    
+}
+
+bundle edit_line kamailio_presence_log_contents {
+  insert_lines:
+    "local2.*                                                -$(sipx.SIPX_LOGDIR)/kamailio-presence.log";
 
   delete_lines:
     any::

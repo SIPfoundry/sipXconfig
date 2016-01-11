@@ -53,7 +53,7 @@ import_file "kamailio-local.cfg"
 memdbg=5
 memlog=5
 
-log_facility=LOG_LOCAL0
+log_facility=LOG_LOCAL1
 
 fork=yes
 children=4
@@ -601,15 +601,17 @@ route[PRESENCE]
 		return;
 	}
 
-	if(is_method("NOTIFY") ) {
-        if( $hdr(event)=="dialog;sla" && sipx_handle_bla_notify() ) {
-           send_reply("200", "OK");
-        } else {
-           send_reply("481", "Transaction does not exist");
-        }
-        t_release();
-        exit;
-    }
+	if(is_method("PUBLISH|SUBSCRIBE|NOTIFY")) {
+		#route to presence manager for subscribe or publish
+		if($rd == "$(sipx.domain)") 
+		{
+			$du = "sip:pm.$(sipx.domain)";
+			t_relay();
+		} else {
+			route(RELAY);
+		}
+		exit;
+	}
 	
 	sl_send_reply("404", "Not here");
 	exit;

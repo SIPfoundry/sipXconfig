@@ -45,7 +45,7 @@ import_file "kamailio-local.cfg"
 memdbg=5
 memlog=5
 
-log_facility=LOG_LOCAL0
+log_facility=LOG_LOCAL2
 
 fork=yes
 children=4
@@ -242,7 +242,7 @@ modparam("domain", "register_myself", 1)
 #!ifdef WITH_PRESENCE
 # ----- presence params -----
 modparam("presence", "db_url", DBURL)
-modparam("presence", "server_address", "sip:$(sipx.domain)" )
+modparam("presence", "server_address", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort)" )
 modparam("presence", "send_fast_notify", 1)
 modparam("presence", "db_update_period", 20)
 modparam("presence", "clean_period", 40)
@@ -384,6 +384,9 @@ request_route {
         if( $hdr(event)=="reg" && sipx_handle_reginfo_notify()) 
         {
            send_reply("202", "Accepted");
+        } else if( $hdr(event)=="dialog;sla" && sipx_handle_bla_notify() ) 
+        {
+           send_reply("200", "OK");
         } else 
         {
            send_reply("481", "Transaction does not exist");
