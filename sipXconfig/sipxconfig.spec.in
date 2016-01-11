@@ -263,6 +263,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/ftp/*
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
+%config(noreplace) %{sipxpbxconf}/kamailio/*
 %config(noreplace) %{sipxpbxconf}/mailbox/*
 %config(noreplace) %{sipxpbxconf}/moh/*
 %config(noreplace) %{sipxpbxconf}/mongo/*
@@ -279,7 +280,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
 %config(noreplace) %{sipxpbxconf}/sipxdns/*
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
-%config(noreplace) %{sipxpbxconf}/sipxingress/*
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
 %config(noreplace) %{sipxpbxconf}/sipxlogwatcher/*
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
