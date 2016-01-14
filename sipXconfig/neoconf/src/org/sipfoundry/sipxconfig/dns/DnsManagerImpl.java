@@ -365,7 +365,7 @@ public class DnsManagerImpl implements DnsManager, AddressProvider, FeatureProvi
     @Override
     public Collection<ResourceRecords> getResourceRecords() {
         List<ResourceRecords> rrs = new ArrayList<ResourceRecords>();
-        for (DnsProvider provider : m_providers) {
+        for (DnsProvider provider : getProviders()) {
             Collection<ResourceRecords> resRecords = provider.getResourceRecords(this);
             if (resRecords != null) {
                 rrs.addAll(provider.getResourceRecords(this));
