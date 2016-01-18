@@ -77,7 +77,6 @@ Requires: freeswitch-endpoint-rtmp
 Requires: freeswitch-endpoint-skinny
 Requires: freeswitch-endpoint-skypopen
 Requires: freeswitch-event-cdr-sqlite
-Requires: freeswitch-event-erlang-event
 Requires: freeswitch-event-json-cdr
 Requires: freeswitch-event-multicast
 Requires: freeswitch-event-rayo
@@ -123,6 +122,17 @@ sipXecs is an IP PBX with integrated voice mail, ACD, multiple auto attendents, 
 %setup -q
 # suse and obs build system
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
+
+%pre
+# NOTE: Duplicate copy of user/group add in sipXcommons
+if ! /usr/bin/id -g sipx >/dev/null 2>&1; then
+  /usr/sbin/groupadd -r sipx
+fi
+
+if ! /usr/bin/id sipx >/dev/null 2>&1; then
+  # hack: use "-s /bin/bash", some scripts need to be fixed to not require that
+  /usr/sbin/useradd -M -r -g sipx -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipx sipx 2>&1
+fi
 
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
