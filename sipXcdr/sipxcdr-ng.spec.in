@@ -9,16 +9,17 @@ Vendor:   SIPFoundry
 Packager: SIPFoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 BuildRequires: rubygems
 BuildRequires: ruby
 # not really, but accomdates a persnickety autoconf macro
 BuildRequires: unixODBC-devel
-BuildRequires: sipxcommons >= %version
+BuildRequires: sipxcommons-ng >= %version
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= %version
+Requires: sipxcommserverlib-ng >= %version
 Requires: %name >= %version
 Requires: chkconfig
 Requires: postgresql-odbc

@@ -12,6 +12,7 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 BuildRequires: java-1.7.0-openjdk-devel
 
@@ -38,8 +39,8 @@ BuildRequires: net-snmp-devel >= 5.7.1
 BuildRequires: net-snmp-agent-libs >= 5.7.1
 BuildRequires: pcre-devel
 
-BuildRequires: sipxcommons >= %version
-BuildRequires: sipxcdr-client >= %version
+BuildRequires: sipxcommons-ng >= %version
+BuildRequires: sipxcdr-ng-client >= %version
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
@@ -75,11 +76,11 @@ Requires: net-snmp-sysvinit >= 5.7.1
 Requires: net-snmp-utils >= 5.7.1
 Requires: net-snmp-python
 
-Requires: sipxcommons >= %version
-Requires: sipxtacklib >= %version
-Requires: sipxcommserverlib >= %version
-Requires: sipxcdr-client >= %version
-Requires: sipxsupervisor >= %version
+Requires: sipxcommons-ng >= %version
+Requires: sipxtacklib-ng >= %version
+Requires: sipxcommserverlib-ng >= %version
+Requires: sipxcdr-ng-client >= %version
+Requires: sipxsupervisor-ng >= %version
 Requires: chkconfig
 
 Requires: ruby
@@ -87,7 +88,7 @@ Requires: rubygems
 Requires: freeswitch >= 1.0.7
 
 # Dependency for kamailio integration
-Requires: sipxkamailio >= %version
+Requires: sipxkamailio-ng >= %version
 Requires: kamailio >= 4.3
 Requires: kamailio-mongodb >= 4.3
 Requires: kamailio-mysql >= 4.3

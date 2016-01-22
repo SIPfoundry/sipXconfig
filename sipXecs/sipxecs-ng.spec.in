@@ -13,6 +13,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 
 Requires: freeswitch >= 1.0.7
@@ -77,7 +78,6 @@ Requires: freeswitch-endpoint-rtmp
 Requires: freeswitch-endpoint-skinny
 Requires: freeswitch-endpoint-skypopen
 Requires: freeswitch-event-cdr-sqlite
-Requires: freeswitch-event-erlang-event
 Requires: freeswitch-event-json-cdr
 Requires: freeswitch-event-multicast
 Requires: freeswitch-event-rayo
@@ -91,23 +91,27 @@ Requires: freeswitch-format-tone-stream
 Requires: freeswitch-timer-posix
 Requires: freeswitch-xml-cdr
 Requires: freeswitch-xml-curl
-Requires: sipxacccode >= %version
-Requires: sipxcallcontroller >= %version
-Requires: sipxcdr >= %version
-Requires: sipxcdrlog >= %version
-Requires: sipxconfig >= %version
-Requires: sipxconfig-ftp >= %version
-Requires: sipxconfig-tftp >= %version
-Requires: sipxivr >= %version
-Requires: sipxpolycom >= %version
-Requires: sipxprovision >= %version
-Requires: sipxproxy >= %version
-Requires: sipxpublisher >= %version
-Requires: sipxrecording >= %version
-Requires: sipxregistry >= %version
-Requires: sipxrelease >= %version
-Requires: sipxrest >= %version
-Requires: sipxsupervisor >= %version
+Requires: sipxacccode-ng >= %version
+Requires: sipxcallcontroller-ng >= %version
+Requires: sipxcdr-ng >= %version
+Requires: sipxcdrlog-ng >= %version
+Requires: sipxconfig-ng >= %version
+Requires: sipxconfig-ng-ftp >= %version
+Requires: sipxconfig-ng-tftp >= %version
+Requires: sipxivr-ng >= %version
+Requires: sipxaudiocodes-ng >= %version
+Requires: sipxcounterpath-ng >= %version
+Requires: sipxgrandstream-ng >= %version
+Requires: sipxpolycom-ng >= %version
+Requires: sipxyealink-ng >= %version
+Requires: sipxprovision-ng >= %version
+Requires: sipxproxy-ng >= %version
+Requires: sipxpublisher-ng >= %version
+Requires: sipxrecording-ng >= %version
+Requires: sipxregistry-ng >= %version
+Requires: sipxrelease-ng >= %version
+Requires: sipxrest-ng >= %version
+Requires: sipxsupervisor-ng >= %version
 
 Obsoletes: %{name}-doc
 

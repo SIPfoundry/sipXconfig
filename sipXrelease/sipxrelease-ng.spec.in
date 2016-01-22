@@ -11,6 +11,8 @@ Group: Telcommunications
 Vendor: SIPfoundry
 Packager: Douglas Hubler <dhubler@ezuce.com>
 Url: http://www.sipfoundry.org
+
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 
 Source: %name-%version.tar.gz

@@ -10,6 +10,7 @@ Vendor:   Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 
 Source:   %name-%version.tar.gz

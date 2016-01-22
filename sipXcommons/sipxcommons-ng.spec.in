@@ -10,6 +10,8 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXcommons
+
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 %if %{_vendor} == suse
 BuildRequires: java-1_6_0-sun-devel
 %else

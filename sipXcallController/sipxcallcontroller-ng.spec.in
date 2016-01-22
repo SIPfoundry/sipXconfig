@@ -9,16 +9,17 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXcallController
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: zip
-BuildRequires: sipxcommons >= %version
-BuildRequires: sipxrest >= %version
+BuildRequires: sipxcommons-ng >= %version
+BuildRequires: sipxrest-ng >= %version
 
 Source: %name-%version.tar.gz
 
-Requires: sipxrest >= %version
-Requires: sipxcommons >= %version
+Requires: sipxrest-ng >= %version
+Requires: sipxcommons-ng >= %version
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6

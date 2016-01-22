@@ -9,16 +9,17 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
+Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: zip
-BuildRequires: sipxcommons >= %version
+BuildRequires: sipxcommons-ng >= %version
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommons >= %version
+Requires: sipxcommons-ng >= %version
 Requires: chkconfig
-BuildRequires: sipxconfig >= %version
+BuildRequires: sipxconfig-ng >= %version
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
