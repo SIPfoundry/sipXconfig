@@ -40,6 +40,19 @@ bundle agent 00_ssh {
         create => "true",
         perms => mog("600", "root", "root"),
         edit_line => authorized_sipx_commands;
+
+      "/etc/ssh/sshd_config"
+        create => "false",
+        perms => mog("600", "root", "root"),
+        edit_line => permit_root_login,
+        classes => if_repaired("restart_sshd");   
+
+  commands:
+    primary.restart_sshd::
+      "/etc/init.d/sshd"
+        comment => "restart sshd",
+        args => "restart";
+
 }
 
 bundle edit_line authorized_sipx_commands {
@@ -52,6 +65,14 @@ bundle edit_line authorized_sipx_commands {
 
   insert_lines:
     "from=\"$(sipx.master_address)\",command=\"$(sipx.SIPX_LIBEXECDIR)/sipx-allow-command ${SSH_ORIGINAL_COMMAND}\" $(key) sipx@primary";
+}
+
+bundle edit_line permit_root_login {
+  delete_lines:
+    "^#?PermitRootLogin\s*(no|yes)";
+
+  insert_lines:
+    "PermitRootLogin yes";
 }
 
 bundle agent ssh_priv {

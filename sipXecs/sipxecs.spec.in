@@ -13,7 +13,6 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
-Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
 
 Requires: freeswitch >= 1.0.7
