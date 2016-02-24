@@ -1,0 +1,101 @@
+#!@BASH@
+# oss_core - Startup script for oss_core
+
+# Copyright (C) 2016 SIPfoundry., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+. /etc/rc.d/init.d/functions || exit $ENOENT
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || { echo_failure; echo; exit $ENOENT; }
+
+prog=oss_core
+exec="@SIPX_BINDIR@/${prog}"
+config="@SIPX_CONFDIR@/sbc_config.cfg"
+pidfile="@SIPX_RUNDIR@/sbc_core.pid"
+
+[ -e @SIPX_CONFDIR@/sysconfig/$prog ] && . @SIPX_CONFDIR@/sysconfig/$prog
+
+start() {
+  [ -x $exec ] || { echo -n "$execError"; echo_failure; echo; exit $ENOEXEC; }
+  [ -f $config ] || { echo -n "$invalidFileError"; echo_failure; echo; exit $ENOENT; }
+ if [ -n "${NoFork}" ] ; then
+    killAnyOrphans @SIPXPBXUSER@ $exec
+    runuser - @SIPXPBXUSER@ -c $exec
+  else
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; } 
+      
+    echo -n $"Starting $prog: "
+    $exec -D -C $config --pid-file $pidfile
+    Status=$?
+
+    if [ $# -gt 0 ]; then
+      #check if process spawned
+      checkRunningInstanceTimeout @SIPXPBXUSER@ $exec
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
+      checkIfListening $prog
+      Status=$?
+      [ $Status -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
+      [ $Status -eq 0 ] && { echo_success; echo; }
+    else
+      [ $Status -eq 0 ] && { echo_success; echo; }
+      [ $Status -eq 0 ] || { echo_failure; echo; }
+    fi
+  fi
+}
+
+stop() {
+  echo -n $"Stopping $prog: "
+  # can take a while to shutdown because of relay
+  # dont wait too long as service availability is in jeopardy
+  killproc -d 10 "${exec}"
+  Status=$?
+  echo
+  [ $Status -eq 0 ] && rm -f "${pidfile}"
+  killAnyOrphans @SIPXPBXUSER@ $exec
+}
+
+restart() {
+  stop
+  start $withCheck
+}
+
+asyncrestart() {
+  stop
+  start
+}
+
+case "$1" in
+  nofork)
+    NoFork=1
+    start
+    ;;
+  start)
+    start $withCheck
+    ;;
+  stop)
+    stop
+    ;;
+  restart|reload|force-reload)
+    restart
+    ;;
+  asyncrestart)
+    asyncrestart
+    ;;
+  condrestart)
+    checkRunningInstance @SIPXPBXUSER@ $exec > /dev/null
+    Status=$?
+    [ $Status -eq 0 ] && restart || :
+    ;;
+  status)
+    checkRunningInstance @SIPXPBXUSER@ $exec $prog
+    Status=$?
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|status|restart|asyncrestart|reload|force-reload|condrestart|nofork}"
+    Status=$EINCORRECTUSAGE
+esac
+
+exit $Status

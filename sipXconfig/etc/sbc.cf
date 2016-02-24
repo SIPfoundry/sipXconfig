@@ -1,0 +1,78 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# FreeSWITCH configuration and process management
+#
+bundle agent sbc {
+  methods:
+    sbc::
+      "any" usebundle => "sbc_config";
+    any::
+      "any" usebundle => "sbc_running";
+}
+
+bundle agent sbc_config {
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sbc_config.cfg"
+        comment => "install $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sbc_config_contents(),
+        classes => if_repaired("sbc_properties_changed");
+}
+
+bundle edit_line sbc_config_contents() {
+ insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sbc_config.cfg.part"
+        insert_type => "file",
+        expand_scalars => "true";
+
+  delete_lines:
+    any::
+      ".*"; 
+}
+
+bundle agent sbc_running 
+{
+  vars:
+    any::
+      "service_command" string => "/usr/bin/oss_core";
+      "daemon" string => "$(sipx.SIPX_SERVICEDIR)/oss_core";
+      "service_user" string => "sipx";
+  classes:
+    sbc.sbc_properties_changed::
+      "restart_sbc" not => fileexists("$(sipx.SIPX_CONFDIR)/sbc-config.cf-before-edit");      
+
+  methods:
+    any::
+      "any" usebundle => find_service_by_command("$(service_command)", "sbc_running", "$(service_user)");
+
+  commands:
+    !sbc.sbc_running::
+      "$(daemon)"
+        comment => "stop oss_core",
+        args => "stop";
+
+    sbc.!sbc_running::
+      "$(daemon)"
+        comment => "start oss_core",
+        args => "start";
+
+    sbc.sbc_running.restart_sbc::
+      "$(daemon)"
+        comment => "restart oss_core",
+        args => "restart";
+}

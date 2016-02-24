@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+     <enum>
+      <option><value>0</value></option>
+      <option><value>1</value></option>
+      <option><value>2</value></option>
+      <option><value>3</value></option>
+      <option><value>4</value></option>
+      <option><value>5</value></option>
+      <option><value>6</value></option>
+      <option><value>7</value></option>
+    </enum>
+  </type>
+  <type id="transport">
+     <enum>
+      <option><value>TCP</value></option>
+      <option><value>UDP</value></option>
+      <option><value>TLS</value></option>
+    </enum>
+  </type>
+  <group name="oss-configuration">
+    <setting name="LOG_LEVEL">
+      <type refid="loglevel" />
+      <value>1</value>
+    </setting>
+    <setting name="PUBLIC_TCP_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5062</value>
+    </setting>
+    <setting name="PUBLIC_UDP_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5062</value>
+    </setting>
+	<setting name="PUBLIC_TLS_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5063</value>
+    </setting>
+    <setting name="PUBLIC_WS_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5064</value>
+    </setting>
+    <setting name="INTERNAL_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5050</value>
+    </setting>
+    <setting name="INTERNAL_TRANSPORT" hidden="yes">
+      <type refid="transport" />
+      <value>TCP</value>
+    </setting>
+    <setting name="ADVERTISE_IP">
+      <type>
+      	<string/>
+      </type>
+    </setting>
+  </group>
+</model>

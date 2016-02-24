@@ -102,11 +102,11 @@ public class ProxyManagerImpl implements ProxyManager, FeatureProvider, AddressP
         for (Location location : locations) {
             Address address = null;
             if (type.equals(TCP_ADDRESS)) {
-                address = new Address(TCP_ADDRESS, location.getAddress(), 5062);
+                address = new Address(TCP_ADDRESS, location.getAddress(), 5066);
             } else if (type.equals(UDP_ADDRESS)) {
-                address = new Address(UDP_ADDRESS, location.getAddress(), 5062);
+                address = new Address(UDP_ADDRESS, location.getAddress(), 5066);
             } else if (type.equals(TLS_ADDRESS)) {
-                address = new Address(TCP_ADDRESS, location.getAddress(), 5063);
+                address = new Address(TCP_ADDRESS, location.getAddress(), 5067);
             }
             addresses.add(address);
         }

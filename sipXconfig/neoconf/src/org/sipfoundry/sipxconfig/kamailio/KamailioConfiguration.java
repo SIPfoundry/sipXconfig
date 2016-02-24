@@ -71,21 +71,15 @@ public class KamailioConfiguration implements ConfigProvider {
         config.writeClass(KamailioManager.FEATURE_PROXY.getId(), proxy);
         config.writeClass(KamailioManager.FEATURE_PRESENCE.getId(), presence);
         
-        if(presence) {
-            config.write("kamailioPresenceBindIp", location.getAddress());
-            config.write("kamailioPresenceBindPort", settings.getPresenceSipTcpPort());
-            config.write("kamailioPresenceBlaPollInterval", settings.getBLAUserPollInterval());
-            config.write("kamailioPresenceEnableSipXPlugin", settings.isEnableBLFSipXPlugin() ? 1 : 0);
-            config.write("kamailioPresenceEnablePollBlaUser", settings.isEnablePollBLAUser() ? 1 : 0);
-            config.write("kamailioPresenceSipXPluginLogLevel", settings.getBLFSipXPluginLogSetting());
-        } else {
-            config.write("kamailioPresenceBindIp", "");
-            config.write("kamailioPresenceBindPort", "");
-            config.write("kamailioPresenceBlaPollInterval", 60);
-            config.write("kamailioPresenceEnableSipXPlugin", 0);
-            config.write("kamailioPresenceEnablePollBlaUser", 0);
-            config.write("kamailioPresenceSipXPluginLogLevel", 0);
-        }
+        config.write("kamailioPresenceBindIp", location.getAddress());
+        config.write("kamailioPresenceBindPort", settings.getPresenceSipTcpPort());
+        config.write("kamailioPresenceBlaPollInterval", settings.getBLAUserPollInterval());
+        config.write("kamailioPresenceEnableSipXPlugin", settings.isEnableBLFSipXPlugin() ? 1 : 0);
+        config.write("kamailioPresenceEnablePollBlaUser", settings.isEnablePollBLAUser() ? 1 : 0);
+        config.write("kamailioPresenceSipXPluginLogLevel", settings.getBLFSipXPluginLogSetting());
+        
+        config.write("kamailioProxyBindIp", location.getAddress());
+        config.write("kamailioProxyBindPort", settings.getProxySipTcpPort());
 
         config.writeClass(MySql.FEATURE.getId(), proxy || presence);
     }

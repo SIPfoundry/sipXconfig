@@ -339,7 +339,7 @@ bundle agent kamailiopresence_running
     kamailiopresence.mysql.mysql_running.restart_mysql::
       "restart_kamailiopresence" expression => "any";
     kamailiopresence.kamailiopresence_properties_changed::
-      "restart_kamailiopresence" not => fileexists("$(sipx.SIPX_CONFDIR)/sipXpresence-config.cf-before-edit");
+      "restart_kamailiopresence" not => fileexists("$(sipx.SIPX_CONFDIR)/kamailio-presence-config.cf-before-edit");
 
   methods:
     kamailiopresence::

@@ -51,7 +51,7 @@ fork=yes
 children=4
 
 /* add local domain aliases */
-alias="gobitech.inc"
+alias="$(sipx.domain)"
 
 tcp_connection_lifetime=3605
 
@@ -275,7 +275,7 @@ modparam("pua", "fetch_rows", 1000)
 #!ifdef WITH_MONGODB
 modparam("sipx_bla", "db_sipx_im_url", MONGOSIPX_IMDB_URL)
 modparam("sipx_bla", "server_address", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort)")
-modparam("sipx_bla", "outbound_proxy", "sip:$(sipx.domain)")
+modparam("sipx_bla", "outbound_proxy", "sip:$(sipx.kamailioProxyBindIp):$(sipx.kamailioProxyBindPort)")
 modparam("sipx_bla", "bla_header_name", "SIPXSender")
 modparam("sipx_bla", "poll_sipx_bla_user", $(sipx.kamailioPresenceEnablePollBlaUser))
 modparam("sipx_bla", "poll_sipx_interval", $(sipx.kamailioPresenceBlaPollInterval))

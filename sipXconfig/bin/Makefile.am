@@ -17,7 +17,8 @@ initd_SCRIPTS = \
 	mongo-local-arbiter \
 	mongodb-sync \
 	kamailio-proxy \
-	kamailio-presence
+	kamailio-presence \
+	oss_core
 
 bin_SCRIPTS = \
 	sipxconfig-archive \

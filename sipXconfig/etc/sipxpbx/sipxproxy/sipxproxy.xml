@@ -68,19 +68,19 @@
       <type>
         <integer />
       </type>
-      <value>5062</value>
+      <value>5066</value>
     </setting>
     <setting name="SIPX_PROXY_UDP_PORT" hidden="yes">
       <type>
         <integer />
       </type>
-      <value>5062</value>
+      <value>5066</value>
     </setting>
     <setting name="SIPX_PROXY_TLS_PORT" hidden="yes">
       <type>
         <integer />
       </type>
-      <value>5063</value>
+      <value>5067</value>
     </setting>
     <setting name="SIPX_PROXY_AUTHENTICATE_ALGORITHM" advanced="yes">
       <type><string/></type>      

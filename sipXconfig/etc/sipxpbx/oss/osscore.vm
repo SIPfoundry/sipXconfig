@@ -1,0 +1,8 @@
+OSS_LOGLEVEL : $!{ossService.logSetting}
+OSS_PUBLIC_TCP_PORT : $!{ossService.publicSipTcpPort}
+OSS_PUBLIC_UDP_PORT : $!{ossService.publicSipUdpPort}
+OSS_PUBLIC_TLS_PORT : $!{ossService.publicSipTlsPort}
+OSS_PUBLIC_WS_PORT : $!{ossService.publicSipWSPort}
+OSS_INTERNAL_PORT : $!{ossService.internalPort}
+OSS_INTERNAL_TRANSPORT : $!{ossService.internalTransPort}
+OSS_ADVERTISE_IP : $!{ossService.advertiseIp}

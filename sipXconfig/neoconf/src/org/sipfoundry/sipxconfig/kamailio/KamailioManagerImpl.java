@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule.SystemId;
 import org.sipfoundry.sipxconfig.mysql.MySql;
+import org.sipfoundry.sipxconfig.oss.OSSCoreManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.redis.Redis;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
@@ -67,12 +68,14 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
         if (ingressOn && !validator.isEnabledSomewhere(ProxyManager.FEATURE)) {
             validator.requiresAtLeastOne(FEATURE_PROXY, ProxyManager.FEATURE);
         }
+        
         if (ingressOn && !presenceOn) {
             InvalidChange requires = InvalidChange.requires(FEATURE_PROXY, FEATURE_PRESENCE);
             requires.setAllowAutoResolve(false);
             validator.getInvalidChanges().add(requires);
         }
         validator.requiredOnSameHost(FEATURE_PROXY, MySql.FEATURE);
+        validator.requiredOnSameHost(FEATURE_PROXY, OSSCoreManager.FEATURE);
                 
         /* Presence Feature Precommit */
         validator.singleLocationOnly(FEATURE_PRESENCE); // Only one presence at a time
@@ -162,7 +165,7 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
                 } else if (type.equals(UDP_PROXY_ADDRESS)) {
                     addresses.add(new Address(UDP_PROXY_ADDRESS, location.getAddress(), 5060));
                 } else if (type.equals(TLS_PROXY_ADDRESS)) {
-                    addresses.add(new Address(TCP_PROXY_ADDRESS, location.getAddress(), 5061));
+                    addresses.add(new Address(TLS_PROXY_ADDRESS, location.getAddress(), 5061));
                 }
             }
         }
@@ -175,7 +178,7 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
                 } else if (type.equals(UDP_PRESENCE_ADDRESS)) {
                     addresses.add(new Address(UDP_PRESENCE_ADDRESS, location.getAddress(), 5065));
                 } else if (type.equals(TLS_PRESENCE_ADDRESS)) {
-                    addresses.add(new Address(TCP_PRESENCE_ADDRESS, location.getAddress(), 5066));
+                    addresses.add(new Address(TLS_PRESENCE_ADDRESS, location.getAddress(), 5066));
                 }
             }
         }

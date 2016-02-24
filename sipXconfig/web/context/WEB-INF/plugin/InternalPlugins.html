@@ -53,6 +53,9 @@
    <span jwcid="@If" condition="ognl:isOn('kamailiopresence')">
       <span jwcid="@common/AdminNavigationMenu" pagePath="kamailio/EditPresenceKamailio" label="ognl:messages.getMessage('menu.kamailiopresence.featureMenu')" />
    </span>      
+   <span jwcid="@If" condition="ognl:isOn('sbc')">
+      <span jwcid="@common/AdminNavigationMenu" pagePath="oss/EditSBC" label="ognl:messages.getMessage('menu.sbc.featureMenu')" />
+   </span>      
    <span jwcid="@If" condition="ognl:isOn('proxy')">
       <span jwcid="@common/AdminNavigationMenu" pagePath="proxy/EditProxy" label="ognl:messages.getMessage('menu.proxy.featureMenu')" />
    </span>
