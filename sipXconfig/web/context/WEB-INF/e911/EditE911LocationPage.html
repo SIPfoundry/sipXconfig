@@ -1,0 +1,33 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset><table><tbody>
+        <tr jwcid="@common/FieldPanel" for="elin" field="component:did" 
+            label="message:e911Form.did.label"
+		    description="message:e911Form.did.description">
+          <span jwcid="did@TextField" id="elin" value="ognl:e911Location.elin" 
+                displayName="message:label.did"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" for="location" field="component:location" 
+            label="message:e911Form.location.label"
+		    description="message:e911Form.location.description">
+          <span jwcid="location@TextField" id="location" value="ognl:e911Location.location" 
+                displayName="message:e911Form.location.description"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" for="addressInfo" field="component:addressInfo" 
+            label="message:e911Form.addressInfo.label"
+		    description="message:e911Form.addressInfo.description">
+          <span jwcid="addressInfo@TextField" id="addressInfo" value="ognl:e911Location.addressInfo" 
+                displayName="message:label.addressInfo"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel" for="description" field="component:description" 
+            label="message:e911Form.description.label"
+            description="message:e911Form.description.description">
+          <span jwcid="description@TextArea" id="description" value="ognl:e911Location.description"
+                 cols="50" rows="5"/>
+        </tr>
+    </tbody></table></fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:save" callback="ognl:callback"/>
+  </form>
+</div>

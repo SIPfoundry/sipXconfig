@@ -83,7 +83,14 @@ bundle agent kamailio_config {
         perms => mog("0600","root","root"),
         create => "true",
         edit_line => kamailio_presence_log_contents,
-        classes => if_repaired("restart_kamailio_log");  
+        classes => if_repaired("restart_kamailio_log");
+        
+   	  "$(sipx.SIPX_CONFDIR)/kamailio-tls.cfg"
+        comment => "Configure kamailio TLS",
+        create => "true",
+        perms => m("644"),
+        edit_line => kamailio_tls_config_contents();      
+        
 
   commands:
     restart_kamailio_log.!fedora16_or_greater::
@@ -262,6 +269,18 @@ bundle edit_line kamailiopresence_config_contents() {
         insert_type => "file",
         expand_scalars => "true",
         location => kamailio_custom_param_location;
+
+  delete_lines:
+    any::
+      ".*"; 
+}
+
+bundle edit_line kamailio_tls_config_contents() {
+ insert_lines:
+    any::
+      "$(sipx.SIPX_CONFDIR)/kamailio/kamailio-tls.cfg.template"
+        insert_type => "file",
+        expand_scalars => "true";
 
   delete_lines:
     any::

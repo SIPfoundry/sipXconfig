@@ -474,6 +474,14 @@
     <antcall target="openacd-custom-header" />
   </target>
 
+  <target name="version14" description="upgrade from version 13" unless="version15">
+    <antcall target="e911" />
+  </target>
+	
+  <target name="version15" description="upgrade from version 14" unless="version16">
+    <antcall target="add_phone_supported_flag" />
+  </target>
+
   <target name="plugin-patches">
     <foreach param="file" target="plugin-patch">
       <path>
@@ -1433,6 +1441,12 @@
   </target>
   <target name="openacd-custom-header" unless="openacd-custom-header">
     <db-patch patch="openacd-custom-header"/>
+  </target>
+  <target name="e911" unless="e911">
+    <db-patch patch="e911" />
+  </target>
+  <target name="add_phone_supported_flag" unless="add_phone_supported_flag">
+    <db-patch patch="add_phone_supported_flag" />
   </target>
 
   <!--

@@ -43,6 +43,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.e911.E911GroupComponent;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
@@ -68,7 +69,8 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
     private static final String TIMEZONE_SETTING = "timezone/timezone";
     private static final String HOTELLING_TAB = "hotelling";
     private static final String HOTELLING_SETTING = "hotelling/enable";
-
+    private static final String E911 = "e911";
+    
     @InjectObject(value = "spring:hotelingLocator")
     public abstract HotelingLocator getHotellingLocator();
 
@@ -146,7 +148,7 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
     public abstract String getTab();
 
     public abstract void setTab(String tab);
-
+    
     @InjectObject(value = "service:tapestry.globals.WebContext")
     public abstract WebContext getWebContext();
 
@@ -156,7 +158,7 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         if (isVoicemailEnabled()) {
             tabNames.add(VOICEMAIL);
         }
-        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB));
+        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE_TAB, E911));
         if (isVoicemailEnabled()) {
             tabNames.add(MOH);
         }
@@ -234,7 +236,6 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
                     setTimezoneType(utz);
                 }
             }
-
         }
 
         if (getFirstRun() || (null != getTab() && getParentSettingName() == null)
@@ -253,6 +254,13 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         }
         setHotellingSetting(getSettings().getSetting(HOTELLING_SETTING));
 
+        //FIXME
+        // - Should we use group component? or integrate it directly on Group Page Navigation
+        // - Investigate why pageBeginRender component is not triggered. For now manually call this
+        E911GroupComponent e911 = (E911GroupComponent) getComponent("e911GroupComp");
+        e911.setGroupId(getGroupId());
+        e911.setBean(getBean());
+        e911.pageBeginRender(event_);
     }
 
     public IPage addSchedule(IRequestCycle cycle) {
@@ -359,7 +367,7 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         if (!isVoicemailEnabled()) {
             names.add("personal-attendant");
         }
-        names.add("e911");
+        names.add(E911);
         names.add(TIMEZONE_TAB);
         names.add(HOTELLING_TAB);
         return StringUtils.join(names, SEPARATOR);

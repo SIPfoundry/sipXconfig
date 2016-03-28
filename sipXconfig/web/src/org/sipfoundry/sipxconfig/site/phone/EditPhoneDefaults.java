@@ -52,6 +52,8 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
     private static final int LINE_SETTITNGS = 1;
 
     public static final int GROUP_VERSION = 2;
+    
+    public static final int E911_SETTINGS = 3;
 
     @InjectObject(value = "spring:hotelingLocator")
     public abstract HotelingLocator getHotellingLocator();
@@ -306,6 +308,11 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
     public void editGroupVersion() {
         setEditFormSetting(null);
         setResourceId(GROUP_VERSION);
+    }
+
+    public void editE911Settings() {
+        setEditFormSetting(null);
+        setResourceId(E911_SETTINGS);
     }
 
     public IComponent getDisplayFwverTab() {

@@ -1,0 +1,37 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+<span jwcid="@common/ErrorMsg"/>
+<form jwcid="clients@Form" id="clientsForm">
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addLocation@DirectLink"  id="link.addLocation" listener="listener:addLocation">
+		<span key="link.addLocation">Add new Location</span>
+	  </a>
+	</li>
+  </ul>
+  <table jwcid="@common/Table" id="locations:list"
+		columns="* elin,location,description"
+		source="ognl:e911Manager.locations"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="elinColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editLocation"
+		  parameters="ognl:currentRow">
+          <span jwcid="@Insert" value="ognl:currentRow.elin"/>
+	  </td>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="clients:delete"
+			listener="listener:deleteLocations"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.deleteLocation"/>
+      </li>
+    </ul>
+</form>
+</div>

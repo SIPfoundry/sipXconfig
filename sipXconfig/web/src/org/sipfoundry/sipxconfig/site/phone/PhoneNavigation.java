@@ -18,6 +18,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
+import org.sipfoundry.sipxconfig.site.e911.EditE911PhonePage;
 
 /**
  * Top portion of pages that show tabs, help box, intro text, etc
@@ -34,6 +35,9 @@ public abstract class PhoneNavigation extends BeanNavigation {
 
     @InjectPage(value = EditPhone.PAGE)
     public abstract EditPhone getEditPhonePage();
+    
+    @InjectPage(value = EditE911PhonePage.PAGE)
+    public abstract EditE911PhonePage getEditE911PhonePage();
 
     public IPage editPhone(Integer phoneId) {
         EditPhone page = getEditPhonePage();
@@ -59,6 +63,12 @@ public abstract class PhoneNavigation extends BeanNavigation {
         PhoneSettings page = getPhoneSettingsPage();
         page.setPhoneId(beanId);
         page.setParentSettingName(section);
+        return page;
+    }
+    
+    public IPage editPhoneE911(Integer phoneId) {
+    	EditE911PhonePage page = getEditE911PhonePage();
+        page.setPhoneId(phoneId);
         return page;
     }
 

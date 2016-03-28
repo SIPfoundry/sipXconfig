@@ -187,6 +187,7 @@
         <value>org/sipfoundry/sipxconfig/feature/feature.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/firewall/callrate.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/systemaudit/systemaudit.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/e911/e911.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

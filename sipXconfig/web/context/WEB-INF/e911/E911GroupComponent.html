@@ -1,0 +1,7 @@
+<form jwcid="changeE911@Form" delegate="bean:validator">
+  <span jwcid="@common/FieldPanel" field="component:type" label="message:e911Form.location"
+        description="message:e911Form.location.description">
+    <span jwcid="type@PropertySelection" model="ognl:e911LocationTypeModel" value="ognl:e911LocationId"/>
+  </span>
+  <div jwcid="submitE911@Submit" value="message:button.apply" listener="listener:onApply" />
+</form>

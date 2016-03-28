@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="e911ManagerImpl" class="org.sipfoundry.sipxconfig.e911.E911ManagerImpl">
+	<property name="sessionFactory" ref="sessionFactory"/>
+	<property name="jdbcTemplate" ref="configJdbcTemplate"/>
+	<property name="imdbTemplate" ref="imdb"/>
+  </bean>
+
+  <bean id="e911Manager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="target" ref="e911ManagerImpl"/>
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.e911.E911Manager"/>
+  </bean> 
+
+  <bean id="e911UserGenerator" parent="dataSetGenerator" class="org.sipfoundry.sipxconfig.e911.E911UserGenerator">
+    <property name="e911Manager" ref="e911Manager" />
+  </bean>
+  
+  <bean id="e911PhoneGenerator" parent="dataSetGenerator" class="org.sipfoundry.sipxconfig.e911.E911PhoneGenerator">
+    <property name="e911Manager" ref="e911Manager" />
+  </bean>
+
+</beans>
+

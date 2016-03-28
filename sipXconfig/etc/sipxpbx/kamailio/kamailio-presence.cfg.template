@@ -312,7 +312,7 @@ modparam("usrloc", "nat_bflag", FLB_NATB)
 
 #!ifdef WITH_TLS
 # ----- tls params -----
-modparam("tls", "config", "/usr/local/etc/kamailio/tls.cfg")
+modparam("tls", "config", "$(sipx.SIPX_CONFDIR)/kamailio-tls.cfg")
 #!endif
 
 #!ifdef WITH_ANTIFLOOD

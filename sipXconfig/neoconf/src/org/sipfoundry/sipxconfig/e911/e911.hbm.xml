@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.e911" default-lazy="false">
+  <class name="E911Location" table="e911">
+    <id name="id" column="e911_id" type="int" unsaved-value="-1">
+      <generator class="sequence"><param name="sequence">e911_seq</param></generator>
+    </id>
+    <property name="location"/>
+    <property name="elin"/>
+    <property name="addressInfo"/>
+    <property name="description"/>
+  </class>
+  
+  <query name="findByLocation">
+		<![CDATA[from E911Location e911 where e911.location=:location]]>
+  </query>
+  
+  <query name="findByElin">
+		<![CDATA[from E911Location e911 where e911.elin=:elin]]>
+  </query>
+  
+</hibernate-mapping>

@@ -1,0 +1,10 @@
+[server:default]
+method = TLSv1
+verify_certificate = no
+require_certificate = no
+private_key = $(sipx.SIPX_CONFDIR)/ssl/ssl.key
+certificate = $(sipx.SIPX_CONFDIR)/ssl/ssl.crt
+
+[client:default]
+verify_certificate = yes
+require_certificate = yes

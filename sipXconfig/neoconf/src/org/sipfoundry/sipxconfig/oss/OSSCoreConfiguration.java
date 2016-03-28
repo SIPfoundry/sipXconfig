@@ -87,6 +87,10 @@ public class OSSCoreConfiguration implements ConfigProvider {
 		} else {
 			config.write("guess-external-address", 1);
 		}
+		
+		config.write("tls-cert", "$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
+		config.write("tls-private-key", "$(sipx.SIPX_CONFDIR)/ssl/ssl.key");
+		config.write("tls-peer-ca-directory", "$(sipx.SIPX_CONFDIR)/ssl/authorities");
 	}
 
 	public OSSCoreManager getManager() {

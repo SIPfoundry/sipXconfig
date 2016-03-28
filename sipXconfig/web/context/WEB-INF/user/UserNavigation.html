@@ -89,6 +89,11 @@
 			  </a>
 			</span>
 		  </span>
+          <span jwcid="@common/Tab" isActive="ognl:e911TabActive">
+            <a jwcid="e911Link@DirectLink" listener="listener:editE911" parameters="ognl:bean.id">
+              <span key="link.e911">E911</span>
+            </a>
+          </span>
           <span jwcid="@common/Tab" isActive="ognl:timeZoneTabActive">
             <a jwcid="timeZoneLink@DirectLink"
               listener="listener:editTimeZone" parameters="ognl:bean.id">

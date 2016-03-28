@@ -23,12 +23,12 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
-import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.EditHotellingPage;
 import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZonePage;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
+import org.sipfoundry.sipxconfig.site.e911.EditE911UserPage;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.ExtendedUserInfo;
@@ -97,6 +97,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = EditHotellingPage.PAGE)
     public abstract EditHotellingPage getEditHotellingPage();
+    
+    @InjectPage(value = EditE911UserPage.PAGE)
+    public abstract EditE911UserPage getEditE911UserPage();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -179,6 +182,13 @@ public abstract class UserNavigation extends BeanNavigation {
         MusicOnHoldPage page = getMusicOnHoldPage();
         page.setUserId(userId);
         page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+    
+    public IPage editE911(Integer userId) {
+        EditE911UserPage page = getEditE911UserPage();
+        page.setUserId(userId);
+        page.setReturnPage(EditE911UserPage.PAGE);
         return page;
     }
 

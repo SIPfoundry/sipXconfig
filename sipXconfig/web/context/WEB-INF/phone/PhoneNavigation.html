@@ -17,6 +17,12 @@
               <span key="link.lines">Lines</span>
             </a>
           </span>
+          <span jwcid="e911PhoneTab@common/Tab" isActive="ognl:e911TabActive">
+            <a jwcid="e911Link@DirectLink" listener="listener:editPhoneE911" 
+              parameters="ognl:bean.id">
+              <span key="link.e911">E911</span>
+            </a>
+          </span>
 		  <span jwcid="@common/Plugin" blockId="PhoneNavigationSpecialTab"/>
         </span>
       </div>

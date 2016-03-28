@@ -96,6 +96,7 @@ Requires: kamailio-mongodb >= 4.3
 Requires: kamailio-mysql >= 4.3
 Requires: kamailio-presence >= 4.3
 Requires: kamailio-sipx >= 4.3
+Requires: kamailio-tls >= 4.3
 Requires: mysql-server
 Requires: redis
 

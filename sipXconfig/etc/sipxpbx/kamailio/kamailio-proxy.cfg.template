@@ -6,6 +6,7 @@
 #!define WITH_USRLOCDB
 #!define WITH_PRESENCE
 #!define WITH_SIPX
+#!define WITH_TLS
 
 ####### Include Local Config If Exists #########
 
@@ -63,6 +64,7 @@ alias=$(sipx.domain)
 # life time of TCP connection when there is no traffic
 # - a bit higher than registration expires to cope with UA behind NAT
 tcp_connection_lifetime=3605
+enable_tls=1
 
 ####### Custom Parameters #########
 
@@ -78,10 +80,6 @@ mpath="/usr/lib64/kamailio/modules/"
 
 #!ifdef WITH_MYSQL
 loadmodule "db_mysql.so"
-#!endif
-
-#!ifdef WITH_MONGODB
-loadmodule "db_mongodb.so"
 #!endif
 
 loadmodule "mi_fifo.so"
@@ -152,6 +150,10 @@ loadmodule "debugger.so"
 #!endif
 
 loadmodule "dialog.so"
+
+#!ifdef WITH_MONGODB
+loadmodule "db_mongodb.so"
+#!endif
 
 #!ifdef WITH_SIPX
 loadmodule "sipx_bla.so"
@@ -321,7 +323,7 @@ modparam("usrloc", "nat_bflag", FLB_NATB)
 
 #!ifdef WITH_TLS
 # ----- tls params -----
-modparam("tls", "config", "/usr/local/etc/kamailio/tls.cfg")
+modparam("tls", "config", "$(sipx.SIPX_CONFDIR)/kamailio-tls.cfg")
 #!endif
 
 #!ifdef WITH_ANTIFLOOD

@@ -89,8 +89,8 @@ public class KamailioConfiguration implements ConfigProvider {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         
         config.write("RUN_KAMAILIO", "yes");
-        config.write("USER", "kamailio");
-        config.write("GROUP", "kamailio");
+        config.write("USER", "$(sipx.SIPXPBXUSER)");
+        config.write("GROUP", "$(sipx.SIPXPBXGROUP)");
         
         config.write("SHM_MEMORY", settings.getDefaultSharedMemory());
         config.write("PKG_MEMORY", settings.getDefaultPrivateMemory());
@@ -109,6 +109,7 @@ public class KamailioConfiguration implements ConfigProvider {
         int port = settings.getProxySipTcpPort();
         config.write("listen", "udp:" + location.getAddress() + ':' + port);
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
+        config.write("listen", "tls:" + location.getAddress() + ':' + settings.getProxySipTlsPort());
     }
     
     private void writeKamailioPresenceGlobal(Writer wtr, KamailioSettings settings, Location location)
@@ -123,6 +124,7 @@ public class KamailioConfiguration implements ConfigProvider {
         int port = settings.getPresenceSipTcpPort();
         config.write("listen", "udp:" + location.getAddress() + ':' + port);
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
+        config.write("listen", "tls:" + location.getAddress() + ':' + settings.getPresenceSipTlsPort());
     }
 
     public KamailioManager getKamailioManager() {
