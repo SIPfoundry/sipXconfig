@@ -30,7 +30,7 @@ public class Bundle {
     public static final Bundle CORE_TELEPHONY = new Bundle("coreTelephony");
 
     /** Minimal VoIP system */
-    //public static final Bundle ADVANCED_TELEPHONY = new Bundle("advancedTelephony");
+    public static final Bundle ADVANCED_TELEPHONY = new Bundle("advancedTelephony");
 
     /** Minimal system plus media services */
     public static final Bundle CORE = new Bundle("core");
