@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -22,11 +23,13 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 
 public abstract class CdrPage extends UserBasePage {
     private static final String ACTIVE_TAB = "active";
@@ -60,6 +63,14 @@ public abstract class CdrPage extends UserBasePage {
 
     public abstract void setTotalActiveCalls(int total);
 
+    @Persist
+    public abstract String getSelectedTimeZone();
+
+    public abstract void setSelectedTimeZone(String selectedTimeZone);
+
+    @InjectObject(value = "spring:ntpManager")
+    public abstract NtpManager getTimeManager();
+
     public Collection<String> getTabNames() {
         if (isCallResolverInstalled()) {
             return Arrays.asList(ACTIVE_TAB, HISTORIC_TAB, REPORTS_TAB);
@@ -75,6 +86,10 @@ public abstract class CdrPage extends UserBasePage {
             setTab(HISTORIC_TAB);
         }
 
+        if (getSelectedTimeZone() == null) {
+            setSelectedTimeZone(getDefaultTimeZoneId(null, getTimeManager()));
+        }
+        
         List<Cdr> activeCalls = new ArrayList<Cdr>();
         try {
             activeCalls = getCdrManager().getActiveCalls();
@@ -82,5 +97,16 @@ public abstract class CdrPage extends UserBasePage {
             activeCalls = Collections.emptyList();
         }
         setTotalActiveCalls(activeCalls.size());
+    }
+
+    protected static String getDefaultTimeZoneId(User user, NtpManager timeManager) {
+        TimeZone timeZone = null;
+        if (user != null) {
+            timeZone = user.getTimezone();
+        } else {
+            String systemTimezone = timeManager.getSystemTimezone();
+            timeZone = (systemTimezone == null) ? TimeZone.getDefault() : TimeZone.getTimeZone(systemTimezone);
+        }
+        return timeZone.getID();
     }
 }

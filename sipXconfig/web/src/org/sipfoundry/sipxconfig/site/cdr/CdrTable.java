@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.cdr;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,15 +22,15 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
@@ -43,18 +46,21 @@ public abstract class CdrTable extends BaseComponent {
     private static final Pattern AOR_RE = Pattern.compile(AOR);
     private static final Pattern FULL_USER_RE = Pattern.compile("(?:\\w+ *)+ - (\\d+)");
 
+    private static final String DATE_FORMAT = "MM/dd/yy HH:mm a";
+
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @InjectObject(value = "spring:gatewayContext")
+    public abstract GatewayContext getGatewayContext();
 
     @Parameter
     public abstract Object getSource();
 
-    public abstract Cdr getRow();
+    @Parameter
+    public abstract String getTimeZone();
 
-    public ITableColumn getStartTimeColumn() {
-        return TapestryUtils.createDateColumn("startTime", getMessages(), getExpressionEvaluator(), getPage()
-                .getLocale());
-    }
+    public abstract Cdr getRow();
 
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
@@ -223,4 +229,26 @@ public abstract class CdrTable extends BaseComponent {
         }
         return false;
     }
+
+    /**
+     * Returns the name of the gateway if found, if not returns the gateway ID
+     */
+    public String getGateway() {
+        Integer gatewayId = getRow().getGateway();
+        try {
+            Gateway gateway = getGatewayContext().getGateway(gatewayId);
+            return gateway.getName();
+        } catch (Exception e) {
+            return gatewayId.toString();
+        }
+    }
+
+    public String getStartTimeInTimeZone() {
+        DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+        if (getTimeZone() != null) {
+            formatter.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
+        }
+        return formatter.format(getRow().getStartTime());
+    }
+    
 }

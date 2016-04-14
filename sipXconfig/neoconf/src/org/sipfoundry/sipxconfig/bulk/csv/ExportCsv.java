@@ -124,8 +124,11 @@ public class ExportCsv {
         Index.USER_GROUP.set(row, user.getGroupsNames());
         Index.EMAIL.set(row, user.getEmailAddress());
 
-        Index.PIN.set(row, user.getPintoken());
-        Index.VOICEMAIL_PIN.set(row, user.getVoicemailPintoken());
+        if (!user.isAdmin()) {
+            Index.PIN.set(row, user.getPintoken());
+            Index.VOICEMAIL_PIN.set(row, user.getVoicemailPintoken());
+        }
+        
         // XMPP
         Index.IM_ID.set(row, user.getImId());
 

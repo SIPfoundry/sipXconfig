@@ -76,6 +76,28 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
         } catch (IllegalArgumentException ex) {
             throw new UserException(ex.getMessage());
         }
+
+        String defaultPassword = getSettings().getDefaultPassword();
+        String defaultPasswordConf = getSettings().getDefaultPasswordConfirmed();
+        if (!StringUtils.equals(defaultPassword, defaultPasswordConf)) {
+            throw new UserException(getMessages().getMessage("error.unconfirmed.password"));
+        }
+        String defaultVmPin = getSettings().getDefaultVmPin();
+        String defaultVmPinConfirmed = getSettings().getDefaultVmPinConfirmed();
+        if (!StringUtils.equals(defaultVmPin, defaultVmPinConfirmed)) {
+            throw new UserException(getMessages().getMessage("error.unconfirmed.pin"));
+        }
+        String defaultPostgresPassword = getSettings().getPostgresPassword();
+        String defaultPostgresPasswordConfirmed = getSettings().getPostgresPasswordConfirmed();
+        if (!StringUtils.equals(defaultPostgresPassword, defaultPostgresPasswordConfirmed)) {
+            throw new UserException(getMessages().getMessage("error.unconfirmed.postgresql"));
+        }
+        String defaultMySqlPassword = getSettings().getMysqlPassword();
+        String defaultMySqlPasswordConfirmed = getSettings().getMysqlPasswordConfirmed();
+        if (!StringUtils.equals(defaultMySqlPassword, defaultMySqlPasswordConfirmed)) {
+            throw new UserException(getMessages().getMessage("error.unconfirmed.mysql"));
+        }
+
         getAdminContext().saveSettings(getSettings());
     }
 }

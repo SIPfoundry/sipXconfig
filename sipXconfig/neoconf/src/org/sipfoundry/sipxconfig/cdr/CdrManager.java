@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
 import org.sipfoundry.sipxconfig.common.User;
@@ -38,6 +39,7 @@ public interface CdrManager {
      */
     List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user);
     List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset);
+    List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, TimeZone timezone, int limit, int offset);
 
 
     /**
@@ -54,9 +56,10 @@ public interface CdrManager {
      * @param writer CSV stream destination
      * @param from date of first CDR retrieved, pass null for oldest
      * @param to date of the last CDR retrieved, pass null for latest
+     * @param timezone
      * @param search specification - enumeration representing columns and string to search for
      */
-    void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException;
+    void dumpCdrs(Writer writer, Date from, Date to, TimeZone timezone, CdrSearch search, User user) throws IOException;
 
     /**
      * Dump CDRs in a JSON format used by Exhibit platform.

@@ -480,6 +480,7 @@
 	
   <target name="version15" description="upgrade from version 14" unless="version16">
     <antcall target="add_phone_supported_flag" />
+    <antcall target="migrate-yealinkPhone-to-yealink" />
   </target>
 
   <target name="plugin-patches">
@@ -1447,6 +1448,11 @@
   </target>
   <target name="add_phone_supported_flag" unless="add_phone_supported_flag">
     <db-patch patch="add_phone_supported_flag" />
+  </target>
+  <target name="migrate-yealinkPhone-to-yealink" unless="migrate-yealinkPhone-to-yealink">
+    <sipx-sql>
+      UPDATE "public"."phone" SET "bean_id"='yealink' WHERE ("bean_id"='yealinkPhone');
+    </sipx-sql>
   </target>
 
   <!--

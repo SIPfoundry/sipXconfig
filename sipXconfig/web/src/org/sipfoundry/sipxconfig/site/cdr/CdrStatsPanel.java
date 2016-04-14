@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.cdr;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +43,9 @@ public abstract class CdrStatsPanel extends BaseComponent {
     public abstract Date getEndTime();
 
     @Parameter
+    public abstract String getSelectedTimezone();
+
+    @Parameter
     public abstract User getUser();
 
     @Parameter
@@ -53,14 +57,19 @@ public abstract class CdrStatsPanel extends BaseComponent {
         tableModel.setTo(getEndTime());
         tableModel.setCdrSearch(getCdrSearch());
         tableModel.setUser(getUser());
+        tableModel.setSelectedTimezone(getSelectedTimezone());
         return tableModel;
     }
 
     public void export() {
         try {
             PrintWriter writer = TapestryUtils.getCsvExportWriter(getResponse(), "cdrs.csv");
-            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(),
-                    getCdrSearch(), getUser());
+            TimeZone timezone = null;
+            if (getSelectedTimezone() != null) {
+                timezone = TimeZone.getTimeZone(getSelectedTimezone());
+            }
+            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(), timezone,
+                getCdrSearch(), getUser());
             writer.close();
         } catch (IOException e) {
             LOG.error("Error during CDR export", e);

@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.cdr;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
@@ -55,8 +58,11 @@ public class Cdr implements Serializable {
     public static final String CALL_EMERGENCY = "EMERGENCY";
     public static final String CALL_CUST = "CUSTOM";
 
+    private static final Log LOG = LogFactory.getLog(Cdr.class);
+
     private static final long serialVersionUID = 1L;
     private static final String CALLTAG_DELIM = ",";
+    private static final String USER_NAME_DELIM = " - ";
 
     private String m_callerAor;
     private String m_calleeAor;
@@ -82,6 +88,27 @@ public class Cdr implements Serializable {
     private boolean m_callerInternal;
     private String m_calleeRoute;
 
+    private boolean m_privacy;
+    private int m_limit;
+    private String m_privacyExcluded = StringUtils.EMPTY;
+    private String m_mask = StringUtils.EMPTY;
+
+    private String m_calledNumberAor;
+    private String m_calledNumber;
+    private int m_trunkId;
+
+    public Cdr(boolean privacy, int limit, String privacyExcluded) {
+        m_privacy = privacy;
+        m_limit = limit;
+        m_privacyExcluded = privacyExcluded;
+        for (int i = 0; i < m_limit; i++) {
+            m_mask += "*";
+        }
+    }
+
+    public Cdr() {
+    }
+
     public String getCalleeAor() {
         return m_calleeAor;
     }
@@ -95,17 +122,26 @@ public class Cdr implements Serializable {
     }
 
     public String getRecipient() {
-        return m_recipient;
+        if(m_calledNumber!=null)
+            return m_calledNumber;
+        else
+            return m_recipient;
     }
 
     public void setCalleeAor(String calleeAor) {
         m_calleeAor = calleeAor;
         m_callee = SipUri.extractUser(calleeAor);
+        if (m_privacy) {
+            m_callee = maskAor(m_callee);
+        }   
     }
 
     public void setCalleeContact(String calleeContact) {
         m_calleeContact = calleeContact;
         m_recipient = SipUri.extractUser(calleeContact);
+        if (m_privacy) {
+            m_caller = maskAor(m_caller);
+        }
     }
 
     public String getCallerAor() {
@@ -127,6 +163,9 @@ public class Cdr implements Serializable {
     public void setCallerAor(String callerAor) {
         m_callerAor = callerAor;
         m_caller = SipUri.extractFullUser(callerAor);
+        if (m_privacy) {
+            m_caller = maskAor(m_caller);
+        }
     }
 
     public void setCallerContact(String callerContact) {
@@ -188,7 +227,6 @@ public class Cdr implements Serializable {
     public void setCallId(String callid) {
         m_callid = callid;
     }
-
 
     public String getReference() {
         return m_reference;
@@ -290,6 +328,45 @@ public class Cdr implements Serializable {
         }
         return callType;
     }
+
+    public String getCalledNumber() {
+        return m_calledNumber;
+    }
+
+    public void setCalledNumber(String calledNumber) {
+        m_calledNumberAor = calledNumber;
+        m_calledNumber = SipUri.extractUser(calledNumber);
+    }
+
+    public int getGateway() {
+        return m_trunkId;
+    }
+
+    public void setGateway(int id) {
+        m_trunkId = id;
+    }
+
+    private String maskAor(String aor) {
+        String mask = "***";
+        if (aor.length() > m_limit) {
+            return aor.substring(0, aor.length() - 3) + mask;
+        } else {
+            if (aor.length() == m_limit) {
+                String[] exclude = m_privacyExcluded.split(" ");
+                boolean isExcluded = false;
+                for (String prefix : exclude) {
+                    if (StringUtils.isNotEmpty(prefix) && aor.startsWith(prefix)) {
+                        isExcluded = true;
+                        break;
+                    }
+                }
+                if (!isExcluded) {
+                    return aor.substring(0, aor.length() - 3) + mask;
+                }
+            }
+        }
+        return aor;
+    }    
 
 
 }

@@ -39,6 +39,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.sipfoundry.commons.util.TimeZoneUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -95,6 +96,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     static final String CALLEE_ROUTE = "callee_route";
     static final String CALLEE_CONTACT = "callee_contact";
     static final String CALLER_CONTACT = "caller_contact";
+    static final String CALLED_NUMBER = "called_number";
+    static final String GATEWAY = "gateway";
 
     private int m_csvLimit;
     private int m_jsonLimit;
@@ -132,10 +135,24 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     @Override
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
-                : m_tz, limit, offset);
-        CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone())
-                : (getTimeZone()));
+        return getCdrs(from, to, search, user, null, 0, 0);
+    }
+
+    @Override
+    public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, TimeZone timeZone, int limit, int offset) {
+        if (timeZone != null) {
+            from = TimeZoneUtils.getSameDateWithNewTimezone(from, timeZone);
+            to = TimeZoneUtils.getSameDateWithNewTimezone(to, timeZone);
+        }
+        CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone()) : m_tz, limit, offset);
+        TimeZone resultsTimeZone = timeZone;
+        if (resultsTimeZone == null) {
+            resultsTimeZone = (user != null) ? (user.getTimezone()) : (getTimeZone());
+        }
+        CdrsResultReader resultReader = new CdrsResultReader(resultsTimeZone,
+                 getSettings().getPrivacyStatus(), getSettings().getPrivacyMinLength(),
+                 getSettings().getPrivacyExcludeList());
+
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
     }
@@ -146,10 +163,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     }
 
     @Override
-    public void dumpCdrs(Writer writer, Date from, Date to, CdrSearch search, User user) throws IOException {
-        ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz);
+    public void dumpCdrs(Writer writer, Date from, Date to, TimeZone displayTimeZone, CdrSearch search, User user) throws IOException {
+        ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz, displayTimeZone);
         CdrsWriter resultReader = new CdrsCsvWriter(writer, columnInforFactory);
-        dump(resultReader, from, to, search, user, m_csvLimit);
+        dump(resultReader, from, to, displayTimeZone, search, user, m_csvLimit);
     }
 
     @Override
@@ -160,7 +177,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         // if we cannot see all the result - get only the latest
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setOrder(START_TIME, false);
-        dump(resultReader, null, null, cdrSearch, null, m_jsonLimit);
+        dump(resultReader, null, null, null, cdrSearch, null, m_jsonLimit);
     }
 
     /**
@@ -173,9 +190,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * If we had direct access to that connection we could try calling "setChunkedStreamingMode"
      * on it.
      */
-    private void dump(CdrsWriter resultReader, Date from, Date to, CdrSearch search, User user, int limit)
+    private void dump(CdrsWriter resultReader, Date from, Date to, TimeZone timezone, CdrSearch search, User user, int limit)
         throws IOException {
-        PreparedStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, 0);
+        if (timezone != null) {
+            from = TimeZoneUtils.getSameDateWithNewTimezone(from, timezone);
+            to = TimeZoneUtils.getSameDateWithNewTimezone(to, timezone);
+        }
+        PreparedStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone()) : m_tz, limit, 0);
         try {
             resultReader.writeHeader();
             getJdbcTemplate().query(psc, resultReader);
@@ -392,6 +413,17 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private final Calendar m_calendar;
         private TimeZone m_systemTimeZone;
 
+        private boolean m_privacy;
+        private int m_privacyLimit;
+        private String m_privacyExcluded;        
+
+        public CdrsResultReader(TimeZone tz, boolean privacy, int limit, String excluded) {
+            m_calendar = Calendar.getInstance(tz);
+            m_privacy = privacy;
+            m_privacyLimit = limit;
+            m_privacyExcluded = excluded;
+        }
+
         public CdrsResultReader(TimeZone tz) {
             m_calendar = Calendar.getInstance(tz);
         }
@@ -421,6 +453,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             cdr.setFailureStatus(rs.getInt(FAILURE_STATUS));
             String termination = rs.getString(TERMINATION);
             cdr.setTermination(Termination.fromString(termination));
+            cdr.setCalledNumber(rs.getString(CALLED_NUMBER));
+            cdr.setGateway(rs.getInt(GATEWAY));
             m_cdrs.add(cdr);
         }
     }
@@ -448,11 +482,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private final boolean m_timestamp;
         private Format m_format;
         private final Calendar m_calendar;
+        private final TimeZone m_displayTimeZone;
 
-        public ColumnInfo(ResultSet rs, int i, Calendar calendar, Format dateFormat, Format aorFormat)
+        public ColumnInfo(ResultSet rs, int i, Calendar calendar, TimeZone displayTimeZone, Format dateFormat, Format aorFormat)
             throws SQLException {
             m_fieldIndex = i;
             m_calendar = calendar;
+            m_displayTimeZone = displayTimeZone;
             m_rsIndex = rs.findColumn(FIELDS[m_fieldIndex]);
             m_timestamp = TIME_FIELDS[m_fieldIndex];
             if (AOR_FIELDS[m_fieldIndex]) {
@@ -485,7 +521,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             if (m_format == null) {
                 return v.toString();
             }
-            return m_format.format(v);
+            if (m_timestamp) {
+                Timestamp timestamp = (Timestamp) v;
+                Date cal = TimeZoneUtils.convertDateToNewTimezone(new Date(
+                        timestamp.getTime()), m_displayTimeZone);
+                return m_format.format(cal);
+            }
+            return StringUtils.EMPTY;
         }
 
         public String getField() {
@@ -501,16 +543,22 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private Format m_dateFormat = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT;
         private Format m_aorFormat;
         private final Calendar m_calendar;
+        private final TimeZone m_displayTimezone;
 
         public DefaultColumnInfoFactory(TimeZone tz) {
+            this(tz, null);
+        }
+
+        public DefaultColumnInfoFactory(TimeZone tz, TimeZone displayTimeZone) {
             m_calendar = Calendar.getInstance(tz);
+            m_displayTimezone = displayTimeZone;
         }
 
         @Override
         public ColumnInfo[] create(ResultSet rs) throws SQLException {
             ColumnInfo[] fields = new ColumnInfo[ColumnInfo.FIELDS.length];
             for (int i = 0; i < fields.length; i++) {
-                ColumnInfo ci = new ColumnInfo(rs, i, m_calendar, m_dateFormat, m_aorFormat);
+                ColumnInfo ci = new ColumnInfo(rs, i, m_calendar, m_displayTimezone, m_dateFormat, m_aorFormat);
                 fields[i] = ci;
             }
             return fields;

@@ -52,7 +52,7 @@ public class PhoneGroupApiImpl implements PhoneGroupApi {
     public Response newPhoneGroup(GroupBean groupBean) {
         Group group = new Group();
         GroupBean.convertToPhoneGroup(groupBean, group);
-        m_phoneContext.saveGroup(group);
+        m_phoneContext.storeGroup(group);
         return Response.ok().entity(group.getId()).build();
     }
 
@@ -96,7 +96,7 @@ public class PhoneGroupApiImpl implements PhoneGroupApi {
         Group group = getPhoneGroupByIdOrName(groupId);
         if (group != null) {
             GroupBean.convertToPhoneGroup(groupBean, group);
-            m_phoneContext.saveGroup(group);
+            m_phoneContext.storeGroup(group);
             return Response.ok().entity(group.getId()).build();
         }
         return Response.status(Status.NOT_FOUND).build();
