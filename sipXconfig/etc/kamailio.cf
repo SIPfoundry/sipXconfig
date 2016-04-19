@@ -340,7 +340,7 @@ bundle agent kamailioproxy_running
         comment => "start kamailio",
         args => "start";
 
-    kamailioproxy.kamailioproxy_running.(restart_kamailioproxy|refresh_kamailioproxy|restart_mysql|mysql_change_password)::
+    kamailioproxy.kamailioproxy_running.(restart_kamailioproxy|refresh_kamailioproxy|restart_mysql|mysql_change_password|ssl_repaired)::
       "$(daemon)"
         comment => "restart kamailio",
         args => "restart";

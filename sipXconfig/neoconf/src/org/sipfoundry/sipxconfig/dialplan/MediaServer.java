@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.springframework.beans.factory.annotation.Required;
 
 public abstract class MediaServer {
 
@@ -32,13 +33,17 @@ public abstract class MediaServer {
 
     private String m_hostname;
 
+    private Integer m_port;
+    
     private String m_serverExtension;
 
     /**
      * User visible label of for this media server.
      */
     private String m_label;
-
+    
+    private String m_type;
+    
     private Location m_location;
 
     /**
@@ -113,6 +118,14 @@ public abstract class MediaServer {
     public void setHostname(String hostname) {
         m_hostname = hostname;
     }
+    
+    public Integer getPort() {
+        return m_port;
+    }
+
+    public void setPort(Integer port) {
+        m_port = port;
+    }
 
     public String getLabel() {
         return m_label;
@@ -122,6 +135,15 @@ public abstract class MediaServer {
         m_label = label;
     }
 
+    public String getType() {
+        return m_type;
+    }
+
+    @Required
+    public void setType(String type) {
+        m_type = type;
+    }
+    
     public Location getLocation() {
         return m_location;
     }
@@ -178,6 +200,15 @@ public abstract class MediaServer {
 
     public void setLocalizationContext(LocalizationContext localizationContext) {
         m_localizationContext = localizationContext;
+    }
+
+    protected String getHostPort() {
+        StringBuilder hostnamePort = new StringBuilder(m_hostname);
+        if (m_port != null) {
+             hostnamePort.append(":");
+            hostnamePort.append(m_port);
+         }
+         return hostnamePort.toString();
     }
 
     /**

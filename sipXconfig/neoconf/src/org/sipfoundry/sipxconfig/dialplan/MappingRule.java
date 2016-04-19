@@ -209,8 +209,13 @@ public class MappingRule extends DialingRule {
 
     public static class Voicemail extends MappingRule {
         public static final String VM_PREFIX = "~~vm~";
+        private static final String INTERNAL_SERVER_TYPE = "freeswitchMediaServer";
 
+        private final MediaServer m_mediaServer;
+        private Boolean m_externalAuthorizationChecked;
+        
         public Voicemail(String voiceMail, String did, MediaServer mediaServer) {
+        	m_mediaServer = mediaServer;
             String[] patterns = new String[] {
                 voiceMail
             };
@@ -226,6 +231,30 @@ public class MappingRule extends DialingRule {
         public CallTag getCallTag() {
             return CallTag.VM;
         }
+
+
+        @Override
+        public String getExternalHostname() {
+            if (!StringUtils.equals(INTERNAL_SERVER_TYPE, m_mediaServer.getType())) {
+                return m_mediaServer.getHostname(null);
+            }
+            return null;
+        }
+
+        public boolean isExternalAuthorizationChecked() {
+            return m_externalAuthorizationChecked;
+        }
+        
+        public void setExternalAuthorizationChecked(Boolean externalAuthorizationChecked) {
+            m_externalAuthorizationChecked = externalAuthorizationChecked;
+        }
+        
+        @Override
+        public List<String> getExternalPermissionNames() {
+            return !StringUtils.equals(m_mediaServer.getType(), INTERNAL_SERVER_TYPE)
+                ? Collections.singletonList(PermissionName.VOICEMAIL.getName()) : Collections.<String>emptyList();
+        }
+        
     }
 
     public static class FaxForward extends MappingRule {

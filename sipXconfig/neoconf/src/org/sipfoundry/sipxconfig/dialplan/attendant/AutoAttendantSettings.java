@@ -31,7 +31,11 @@ public class AutoAttendantSettings extends PersistableSettings implements Deploy
     private static final String ENABLE_PREFIX = "liveAttendant/enablePrefix";
     private static final String DISABLE_PREFIX = "liveAttendant/disablePrefix";
     private static final String EXPIRE_TIME = "liveAttendant/expireTime";
-
+    private static final String MAX_DIGITS = "liveAttendant/dtmf/maxDigits";
+    private static final String FIRST_DIGIT_TIMEOUT = "liveAttendant/dtmf/firstDigitTimeout";
+    private static final String INTER_DIGIT_TIMEOUT = "liveAttendant/dtmf/interDigitTimeout";
+    private static final String EXTRA_DIGIT_TIMEOUT = "liveAttendant/dtmf/extraDigitTimeout";
+    
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) DialPlanContext.FEATURE, (Feature) AutoAttendantManager.FEATURE);
@@ -54,10 +58,26 @@ public class AutoAttendantSettings extends PersistableSettings implements Deploy
         return getSettingValue(DISABLE_PREFIX);
     }
 
-    public Integer getExpireTime() {
-        return (Integer) getSettingTypedValue(EXPIRE_TIME);
-    }
-
+	public Integer getExpireTime() {
+	    return (Integer) getSettingTypedValue(EXPIRE_TIME);
+	}
+	
+	public Integer getMaxDigits() {
+		return (Integer) getSettingTypedValue(MAX_DIGITS);
+	}
+	
+	public Integer getFirstDigit() {
+		return (Integer) getSettingTypedValue(FIRST_DIGIT_TIMEOUT);
+	}
+	
+	public Integer getInterDigit() {
+		return (Integer) getSettingTypedValue(INTER_DIGIT_TIMEOUT);
+	}
+	
+	public Integer getExtraDigit() {
+		return (Integer) getSettingTypedValue(EXTRA_DIGIT_TIMEOUT);
+	}
+	
     @Override
     public String getBeanId() {
         return "aaSettings";

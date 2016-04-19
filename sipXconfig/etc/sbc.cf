@@ -71,7 +71,7 @@ bundle agent sbc_running
         comment => "start oss_core",
         args => "start";
 
-    sbc.sbc_running.restart_sbc::
+    sbc.sbc_running.restart_sbc|ssl_repaired::
       "$(daemon)"
         comment => "restart oss_core",
         args => "restart";

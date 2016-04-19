@@ -34,8 +34,10 @@ public class InternalRule extends DialingRule {
     private String m_mediaServerType;
     private MediaServerFactory m_mediaServerFactory;
     private String m_mediaServerHostname;
+    private Integer m_mediaServerPort;
     private String m_did;
     private FeatureManager m_featureManager;
+    private Boolean m_externalAuthorizationChecked;
 
     @Override
     public String[] getPatterns() {
@@ -98,6 +100,14 @@ public class InternalRule extends DialingRule {
         m_mediaServerHostname = hostname;
     }
 
+    public Integer getMediaServerPort() {
+        return m_mediaServerPort;
+    }
+
+    public void setMediaServerPort(Integer mediaServerPort) {
+        m_mediaServerPort = mediaServerPort;
+    }
+        
     public void setMediaServerFactory(MediaServerFactory mediaServerFactory) {
         m_mediaServerFactory = mediaServerFactory;
     }
@@ -110,10 +120,13 @@ public class InternalRule extends DialingRule {
         }
         MediaServer mediaServer = m_mediaServerFactory.create(m_mediaServerType);
         mediaServer.setHostname(m_mediaServerHostname);
+        mediaServer.setPort(m_mediaServerPort);
         mediaServer.setServerExtension(m_voiceMail);
         mediaServer.setLocation(getLocation());
-        MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, m_did, mediaServer);
+        MappingRule.Voicemail voicemail = new MappingRule.Voicemail(m_voiceMail, m_did, mediaServer);
         voicemail.setDescription(getDescription());
+        voicemail.setExternalAuthorizationChecked(m_externalAuthorizationChecked);
+        
         if (getSchedule() != null) {
             voicemail.setSchedule(getSchedule());
         }
@@ -163,4 +176,12 @@ public class InternalRule extends DialingRule {
         m_featureManager = manager;
     }
 
+    @Override
+    public boolean isExternalAuthorizationChecked() {
+        return m_externalAuthorizationChecked == null ? false : m_externalAuthorizationChecked;
+    }
+
+    public void setExternalAuthorizationChecked(Boolean externalAuthorizationChecked) {
+        m_externalAuthorizationChecked = externalAuthorizationChecked;
+    }    
 }

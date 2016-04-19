@@ -481,6 +481,9 @@
   <target name="version15" description="upgrade from version 14" unless="version16">
     <antcall target="add_phone_supported_flag" />
     <antcall target="migrate-yealinkPhone-to-yealink" />
+  	<antcall target="update-expiration-time" />
+  	<antcall target="add_vm_server_port" />
+  	<antcall target="add_vm_authorization" />
   </target>
 
   <target name="plugin-patches">
@@ -1454,6 +1457,15 @@
       UPDATE "public"."phone" SET "bean_id"='yealink' WHERE ("bean_id"='yealinkPhone');
     </sipx-sql>
   </target>
+  <target name="update-expiration-time" unless="update-expiration-time">
+    <mongodb-patch patch="update-expiration-time" />
+  </target>
+  <target name="add_vm_server_port" unless="add_vm_server_port">
+    <db-patch patch="add_vm_server_port"/>
+  </target>	
+  <target name="add_vm_authorization" unless="add_vm_authorization">
+    <db-patch patch="add_vm_authorization"/>
+  </target>  	
 
   <!--
     - SUPPORT UTILITIES
@@ -1468,6 +1480,16 @@
       <mark-patch-applied patch="@{patch}" />
     </sequential>
   </macrodef>
+	
+  <macrodef name="mongodb-patch">
+	<attribute name="patch" />
+	<sequential>
+	  <exec executable="mongo">
+	  <arg line="${sql.dir}/@{patch}.js" />
+	</exec>
+	<mark-patch-applied patch="@{patch}" />
+	</sequential>
+  </macrodef>	
 
   <!-- patch list as successful -->
   <macrodef name="mark-patch-applied">

@@ -60,7 +60,7 @@
         <value>tiff</value>
       </option>
     </enum>
-  </type>
+  </type>  
   <group name="ivr">
     <setting name="log.level">
       <type refid="loglevel" />
@@ -81,6 +81,19 @@
     <setting name="fax.format">
       <type refid="faxformat" />
       <value>pdf</value>
+    </setting>
+    <setting name="fax.reinvite">
+      <type>
+        <enum>
+          <option>
+            <value>true</value>
+          </option>
+          <option>
+            <value>false</value>
+          </option>
+        </enum>
+      </type>
+      <value>false</value>
     </setting>
     <setting name="ivr.publicHttpPort" advanced="yes">
       <type>
@@ -142,6 +155,12 @@
         </enum>
       </type>
       <value>false</value>
+    </setting>
+    <setting name="ivr.backup_host">
+      <type>
+        <enum>
+        </enum>
+      </type>
     </setting>
   </group>
 </model>

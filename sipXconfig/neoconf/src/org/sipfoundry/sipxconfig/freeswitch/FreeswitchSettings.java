@@ -36,6 +36,7 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
     private static final String FREESWITCH_BLIND_TRANSFER = "freeswitch-config/FREESWITCH_BLIND_TRANSFER";
     private static final String FREESWITCH_SIMPLIFY = "freeswitch-config/FREESWITCH_SIMPLIFY";
+    private static final String FREESWITCH_CORE = "freeswitch-config/FREESWITCH_CORE";
 
     public int getEventSocketPort() {
         return 8084; // not configurable at this time, no particular reason. --Douglas
@@ -74,6 +75,10 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
         }
     }
 
+    public boolean isCoreEnabled() {
+        return (Boolean) getSettingTypedValue(FREESWITCH_CORE);
+    }
+    
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("freeswitch/freeswitch.xml");

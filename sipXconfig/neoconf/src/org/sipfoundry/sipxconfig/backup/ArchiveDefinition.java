@@ -28,7 +28,8 @@ public class ArchiveDefinition implements Comparable {
     //if the service is running on more than one node, execute backup only on one of them
     private boolean m_singleNodeBackup = true;
     private boolean m_singleNodeRestore = true;
-
+    private String m_backupHost;
+    
     public ArchiveDefinition(String id, String backupCommand, String restoreCommand) {
         m_id = id;
         m_backupCommand = backupCommand;
@@ -62,6 +63,14 @@ public class ArchiveDefinition implements Comparable {
         return m_singleNodeRestore;
     }
 
+    public String getBackupHost() {
+        return m_backupHost;
+    }
+
+    public void setBackupHost(String backupHost) {
+		m_backupHost = backupHost;
+    }
+    
     @Override
     public int compareTo(Object arg0) {
         ArchiveDefinition arch = (ArchiveDefinition) arg0;

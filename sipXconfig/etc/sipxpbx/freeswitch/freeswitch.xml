@@ -36,9 +36,22 @@
       </option>
       <option>
         <value>H264</value>
-      </option>                                           
+      </option>
+      <option>
+        <value>vp8</value>
+      </option>
     </multi-enum>
   </type>
+  <type id="true-false">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>  
   <group name="freeswitch-config">
     <setting name="FREESWITCH_CODECS">
       <type refid="preferred-codecs-type"/>
@@ -93,5 +106,22 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="FREESWITCH_CORE">
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="FREESWITCH_USE_CALL_ID_AS_UUID_INBOUND">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>    
   </group>
 </model>
