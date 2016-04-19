@@ -30,7 +30,7 @@ start() {
     [ $Status -eq 0 ] && { echo -n "$prog $runningError"; echo_failure; echo; exit $ERUNNING; } 
       
     echo -n $"Starting $prog: "
-    $exec -D -C $config --pid-file $pidfile
+    daemon --user $user --pidfile $pidfile $exec -D -C $config --pid-file $pidfile
     Status=$?
 
     if [ $# -gt 0 ]; then
