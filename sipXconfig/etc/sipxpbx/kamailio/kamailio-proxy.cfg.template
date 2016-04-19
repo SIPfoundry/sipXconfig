@@ -164,7 +164,10 @@ loadmodule "path.so"
 
 
 # ----- mi_fifo params -----
-modparam("mi_fifo", "fifo_name", "/tmp/kamailio_fifo")
+modparam("mi_fifo", "fifo_name", "$(sipx.SIPX_TMPDIR)/kamailio-proxy-fifo")
+
+# ----- ctl params -----
+modparam("ctl", "binrpc", "$(sipx.SIPX_TMPDIR)/kamailio-proxy.ctl")
 
 
 # ----- tm params -----
