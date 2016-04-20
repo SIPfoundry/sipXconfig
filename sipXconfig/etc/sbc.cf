@@ -61,7 +61,7 @@ bundle agent sbc_running
       "any" usebundle => find_service_by_command("$(service_command)", "sbc_running", "$(service_user)");
 
   commands:
-    !sbc.sbc_running::
+    (!sbc|stop_sipxecs).sbc_running::
       "$(daemon)"
         comment => "stop oss_core",
         args => "stop";

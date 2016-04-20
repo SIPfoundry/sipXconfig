@@ -330,7 +330,7 @@ bundle agent kamailioproxy_running
                            "kamailioproxy");
 
   commands:
-    !kamailioproxy.kamailioproxy_running::
+    (!kamailioproxy|stop_sipxecs).kamailioproxy_running::
       "$(daemon)"
         comment => "stop kamailio",
         args => "stop";
@@ -372,7 +372,7 @@ bundle agent kamailiopresence_running
                            "kamailiopresence");
 
   commands:
-    !kamailiopresence.kamailiopresence_running::
+    (!kamailiopresence|stop_sipxecs).kamailiopresence_running::
       "$(daemon)"
         comment => "stop kamailio presence",
         args => "stop";
