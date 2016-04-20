@@ -308,7 +308,7 @@ bundle agent kamailioproxy_running
 {
   vars:
     any::
-      "service_command" string => "/usr/sbin/kamailio";
+      "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-proxy.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-proxy";
       "service_user" string => "kamailio";
 
@@ -319,6 +319,8 @@ bundle agent kamailioproxy_running
       "restart_kamailioproxy" not => fileexists("$(sipx.SIPX_CONFDIR)/kamailio-proxy-config.cf-before-edit");
 
   methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailioproxy_running");
     kamailioproxy::
       "any" usebundle => rh_chkconfig_status("kamailio on");
     !kamailioproxy::
@@ -335,7 +337,7 @@ bundle agent kamailioproxy_running
         comment => "stop kamailio",
         args => "stop";
 
-    kamailioproxy.!kamailioproxy_running::
+    kamailioproxy.!kamailioproxy_running.!stop_sipxecs::
       "$(daemon)"
         comment => "start kamailio",
         args => "start";
@@ -350,7 +352,7 @@ bundle agent kamailiopresence_running
 {
   vars:
     any::
-      "service_command" string => "/usr/sbin/kamailio";
+      "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-presence.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-presence";
       "service_user" string => "kamailio";
 
@@ -361,6 +363,8 @@ bundle agent kamailiopresence_running
       "restart_kamailiopresence" not => fileexists("$(sipx.SIPX_CONFDIR)/kamailio-presence-config.cf-before-edit");
 
   methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailiopresence_running");
     kamailiopresence::
       "any" usebundle => rh_chkconfig_status("kamailio on");
     !kamailiopresence::
@@ -377,7 +381,7 @@ bundle agent kamailiopresence_running
         comment => "stop kamailio presence",
         args => "stop";
 
-    kamailiopresence.!kamailiopresence_running::
+    kamailiopresence.!kamailiopresence_running.!stop_sipxecs::
       "$(daemon)"
         comment => "start kamailio presence",
         args => "start";

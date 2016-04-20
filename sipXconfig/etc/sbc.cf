@@ -1,18 +1,14 @@
-# Copyright (c) 2012 eZuce, Inc. All rights reserved.
-# Contributed to SIPfoundry under a Contributor Agreement
-
-# This software is free software; you can redistribute it and/or modify it under
-# the terms of the Affero General Public License (AGPL) as published by the
-# Free Software Foundation; either version 3 of the License, or (at your option)
-# any later version.
-
-# This software is distributed in the hope that it will be useful, but WITHOUT
+# Copyright (C) 2015 SIPFoundry., certain elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
+#
 
 #
-# FreeSWITCH configuration and process management
+# sbc configuration for working with sipxecs
 #
 bundle agent sbc {
   methods:
@@ -51,7 +47,8 @@ bundle agent sbc_running
     any::
       "service_command" string => "/usr/bin/oss_core";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/oss_core";
-      "service_user" string => "sipx";
+      "service_user" string => "root";
+
   classes:
     sbc.sbc_properties_changed::
       "restart_sbc" not => fileexists("$(sipx.SIPX_CONFDIR)/sbc-config.cf-before-edit");      
@@ -66,7 +63,7 @@ bundle agent sbc_running
         comment => "stop oss_core",
         args => "stop";
 
-    sbc.!sbc_running::
+    sbc.!sbc_running.!stop_sipxecs::
       "$(daemon)"
         comment => "start oss_core",
         args => "start";
