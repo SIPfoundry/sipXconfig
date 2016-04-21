@@ -3,6 +3,9 @@
 #if(${conference.enabled})
   <extension name="${conference.extension}">
     <condition field="destination_number" expression="^${conference.name}${dollar}">
+#if ($maxForwards)
+      <action application="set" data="max_forwards=$maxForwards"/>
+#end    
       <action application="set" data="supplied_pin=${dollar}{sip_h_X-ConfPin}"/>
       <action application="conference" data="${conference.dialString}"/>
     </condition>
@@ -12,12 +15,18 @@
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR${dollar}">
       <action application='set' data='sip_callee_id_name=IVR'/>
+#if ($maxForwards)
+      <action application="set" data="max_forwards=$maxForwards"/>
+#end      
       <action application="socket" data="${location.address}:8084 async full"/>
     </condition>
   </extension>
 #if ($acccode)
   <extension name="ACC">
     <condition field="destination_number" expression="^ACC${dollar}">
+#if ($maxForwards)
+      <action application="set" data="max_forwards=$maxForwards"/>
+#end    
       <action application="socket" data="${location.address}:8184 async full"/>
     </condition>
   </extension>
@@ -87,6 +96,9 @@ sofia/${domainName}/$1@${domainName}"/>
   <extension name="${extension.name}">
 #foreach($condition in $extension.conditions)
     <condition field="${condition.field}" expression="${condition.escapedExpression}">
+#if ($maxForwards)
+      <action application="set" data="max_forwards=$maxForwards"/>
+#end    
 #foreach($action in $condition.actions)
       <action application="${action.application}"#if( $action.data ) data="${action.data}"#end/>
 #end

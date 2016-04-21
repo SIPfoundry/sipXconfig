@@ -36,6 +36,7 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
     private static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
     private static final String FREESWITCH_BLIND_TRANSFER = "freeswitch-config/FREESWITCH_BLIND_TRANSFER";
     private static final String FREESWITCH_SIMPLIFY = "freeswitch-config/FREESWITCH_SIMPLIFY";
+    private static final String FREESWITCH_MAX_FORWARDS = "freeswitch-config/FREESWITCH_MAX_FORWARDS";
     private static final String FREESWITCH_CORE = "freeswitch-config/FREESWITCH_CORE";
 
     public int getEventSocketPort() {
@@ -60,6 +61,10 @@ public class FreeswitchSettings extends SettingsWithLocation implements DeployCo
 
     public boolean isSimplifyEnabled() {
         return (Boolean) getSettingTypedValue(FREESWITCH_SIMPLIFY);
+    }
+
+    public Integer getMaxForwards() {
+        return (Integer) getSettingTypedValue(FREESWITCH_MAX_FORWARDS);
     }
 
     public class Defaults {

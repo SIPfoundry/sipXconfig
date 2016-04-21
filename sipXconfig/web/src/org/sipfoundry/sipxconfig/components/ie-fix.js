@@ -1,8 +1,8 @@
 function iOS() {
     if (navigator.userAgent.match(/ipad|iphone|ipod/i)) {
-        return true
+        return true;
     } else {
-        return false
+        return false;
     }
 }
 
@@ -10,7 +10,7 @@ function doNothing () {
 }
 
 function hoverToOverForIE() {
-    if ((typeof document.body.style.maxHeight != "undefined") && (iOS() == false))
+    if ((typeof document.body.style.maxHeight != "undefined") && (iOS() == false)) {
         // see: http://ajaxian.com/archives/detecting-ie7-in-javascript
         // modern browser: no need to simulate li:hover
         return;
