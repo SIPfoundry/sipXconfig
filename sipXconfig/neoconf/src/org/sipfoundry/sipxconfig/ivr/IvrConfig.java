@@ -63,7 +63,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(DialPlanContext.FEATURE, Ivr.FEATURE, Mwi.FEATURE, RestServer.FEATURE, ImBot.FEATURE,
-                FreeswitchFeature.FEATURE, AdminContext.FEATURE, ApacheManager.FEATURE, ImManager.FEATURE)) {
+                FreeswitchFeature.FEATURE, AdminContext.FEATURE, ApacheManager.FEATURE/*, ImManager.FEATURE*/)) {
             return;
         }
         Set<Location> locations = request.locations(manager);

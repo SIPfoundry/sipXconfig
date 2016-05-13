@@ -86,16 +86,17 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private static final String USER_ID = "userId";
     private static final String VALUE = "value";
     private static final String SQL_SELECT_GROUP = "select p.phone_id,p.serial_number "
-            + "from phone p join phone_group pg on pg.phone_id = p.phone_id where pg.group_id=%d";
+            + "from phone p join phone_group pg on pg.phone_id = p.phone_id where pg.group_id=%d and p.is_supported=true";
     private static final String SQL_SELECT_GROUP_RESTRICT_BY_BEAN_ID = "select p.phone_id,p.model_id,p.serial_number, "
             + "p.value_storage_id from phone p join phone_group pg on pg.phone_id = p.phone_id "
-            + "where p.bean_id = '%s' and p.model_id = '%s' and pg.group_id=%d and p.device_version_id != '%s'";
+            + "where p.bean_id = '%s' and p.model_id = '%s' and pg.group_id=%d and p.device_version_id != '%s' and p.is_supported=true";
     private static final String QUERY_MODEL_FIRMWARE_VERSION = "SELECT sv.value FROM setting_value sv, phone p "
         + "JOIN phone_group pg ON p.phone_id = pg.phone_id "
         + "JOIN group_storage gs ON pg.group_id = gs.group_id "
         + "WHERE sv.path = 'group.version/firmware.version' "
         + "AND p.value_storage_id = sv.value_storage_id "
         + "AND p.model_id='%s' "
+        + "ABD p.is_supported=true "
         + "AND pg.group_id='%d' "
         + "LIMIT 1";
     private static final String SQL_UPDATE = "update phone set device_version_id='%s' where phone_id=%d";
@@ -238,12 +239,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     @Override
     public List<Phone> loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
             boolean orderAscending) {
-        return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
+        return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending, false);
     }
 
     @Override
     public List<Phone> loadPhonesByPage(int firstRow, int pageSize) {
-        return loadBeansByPage(Phone.class, firstRow, pageSize);
+        return loadBeansByPage(Phone.class, firstRow, pageSize, false);
     }
 
     @Override

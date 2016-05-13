@@ -136,7 +136,7 @@
   -->
   <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12,version13,version14,version15" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12,version13" />
 
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,plugin-patches" />
 
@@ -472,18 +472,15 @@
     <antcall target="system-audit" />
     <antcall target="config-change-value" />
     <antcall target="openacd-custom-header" />
-  </target>
-
-  <target name="version14" description="upgrade from version 13" unless="version15">
     <antcall target="e911" />
-  </target>
-	
-  <target name="version15" description="upgrade from version 14" unless="version16">
     <antcall target="add_phone_supported_flag" />
     <antcall target="migrate-yealinkPhone-to-yealink" />
-  	<antcall target="update-expiration-time" />
-  	<antcall target="add_vm_server_port" />
-  	<antcall target="add_vm_authorization" />
+    <antcall target="update-expiration-time" />
+    <antcall target="add_vm_server_port" />
+    <antcall target="add_vm_authorization" />
+    <antcall target="migrate_unsupported_phones" />
+  	<antcall target="migrate_isphone_to_generic" />
+    <antcall target="migrate_openuc_e911" />
   </target>
 
   <target name="plugin-patches">
@@ -1466,6 +1463,15 @@
   <target name="add_vm_authorization" unless="add_vm_authorization">
     <db-patch patch="add_vm_authorization"/>
   </target>  	
+  <target name="migrate_unsupported_phones" unless="migrate_unsupported_phones">
+    <db-patch patch="migrate_unsupported_phones"/>
+  </target>
+  <target name="migrate_isphone_to_generic" unless="migrate_isphone_to_generic">
+    <db-patch patch="migrate_isphone_to_generic"/>
+  </target>
+  <target name="migrate_openuc_e911" unless="migrate_openuc_e911">
+    <plsql-patch patch="migrate_openuc_e911" />
+  </target>
 
   <!--
     - SUPPORT UTILITIES

@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.systemaudit.SystemAuditable;
 
 public class Localization extends BeanWithId implements DeployConfigOnEdit, SystemAuditable {
@@ -56,8 +55,8 @@ public class Localization extends BeanWithId implements DeployConfigOnEdit, Syst
 
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Arrays.asList((Feature) LocalizationContext.FEATURE, (Feature) DialPlanContext.FEATURE,
-                (Feature) ImManager.FEATURE);
+        return Arrays.asList((Feature) LocalizationContext.FEATURE, (Feature) DialPlanContext.FEATURE
+                /*(Feature) ImManager.FEATURE*/);
     }
 
     @Override

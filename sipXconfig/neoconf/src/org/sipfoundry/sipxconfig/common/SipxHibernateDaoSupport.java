@@ -95,12 +95,27 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
             String[] orderBy, boolean orderAscending) {
         return loadBeansByPage(beanClass, groupId, null, firstRow, pageSize, orderBy, orderAscending);
     }
+    
+    public List<T> loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
+            String[] orderBy, boolean orderAscending, boolean allowUnsupported) {
+        return loadBeansByPage(beanClass, groupId, null, firstRow, pageSize, orderBy, orderAscending, allowUnsupported);
+    }
+    
+    public List<T> loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
+            String[] orderBy, boolean orderAscending)
+    {
+    	return loadBeansByPage(beanClass, groupId, null, firstRow, pageSize, orderBy, orderAscending, true);
+    }
 
     public List<T> loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
-            String[] orderBy, boolean orderAscending) {
+            String[] orderBy, boolean orderAscending, boolean allowUnsupported) {
         DetachedCriteria c = DetachedCriteria.forClass(beanClass);
         addByGroupCriteria(c, groupId);
         addByBranchCriteria(c, branchId);
+        if (!allowUnsupported) {
+        	addBySupportedCriteria(c);
+        }
+        
         if (orderBy != null) {
             for (String o : orderBy) {
                 Order order = orderAscending ? Order.asc(o) : Order.desc(o);
@@ -111,10 +126,14 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
     }
 
     public List<T> loadBeansByPage(Class beanClass, int firstRow, int pageSize) {
+        return loadBeansByPage(beanClass, firstRow, pageSize, true);
+    }
+    
+    public List<T> loadBeansByPage(Class beanClass, int firstRow, int pageSize, boolean allowUnsupported) {
         String[] orderBy = new String[] {
             "id"
         };
-        return loadBeansByPage(beanClass, null, null, firstRow, pageSize, orderBy, true);
+        return loadBeansByPage(beanClass, null, null, firstRow, pageSize, orderBy, true, allowUnsupported);
     }
 
     /**
@@ -189,6 +208,20 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
         if (branchId != null) {
             crit.createCriteria("branch", "b").add(Restrictions.eq("b.id", branchId));
         }
+    }
+    
+    /**
+     * Update a Criteria object for filtering beans if supported.
+     */
+    public static void addBySupportedCriteria(DetachedCriteria crit) {
+    	addBySupportedCriteria(crit, Boolean.TRUE);
+    }
+    
+    /**
+     * Update a Criteria object for filtering beans if supported.
+     */
+    public static void addBySupportedCriteria(DetachedCriteria crit, Boolean supported) {
+    	crit.add(Restrictions.eq("supported", supported));
     }
 
     static class GetOriginalValueCallback implements HibernateCallback {

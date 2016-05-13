@@ -36,7 +36,6 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -59,10 +58,10 @@ public class RlsConfig implements ConfigProvider, DaoEventListener, BeanFactoryA
 
         RlsSettings settings = m_rls.getSettings();
         boolean xmppPresenceEnabled = false;
-        if (manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
+        /*if (manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
             ImManager imManager = m_factory.getBean(ImManager.class);
             xmppPresenceEnabled = imManager.isPresenceEnabled();
-        }
+        }*/
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(Rls.FEATURE, location);

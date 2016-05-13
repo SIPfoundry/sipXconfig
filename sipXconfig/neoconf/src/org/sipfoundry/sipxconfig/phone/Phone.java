@@ -60,6 +60,8 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
     private static final String E911_SETTING_PATH = "e911/location";
 
     private String m_description;
+    
+    private boolean m_supported = true;
 
     private List<Line> m_lines = Collections.emptyList();
 
@@ -235,8 +237,16 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
     public void setDescription(String description) {
         m_description = description;
     }
+    
+    public boolean isSupported() {
+		return m_supported;
+	}
 
-    public List<Line> getLines() {
+	public void setSupported(boolean supported) {
+		this.m_supported = supported;
+	}
+
+	public List<Line> getLines() {
         return m_lines;
     }
 

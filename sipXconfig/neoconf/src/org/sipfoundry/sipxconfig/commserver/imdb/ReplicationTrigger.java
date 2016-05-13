@@ -179,9 +179,9 @@ public class ReplicationTrigger extends SipxHibernateDaoSupport implements DaoEv
      * Helper method to replicate files when group is saved/removed.
      */
     private void activateGroup() {
-        if (m_featureManager.isFeatureEnabled(ImManager.FEATURE)) {
+        /*if (m_featureManager.isFeatureEnabled(ImManager.FEATURE)) {
             m_configManager.configureEverywhere(ImManager.FEATURE);
-        }
+        }*/
         if (m_featureManager.isFeatureEnabled(Rls.FEATURE)) {
             m_configManager.configureEverywhere(Rls.FEATURE);
         }

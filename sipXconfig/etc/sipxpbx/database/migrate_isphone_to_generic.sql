@@ -1,0 +1,1 @@
+update phone set bean_id='genericPhone', model_id='genericPhoneModel' where bean_id='isphone' and is_supported = true;

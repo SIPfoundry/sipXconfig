@@ -38,7 +38,6 @@ import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
-import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -58,7 +57,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(Registrar.FEATURE, ProxyManager.FEATURE, ImManager.FEATURE)) {
+        if (!request.applies(Registrar.FEATURE, ProxyManager.FEATURE/*, ImManager.FEATURE*/)) {
             return;
         }
 
@@ -66,7 +65,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         Set<Location> locations = request.locations(manager);
         RegistrarSettings settings = m_registrar.getSettings();
         Domain domain = manager.getDomainManager().getDomain();
-        Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
+        //Address imApi = manager.getAddressManager().getSingleAddress(ImManager.XMLRPC_ADDRESS);
         Address presenceApi = manager.getAddressManager().getSingleAddress(Registrar.PRESENCE_MONITOR_ADDRESS);
         Address proxy = manager.getAddressManager().getSingleAddress(ProxyManager.TCP_ADDRESS);
         for (Location location : locations) {
@@ -76,7 +75,7 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
             if (enabled) {
                 Writer w = new FileWriter(new File(dir, "registrar-config.part"));
                 try {
-                    write(w, settings, domain, location, proxy, imApi, presenceApi, fm);
+                    write(w, settings, domain, location, proxy, null, presenceApi, fm);
                 } finally {
                     IOUtils.closeQuietly(w);
                 }
