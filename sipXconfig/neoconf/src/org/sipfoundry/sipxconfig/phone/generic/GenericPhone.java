@@ -1,105 +1,86 @@
 package org.sipfoundry.sipxconfig.phone.generic;
 
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceVersion;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class GenericPhone extends Phone {
-	public static final String VENDOR = "genericPhone";
-    public static final DeviceVersion VERSION1 = new DeviceVersion(VENDOR, "1");
+    public static final String BEAN_ID = "genericPhone";
 
-    private static final String USER_ID_SETTING = "credential/userId";
-    private static final String DISPLAY_NAME_SETTING = "credential/displayName";
-    private static final String PASSWORD_SETTING = "credential/password";
-    private static final String REGISTRATION_SERVER_SETTING = "server/registrationServer";
-    private static final String REGISTRATION_SERVER_PORT_SETTING = "server/registrationServerPort";
-    
     public GenericPhone() {
     }
 
     @Override
+    public void initialize() {
+        GenericPhoneDefaults defaults = new GenericPhoneDefaults(getPhoneContext().getPhoneDefaults(), this);
+        addDefaultBeanSettingHandler(defaults);
+    }
+
+    @Override
     public void initializeLine(Line line) {
-        line.addDefaultBeanSettingHandler(new GenericLineDefaults(line));
+    	GenericPhoneLineDefaults defaults = new GenericPhoneLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        line.addDefaultBeanSettingHandler(defaults);
+    }
+
+    @Override
+    protected ProfileContext<GenericPhone> createContext() {
+        return new GenericPhoneProfileContext(this, getModel().getProfileTemplate());
+    }
+
+    @Override
+    protected void setLineInfo(Line line, LineInfo externalLine) {
+        line.setSettingValue(GenericPhoneConstant.DISPLAY_NAME, externalLine.getDisplayName());
+        line.setSettingValue(GenericPhoneConstant.SIP_ID, externalLine.getUserId());
+        line.setSettingValue(GenericPhoneConstant.AUTHENTICATION_PASSWORD, externalLine.getPassword());
+        line.setSettingValue(GenericPhoneConstant.PROXY, externalLine.getRegistrationServer());
+        line.setSettingValue(GenericPhoneConstant.VOICE_MAIL_ACCESS_CODE, externalLine.getVoiceMail());
+        line.setSettingValue(GenericPhoneConstant.DOMAIN, externalLine.getRegistrationServer());
+    }
+
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setUserId(line.getSettingValue(GenericPhoneConstant.SIP_ID));
+        lineInfo.setDisplayName(line.getSettingValue(GenericPhoneConstant.DISPLAY_NAME));
+        lineInfo.setPassword(line.getSettingValue(GenericPhoneConstant.AUTHENTICATION_PASSWORD));
+        lineInfo.setRegistrationServer(line.getSettingValue(GenericPhoneConstant.PROXY));
+        lineInfo.setVoiceMail(line.getSettingValue(GenericPhoneConstant.VOICE_MAIL_ACCESS_CODE));
+        return lineInfo;
     }
 
     @Override
     public String getProfileFilename() {
-        return getSerialNumber() + ".config";
+        StringBuilder buffer = new StringBuilder(getSerialNumber().toUpperCase());
+        buffer.append(".xml");
+        return buffer.toString();
     }
 
-    public static class GenericLineDefaults {
-        private final Line m_line;
-
-        GenericLineDefaults(Line line) {
-            m_line = line;
-        }
-
-        @SettingEntry(path = USER_ID_SETTING)
-        public String getUserName() {
-            String userName = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                userName = user.getUserName();
-            }
-            return userName;
-        }
-
-        @SettingEntry(path = DISPLAY_NAME_SETTING)
-        public String getDisplayName() {
-            String displayName = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                displayName = user.getDisplayName();
-            }
-            return displayName;
-        }
-
-        @SettingEntry(path = PASSWORD_SETTING)
-        public String getPassword() {
-            String password = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                password = user.getSipPassword();
-            }
-            return password;
-        }
-
-        @SettingEntry(path = REGISTRATION_SERVER_SETTING)
-        public String getRegistrationServer() {
-            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getDomainName();
-        }
+    public int getMaxLineCount() {
+        return getModel().getMaxLineCount();
     }
 
-    /**
-     * Each subclass must decide how as much of this generic line information translates into its
-     * own setting model.
-     */
+    public Collection<Setting> getProfileLines() {
+        int lineCount = getModel().getMaxLineCount();
+        List<Setting> linesSettings = new ArrayList<Setting>(getMaxLineCount());
+
+        Collection<Line> lines = getLines();
+        int i = 0;
+        Iterator<Line> ilines = lines.iterator();
+        for (; ilines.hasNext() && (i < lineCount); i++) {
+            linesSettings.add(ilines.next().getSettings());
+        }
+        return linesSettings;
+    }
+
     @Override
-    protected void setLineInfo(Line line, LineInfo info) {
-        line.setSettingValue(USER_ID_SETTING, info.getUserId());
-        line.setSettingValue(DISPLAY_NAME_SETTING, info.getDisplayName());
-        line.setSettingValue(PASSWORD_SETTING, info.getPassword());
-        line.setSettingValue(REGISTRATION_SERVER_SETTING, info.getRegistrationServer());
-        line.setSettingValue(REGISTRATION_SERVER_PORT_SETTING, info.getRegistrationServerPort());
-    }
-
-    /**
-     * Each subclass must decide how as much of this generic line information can be contructed
-     * from its own setting model.
-     */
-    @Override
-    protected LineInfo getLineInfo(Line line) {
-        LineInfo info = new LineInfo();
-        info.setDisplayName(line.getSettingValue(DISPLAY_NAME_SETTING));
-        info.setUserId(line.getSettingValue(USER_ID_SETTING));
-        info.setPassword(line.getSettingValue(PASSWORD_SETTING));
-        info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
-        info.setRegistrationServerPort(line.getSettingValue(REGISTRATION_SERVER_PORT_SETTING));
-        return info;
+    public void restart() {
+        sendCheckSyncToFirstLine();
     }
 }
