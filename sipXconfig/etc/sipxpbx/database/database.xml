@@ -481,6 +481,7 @@
     <antcall target="migrate_unsupported_phones" />
   	<antcall target="migrate_isphone_to_generic" />
     <antcall target="migrate_openuc_e911" />
+    <antcall target="migrate_new_canary_features" />
   </target>
 
   <target name="plugin-patches">
@@ -1472,6 +1473,10 @@
   <target name="migrate_openuc_e911" unless="migrate_openuc_e911">
     <plsql-patch patch="migrate_openuc_e911" />
   </target>
+  <target name="migrate_new_canary_features" unless="migrate_new_canary_features">
+    <plsql-patch patch="migrate_new_canary_features" />
+  </target>
+  
 
   <!--
     - SUPPORT UTILITIES

@@ -22,6 +22,10 @@
       <key column="location_id" not-null="true" foreign-key="location_failed_replications_fk" />
       <element type="string" column="entity_name" not-null="true" />
     </set>
+    <set name="settingsWithLocations" inverse="true" cascade="all,delete-orphan">
+      <key column="location_id"/>
+      <one-to-many class="SettingsWithLocation"/>
+    </set>    
     <property name="useStun" />
     <property name="stunAddress" />
     <property name="stunInterval" />

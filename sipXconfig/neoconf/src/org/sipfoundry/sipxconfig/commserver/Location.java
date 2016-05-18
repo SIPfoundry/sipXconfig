@@ -76,6 +76,7 @@ public class Location extends BeanWithId implements KeepsOriginalCopy<Location>,
     private State m_state = State.UNCONFIGURED;
     private Timestamp m_lastAttempt;
     private Set<String> m_failedReplications;
+    private Set<SettingsWithLocation> m_settingsWithLocations;
     private Branch m_branch;
     private boolean m_useStun = true;
     private String m_stunAddress = "stun.ezuce.com";
@@ -132,6 +133,14 @@ public class Location extends BeanWithId implements KeepsOriginalCopy<Location>,
 
     public void setFailedReplications(Set<String> failedReplications) {
         m_failedReplications = failedReplications;
+    }
+    
+    public Set<SettingsWithLocation> getSettingsWithLocations() {
+    	return m_settingsWithLocations;
+    }
+    
+    public void setSettingsWithLocations(Set<SettingsWithLocation> settingsWithLocations) {
+    	m_settingsWithLocations = settingsWithLocations;
     }
 
     public void setUseStun(boolean useStun) {

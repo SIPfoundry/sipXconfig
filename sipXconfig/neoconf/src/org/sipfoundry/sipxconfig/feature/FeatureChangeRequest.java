@@ -114,11 +114,15 @@ public class FeatureChangeRequest {
 
     public void enableLocationFeature(LocationFeature f, Location location, boolean enable) {
         if (enable) {
-            getEnableByLocation().get(location).add(f);
             safeRemove(getDisableByLocation().get(location), f);
+        	if(getEnableByLocation().containsKey(location)) {
+        		getEnableByLocation().get(location).add(f);
+        	}
         } else {
             safeRemove(getEnableByLocation().get(location), f);
-            getDisableByLocation().get(location).add(f);
+            if(getDisableByLocation().containsKey(location)) {
+            	getDisableByLocation().get(location).add(f);
+            }
         }
     }
 
