@@ -96,7 +96,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         + "WHERE sv.path = 'group.version/firmware.version' "
         + "AND p.value_storage_id = sv.value_storage_id "
         + "AND p.model_id='%s' "
-        + "ABD p.is_supported=true "
+        + "AND p.is_supported=true "
         + "AND pg.group_id='%d' "
         + "LIMIT 1";
     private static final String SQL_UPDATE = "update phone set device_version_id='%s' where phone_id=%d";
