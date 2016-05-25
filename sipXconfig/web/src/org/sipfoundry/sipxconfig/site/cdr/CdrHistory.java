@@ -83,6 +83,10 @@ public abstract class CdrHistory extends BaseComponent implements PageBeginRende
             setSelectedTimezone(CdrPage.getDefaultTimeZoneId(getUser(), getTimeManager()));
         }
 
+        if (getCdrSearch() == null) {
+            setCdrSearch(new CdrSearch());
+        }
+
         if (getStartTime().after(getEndTime())) {
             TapestryUtils.getValidator(getPage()).record(
                     new ValidatorException(getMessages().getMessage("message.invalidDates")));
