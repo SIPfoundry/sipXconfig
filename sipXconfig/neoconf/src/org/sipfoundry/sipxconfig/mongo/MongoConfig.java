@@ -45,8 +45,8 @@ import org.sipfoundry.sipxconfig.region.RegionManager;
 import com.mongodb.util.JSON;
 
 public class MongoConfig implements ConfigProvider {
-    private static final String GLOBAL_REPLSET = "sipxecs";
-    private static final String LOCAL_REPLSET = "sipxlocal";
+    public static final String GLOBAL_REPLSET = "sipxecs";
+    public static final String LOCAL_REPLSET = "sipxlocal";
 
     //clusterId and shardId are mongo readPreference tags that forces the mongo read to go locally (clusterId tag key)
     //if local read not available (mongo down or corrupted)
@@ -166,6 +166,37 @@ public class MongoConfig implements ConfigProvider {
         List<Location> dbs = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
         List<Location> arbiters = fm.getLocationsForEnabledFeature(MongoManager.ARBITER_FEATURE);
         writeGlobalModel(m_configManager, dbs, arbiters);
+    }
+    
+    public String generateConnectionUrl(String dbName, String replicaSet, Location location) {
+        /**
+         * Generate MONGO connection URL useful to generate url to other
+         * mongo client driver e.g. mongo-c-driver.
+         */
+        FeatureManager fm = m_configManager.getFeatureManager();
+        MongoSettings settings = m_mongoManager.getSettings();
+        List<Location> dbs = fm.getLocationsForEnabledFeature(MongoManager.FEATURE_ID);
+        
+        Integer regionId = location.getRegionId();
+        int shardId = (regionId != null ? regionId : 0);
+        int clusterId = location.getId();
+        
+        StringBuilder r = new StringBuilder("mongodb://");
+        for (int i = 0; i < dbs.size(); i++) {
+            Location server = dbs.get(i);
+            if (i > 0) {
+                r.append(',');
+            }
+            r.append(server.getFqdn() + ':' + settings.getPort());
+        }
+        
+        r.append("/").append(dbName);
+        r.append("?replicaSet=").append(replicaSet);
+        r.append("&readPreference=nearest");
+        r.append("&readPreferenceTags=clusterId:").append(clusterId);
+        r.append("&readPreferenceTags=shardId:").append(shardId);
+        r.append("&readPreferenceTags="); // all else, use any server
+        return r.toString();
     }
 
     void writeGlobalModel(ConfigManager manager, List<Location> dbs, List<Location> arbiters) throws IOException {

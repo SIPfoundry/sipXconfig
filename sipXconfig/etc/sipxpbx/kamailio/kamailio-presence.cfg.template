@@ -22,8 +22,8 @@ import_file "kamailio-local.cfg"
 
 #!ifdef WITH_MONGODB
 #!ifndef MONGOURL
-#!define MONGOURL "mongodb://localhost/kamailio-presence"
-#!define MONGOSIPX_IMDB_URL "mongodb://localhost/imdb"
+#!define MONGOURL "$(sipx.kamailioPresenceDB)"
+#!define MONGOSIPX_IMDB_URL "$(sipx.kamailioSIPXUserDB)"
 #!endif
 #!endif
 

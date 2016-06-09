@@ -74,6 +74,7 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
             requires.setAllowAutoResolve(false);
             validator.getInvalidChanges().add(requires);
         }
+        
         validator.requiredOnSameHost(FEATURE_PROXY, MySql.FEATURE);
         validator.requiredOnSameHost(FEATURE_PROXY, OSSCoreManager.FEATURE);
                 
@@ -165,7 +166,7 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
                 } else if (type.equals(UDP_PROXY_ADDRESS)) {
                     addresses.add(new Address(UDP_PROXY_ADDRESS, location.getAddress(), 5060));
                 } else if (type.equals(TLS_PROXY_ADDRESS)) {
-                    addresses.add(new Address(TLS_PROXY_ADDRESS, location.getAddress(), 5061));
+                    addresses.add(new Address(TCP_PROXY_ADDRESS, location.getAddress(), 5061));
                 }
             }
         }
@@ -177,13 +178,10 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
                     addresses.add(new Address(TCP_PRESENCE_ADDRESS, location.getAddress(), 5065));
                 } else if (type.equals(UDP_PRESENCE_ADDRESS)) {
                     addresses.add(new Address(UDP_PRESENCE_ADDRESS, location.getAddress(), 5065));
-                } else if (type.equals(TLS_PRESENCE_ADDRESS)) {
-                    addresses.add(new Address(TLS_PRESENCE_ADDRESS, location.getAddress(), 5066));
                 }
             }
         }
         
-
         return addresses;
     }
 

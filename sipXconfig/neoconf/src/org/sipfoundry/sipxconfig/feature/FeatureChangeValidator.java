@@ -90,6 +90,10 @@ public class FeatureChangeValidator {
     }
 
     public void requiredOnSameHost(LocationFeature subject, LocationFeature required) {
+    	requiredOnSameHost(subject, required, true);
+    }
+    
+    public void requiredOnSameHost(LocationFeature subject, LocationFeature required, boolean autoResolve) {
         if (!isEnabledSomewhere(subject)) {
             return;
         }
@@ -97,7 +101,9 @@ public class FeatureChangeValidator {
         Collection<Location> subjectLocations = getLocationsForEnabledFeature(subject);
         Collection<Location> missingLocations = DataCollectionUtil.remove(subjectLocations, requiredLocations);
         for (Location invalid : missingLocations) {
-            m_invalid.add(InvalidChange.requires(subject, required, invalid));
+        	InvalidChange requires = InvalidChange.requires(subject, required, invalid);
+        	requires.setAllowAutoResolve(autoResolve);
+            m_invalid.add(requires);
         }
     }
 

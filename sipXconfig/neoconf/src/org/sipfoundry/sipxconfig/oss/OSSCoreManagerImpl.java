@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.firewall.FirewallManager;
 import org.sipfoundry.sipxconfig.firewall.FirewallProvider;
 import org.sipfoundry.sipxconfig.firewall.FirewallRule;
 import org.sipfoundry.sipxconfig.kamailio.KamailioManager;
+import org.sipfoundry.sipxconfig.mysql.MySql;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingsDao;
 import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
@@ -43,7 +44,10 @@ public class OSSCoreManagerImpl implements OSSCoreManager, FeatureProvider, Addr
 	
 	@Override
 	public void featureChangePrecommit(FeatureManager manager, FeatureChangeValidator validator) {
-		validator.requiredOnSameHost(FEATURE, KamailioManager.FEATURE_PROXY);
+		validator.requiredOnSameHost(FEATURE, MySql.FEATURE);
+
+		// Do not auto resolve to avoid circular dependency
+		validator.requiredOnSameHost(FEATURE, KamailioManager.FEATURE_PROXY, false);
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class OSSCoreManagerImpl implements OSSCoreManager, FeatureProvider, Addr
             } else if (type.equals(PUBLIC_UDP_ADDRESS)) {
                 address = new Address(PUBLIC_UDP_ADDRESS, location.getAddress(), 5062);
             } else if (type.equals(PUBLIC_TLS_ADDRESS)) {
-                address = new Address(PUBLIC_TLS_ADDRESS, location.getAddress(), 5063);
+                address = new Address(PUBLIC_TCP_ADDRESS, location.getAddress(), 5063);
             } else if (type.equals(INTERNAL_TCP_ADDRESS)) {
                 address = new Address(INTERNAL_TCP_ADDRESS, location.getAddress(), 5050);
             } else if (type.equals(INTERNAL_UDP_ADDRESS)) {

@@ -32,7 +32,7 @@ import_file "kamailio-local.cfg"
 
 #!ifdef WITH_MONGODB
 #!ifndef MONGOURL
-#!define MONGOURL "mongodb://localhost/kamailio-proxy"
+#!define MONGOURL "$(sipx.kamailioProxyDB)"
 #!endif
 #!endif
 

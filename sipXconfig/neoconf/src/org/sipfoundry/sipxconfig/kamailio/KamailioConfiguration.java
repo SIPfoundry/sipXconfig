@@ -13,16 +13,24 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.mongo.MongoConfig;
+import org.sipfoundry.sipxconfig.mongo.MongoManager;
 import org.sipfoundry.sipxconfig.mysql.MySql;
 
 public class KamailioConfiguration implements ConfigProvider {
+	
+    private static String KAMAILIO_PROXY_DB = "kamailio-proxy";
+    private static String KAMAILIO_PRESENCE_DB = "kamailio-presence";
+    private static String KAMAILIO_SIPXUSER_DB = "imdb";
 
     private KamailioManager m_kamailioManager;
+    private MongoConfig m_mongoConfig; 
     
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(KamailioManager.FEATURE_PROXY) && 
-            !request.applies(KamailioManager.FEATURE_PRESENCE)) {
+            !request.applies(KamailioManager.FEATURE_PRESENCE) &&
+            !request.applies(MongoManager.FEATURE_ID)) {
             return;
         }
         
@@ -71,6 +79,10 @@ public class KamailioConfiguration implements ConfigProvider {
         config.writeClass(KamailioManager.FEATURE_PROXY.getId(), proxy);
         config.writeClass(KamailioManager.FEATURE_PRESENCE.getId(), presence);
         
+        String proxyConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_PROXY_DB, MongoConfig.GLOBAL_REPLSET, location);
+        String presenceConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_PRESENCE_DB, MongoConfig.GLOBAL_REPLSET, location);
+        String userConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_SIPXUSER_DB, MongoConfig.GLOBAL_REPLSET, location);
+        
         config.write("kamailioPresenceBindIp", location.getAddress());
         config.write("kamailioPresenceBindPort", settings.getPresenceSipTcpPort());
         config.write("kamailioPresenceBlaPollInterval", settings.getBLAUserPollInterval());
@@ -80,6 +92,10 @@ public class KamailioConfiguration implements ConfigProvider {
         
         config.write("kamailioProxyBindIp", location.getAddress());
         config.write("kamailioProxyBindPort", settings.getProxySipTcpPort());
+        
+        config.write("kamailioPresenceDB", presenceConnectionUrl);
+        config.write("kamailioProxyDB", proxyConnectionUrl);
+        config.write("kamailioSIPXUserDB", userConnectionUrl);
 
         config.writeClass(MySql.FEATURE.getId(), proxy || presence);
     }
@@ -126,7 +142,7 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
         config.write("listen", "tls:" + location.getAddress() + ':' + settings.getPresenceSipTlsPort());
     }
-
+    
     public KamailioManager getKamailioManager() {
         return m_kamailioManager;
     }
@@ -135,5 +151,12 @@ public class KamailioConfiguration implements ConfigProvider {
         this.m_kamailioManager = kamailioManager;
     }
 
+    public MongoConfig getMongoConfig() {
+        return m_mongoConfig;
+	}
+
+    public void setMongoConfig(MongoConfig mongoConfig) {
+        this.m_mongoConfig = mongoConfig;
+    }
     
 }
