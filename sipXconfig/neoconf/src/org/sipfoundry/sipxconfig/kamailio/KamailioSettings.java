@@ -59,6 +59,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
         return getSettingValue(DEFAULT_DUMP_CORE);
     }
     
+    public boolean isEnableDumpCore() {
+    	return (Boolean) getSettingTypedValue(DEFAULT_DUMP_CORE);
+    }
+    
     public int getProxySipTcpPort() {
         return (Integer) getSettingTypedValue(PROXY_SIP_TCP_PORT_SETTING);
     }

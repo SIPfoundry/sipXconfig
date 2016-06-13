@@ -121,6 +121,10 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("debug", settings.getLogSetting());
         config.write("log_stderror", "no");
         
+        //Configure core dump
+        boolean enableDumpCore = settings.isEnableDumpCore();
+        config.write("disable_core_dump", enableDumpCore ? "no" : "yes");
+        
         //Configure Kamailio ports
         int port = settings.getProxySipTcpPort();
         config.write("listen", "udp:" + location.getAddress() + ':' + port);
@@ -136,11 +140,14 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("debug", settings.getLogSetting());
         config.write("log_stderror", "no");
         
+        //Configure core dump
+        boolean enableDumpCore = settings.isEnableDumpCore();
+        config.write("disable_core_dump", enableDumpCore ? "no" : "yes");
+        
         //Configure Kamailio ports
         int port = settings.getPresenceSipTcpPort();
         config.write("listen", "udp:" + location.getAddress() + ':' + port);
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
-        config.write("listen", "tls:" + location.getAddress() + ':' + settings.getPresenceSipTlsPort());
     }
     
     public KamailioManager getKamailioManager() {

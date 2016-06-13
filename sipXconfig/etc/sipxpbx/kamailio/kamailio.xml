@@ -69,7 +69,7 @@
     </setting>        
 	<setting name="DEFAULT_DUMP_CORE">
       <type refid="true-false" />
-      <value>true</value>
+      <value>false</value>
     </setting>            
   </group>
   <group name="kamailio-proxy-configuration">
