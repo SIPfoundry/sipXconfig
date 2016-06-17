@@ -448,6 +448,11 @@ route[RELAY] {
 	if($rd == "$(sipx.domain)") 
 	{
 		$du = "sip:ip.$(sipx.domain)";
+		if (!t_relay_to_tcp()) 
+		{
+			sl_reply_error();
+		}
+		exit;
 	}
 #!endif	
 
@@ -611,7 +616,7 @@ route[PRESENCE]
 		if($rd == "$(sipx.domain)") 
 		{
 			$du = "sip:pm.$(sipx.domain)";
-			t_relay();
+			t_relay_to_tcp();
 		} else {
 			route(RELAY);
 		}

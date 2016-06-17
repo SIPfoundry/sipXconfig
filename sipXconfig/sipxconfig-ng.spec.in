@@ -44,6 +44,7 @@ BuildRequires: sipxcdr-ng-client >= %version
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
+%define sipxlockdir %{_localstatedir}/lock/subsys/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
 %define sipxpbxvarlib %{_var}/lib/sipxpbx
 %define sipxconfiglib %{_datadir}/sipXecs/sipXconfig
@@ -325,6 +326,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/backup
 %dir %attr(775,sipx,sipx) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,sipx,sipx) %{devicefilesdir}
+%dir %attr(775,sipx,sipx) %{sipxlockdir}
 %{_datadir}/snmp/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.txt
 %{_localstatedir}/sipxdata/unitelite/*
 %post
