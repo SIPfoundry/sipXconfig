@@ -20,6 +20,7 @@ emptydirs = \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/tftproot \
 	$(DESTDIR)@SIPX_VARDIR@/configserver/phone/profile/docroot \
 	$(DESTDIR)@SIPX_LOGDIR@ \
+	$(DESTDIR)@SIPX_LOCKDIR@ \
 	$(DESTDIR)@SIPX_DATADIR@/devicefiles \
 	$(DESTDIR)@SIPX_VARDIR@/phonebook \
 	$(DESTDIR)@SIPX_JAVADIR@/sipXconfig/plugins
