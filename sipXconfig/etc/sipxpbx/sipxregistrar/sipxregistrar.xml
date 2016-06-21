@@ -101,6 +101,27 @@
     <setting name="SIP_REGISTRAR_MIN_EXPIRES_NATED" advanced="yes">
       <type><integer/></type>
     </setting>
+    <setting name="SIP_REGISTRAR_EXPIRES_TLS" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_MAX_EXPIRES_TLS" advanced="yes">
+      <type><integer/></type>
+      <value>300</value>
+    </setting>
+    <setting name="SIP_REGISTRAR_MIN_EXPIRES_TLS" advanced="yes">
+      <type><integer/></type>
+      <value>300</value>
+    </setting>
     <setting name="SIP_REGISTRAR.MWI.UA.CISCO" advanced="yes">
       <type><string/></type>
       <value>^(CSCO|Cisco)</value>
