@@ -1,0 +1,40 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+  </div>
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addCcid@DirectLink"  id="link.addMaskCallerId" listener="listener:addMaskCallerId">
+		<span key="link.addMaskCallerId">Add New Mask</span>
+	  </a>
+	</li>
+  </ul>
+  <br/>
+<form jwcid="clients@Form" id="clientsForm">
+  <table jwcid="@common/Table" id="locations:list"
+		columns="* from,maskExtension,maskName"
+		source="ognl:maskCallerIdManager.maskCallerIds"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="fromColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editMaskCallerId"
+		  parameters="ognl:currentRow">
+          <b><span jwcid="@Insert" value="ognl:currentRow.from"/></b>
+	  </td>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="clients:delete"
+			listener="listener:delete"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>
+</div>

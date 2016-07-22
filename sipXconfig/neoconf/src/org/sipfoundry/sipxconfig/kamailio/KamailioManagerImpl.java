@@ -139,12 +139,14 @@ public class KamailioManagerImpl implements KamailioManager, FeatureProvider, Ad
         if (featureManager.isFeatureEnabled(FEATURE_PROXY, location)) {
             ProcessDefinition def = ProcessDefinition.sysvByRegex("kamailio-proxy",
                     ".*\\s-f\\s.*kamailio-proxy\\.cfg\\s.*");
+            def.setRestartClass("restart_kamailioproxy");
             procs.add(def);
         }
         
         if (featureManager.isFeatureEnabled(FEATURE_PRESENCE, location)) {
             ProcessDefinition def = ProcessDefinition.sysvByRegex("kamailio-presence",
                     ".*\\s-f\\s.*kamailio-presence\\.cfg\\s.*");
+            def.setRestartClass("restart_kamailiopresence");
             procs.add(def);
         }
 

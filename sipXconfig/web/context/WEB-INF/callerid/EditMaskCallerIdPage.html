@@ -1,0 +1,33 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="from" field="component:from" 
+              label="message:from.label"
+              description="message:from.description">
+            <span jwcid="from@TextField" id="from" value="ognl:maskCallerId.from"
+                  displayName="message:from.label"
+                  validators="validators:required"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="maskExtension" field="component:maskExtension"
+              label="message:maskExtension.label"
+              description="message:maskExtension.description">
+            <span jwcid="maskExtension@TextField" id="maskExtension"
+                  value="ognl:maskCallerId.maskExtension"
+                  displayName="message:maskExtension.label"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="maskName" field="component:maskName"
+              label="message:maskName.label"
+              description="message:maskName.description">
+            <span jwcid="maskName@TextField" id="maskName"
+                  value="ognl:maskCallerId.maskName"
+                  displayName="message:maskName.label"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:save" callback="ognl:callback"/>
+  </form>
+</div>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.callerid" default-lazy="false">
+  <class name="MaskCallerIdBean" table="mask_caller_id">
+    <id name="id" column="mcid_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">mcid_seq</param>
+      </generator>
+    </id>
+    <property name="from" column="mcid_from"/>
+    <property name="maskExtension" column="mask_extension"/>
+    <property name="maskName" column="mask_name"/>
+  </class>
+  <query name="mcidByFrom">
+    <![CDATA[from MaskCallerIdBean mcid where mcid.from=:from]]>
+  </query>
+</hibernate-mapping>

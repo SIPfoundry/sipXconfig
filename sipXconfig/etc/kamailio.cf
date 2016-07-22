@@ -148,14 +148,15 @@ bundle agent kamailioproxy_config {
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => kamailioproxy_config_contents();
+        edit_line => kamailioproxy_config_contents(),
+        classes => if_repaired("kamailioproxy_properties_changed");        
 
 }
 
 bundle agent kamailiopresence_config {
   files:
     any::
-      "$(sipx.SIPX_CONFDIR)/sipXpresence-config"
+      "$(sipx.SIPX_CONFDIR)/kamailio-presence-config"
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
@@ -166,7 +167,8 @@ bundle agent kamailiopresence_config {
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => kamailiopresence_config_contents();     
+        edit_line => kamailiopresence_config_contents(),     
+        classes => if_repaired("kamailiopresence_properties_changed");
 
 }
 
@@ -217,7 +219,7 @@ bundle edit_line kamailio_ingress_config_contents() {
 bundle edit_line sipXpresence_config_contents() {
   insert_lines:
     any::
-      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipXpresence-config.part"
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/kamailio-presence-config.part"
         insert_type => "file",
         expand_scalars => "true";
       "SIPX_INGRESS_BIND_IP : $(sipx.bind_ip)";
@@ -310,9 +312,10 @@ bundle agent kamailioproxy_running
     any::
       "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-proxy.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-proxy";
-      "service_user" string => "kamailio";
 
   classes:
+    mongo_local_reconnect::
+      "restart_kamailioproxy" expression => "any";
     kamailioproxy.mysql.mysql_running.restart_mysql::
       "restart_kamailioproxy" expression => "any";
     kamailioproxy.kamailioproxy_properties_changed::
@@ -322,9 +325,9 @@ bundle agent kamailioproxy_running
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailioproxy_running");
     kamailioproxy::
-      "any" usebundle => rh_chkconfig_status("kamailio on");
+      "any" usebundle => rh_chkconfig_status("kamailio-proxy on");
     !kamailioproxy::
-      "any" usebundle => rh_chkconfig_status("kamailio off");
+      "any" usebundle => rh_chkconfig_status("kamailio-proxy off");
     kamailioproxy.kamailioproxy_properties_changed.!restart_kamailioproxy::
       "kamailioproxy_properties_changed" usebundle => refresh_sip_service("SIPX_INGRESS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
                            "$(sipx.SIPX_CONFDIR)/kamailio-proxy-config",
@@ -342,7 +345,7 @@ bundle agent kamailioproxy_running
         comment => "start kamailio",
         args => "start";
 
-    kamailioproxy.kamailioproxy_running.(restart_kamailioproxy|refresh_kamailioproxy|restart_mysql|mysql_change_password|ssl_repaired)::
+    kamailioproxy.kamailioproxy_running.(restart_kamailioproxy|refresh_kamailioproxy|restart_sipxecs|restart_mysql|mysql_change_password|ssl_repaired)::
       "$(daemon)"
         comment => "restart kamailio",
         args => "restart";
@@ -354,9 +357,10 @@ bundle agent kamailiopresence_running
     any::
       "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-presence.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-presence";
-      "service_user" string => "kamailio";
 
   classes:
+    mongo_local_reconnect::
+      "restart_kamailiopresence" expression => "any";
     kamailiopresence.mysql.mysql_running.restart_mysql::
       "restart_kamailiopresence" expression => "any";
     kamailiopresence.kamailiopresence_properties_changed::
@@ -366,13 +370,13 @@ bundle agent kamailiopresence_running
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailiopresence_running");
     kamailiopresence::
-      "any" usebundle => rh_chkconfig_status("kamailio on");
+      "any" usebundle => rh_chkconfig_status("kamailio-presence on");
     !kamailiopresence::
-      "any" usebundle => rh_chkconfig_status("kamailio off");
+      "any" usebundle => rh_chkconfig_status("kamailio-presence off");
     kamailiopresence.kamailiopresence_properties_changed.!restart_kamailiopresence::
       "kamailiopresence_properties_changed" usebundle => refresh_sip_service("SIPX_PRESENCE_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
-                           "$(sipx.SIPX_CONFDIR)/sipXpresence-config",
-                           "$(sipx.SIPX_CONFDIR)/sipXpresence-config.cf-before-edit",
+                           "$(sipx.SIPX_CONFDIR)/kamailio-presence-config",
+                           "$(sipx.SIPX_CONFDIR)/kamailio-presence-config.cf-before-edit",
                            "kamailiopresence");
 
   commands:
@@ -386,7 +390,7 @@ bundle agent kamailiopresence_running
         comment => "start kamailio presence",
         args => "start";
 
-    kamailiopresence.kamailiopresence_running.(restart_kamailiopresence|refresh_kamailiopresence|restart_mysql|mysql_change_password)::
+    kamailiopresence.kamailiopresence_running.(restart_kamailiopresence|refresh_kamailiopresence|restart_sipxecs|restart_mysql|mysql_change_password)::
       "$(daemon)"
         comment => "restart kamailio presence",
         args => "restart";

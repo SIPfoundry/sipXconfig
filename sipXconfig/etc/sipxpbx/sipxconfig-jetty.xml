@@ -37,6 +37,15 @@
         </New>
       </Arg>
     </Call>
+    <Call name="addHandler">
+      <Arg>
+        <New class="org.eclipse.jetty.webapp.WebAppContext">
+          <Set name="contextPath">/cmcprov</Set>
+          <Set name="war"><SystemProperty name="jetty.lib.dir"/>/cmcprov.war</Set>
+          <Set name="extractWAR">true</Set>
+        </New>
+      </Arg>
+    </Call>
   </Ref>
 
   <New id="httpConfig" class="org.eclipse.jetty.server.HttpConfiguration">

@@ -482,6 +482,7 @@
   	<antcall target="migrate_isphone_to_generic" />
     <antcall target="migrate_openuc_e911" />
     <antcall target="migrate_new_canary_features" />
+  	<antcall target="mask_caller_id" />
   </target>
 
   <target name="plugin-patches">
@@ -1475,6 +1476,9 @@
   </target>
   <target name="migrate_new_canary_features" unless="migrate_new_canary_features">
     <plsql-patch patch="migrate_new_canary_features" />
+  </target>
+  <target name="mask_caller_id" unless="mask_caller_id">
+    <db-patch patch="mask_caller_id" />
   </target>
   
 
