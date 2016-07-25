@@ -270,6 +270,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/acmePhone/*
 %config(noreplace) %{sipxpbxconf}/apache/*
 %config(noreplace) %{sipxpbxconf}/backup/*
+%config(noreplace) %{sipxpbxconf}/callerid/*
 %config(noreplace) %{sipxpbxconf}/certificate/*
 %config(noreplace) %{sipxpbxconf}/commserver/*
 %config(noreplace) %{sipxpbxconf}/database/*
