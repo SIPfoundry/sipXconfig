@@ -12,6 +12,56 @@
       </false>
     </boolean>
   </type>
+  <type id="preferred-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>G722</value>
+      </option>
+      <option>
+        <value>PCMU@20i</value>
+      </option>
+      <option>
+        <value>PCMA@20i</value>
+      </option>
+      <option>
+        <value>speex</value>
+      </option>
+      <option>
+        <value>L16</value>
+      </option>
+      <option>
+        <value>G729</value>
+      </option>
+      <option>
+        <value>H261</value>
+      </option>
+      <option>
+        <value>H263</value>
+      </option>
+      <option>
+        <value>H263-1998</value>
+      </option>
+      <option>
+        <value>H263-2000</value>
+      </option>
+      <option>
+        <value>H264</value>
+      </option>
+      <option>
+        <value>vp8</value>
+      </option>
+    </multi-enum>
+  </type>
+  <type id="acl-default-action">
+    <enum>
+      <option>
+        <value>deny</value>
+      </option>
+      <option>
+        <value>allow</value>
+      </option>
+    </enum>
+  </type>
   <group name="bridge-configuration">
     <setting name="global-address" hidden="yes">
       <label>Public address</label>
@@ -126,6 +176,14 @@
         Number of calls that can be concurrently in progress. Specify -1 to remove call limit restriction.
       </description>
     </setting>
+    <setting name="sip-session-timer-interval-seconds" advanced="yes">
+      <label>Session Timer Interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>1800</value>
+      <description>Session Timer Interval (seconds). Time interval between in-dialog INVITE requests to keep the session alive.</description>
+    </setting>
     <setting name="music-on-hold-support-enabled">
       <type>
         <boolean>
@@ -161,7 +219,8 @@
 
     <setting name="music-on-hold-supported-codecs" advanced="yes">
       <label>Permitted Codecs</label>
-      <value>PCMU,PCMA,G722,L16</value>
+      <type refid="preferred-codecs-type"/>
+      <value>G722|PCMU@20i|PCMA@20i|speex|L16</value>
       <description>
         Codecs permitted for call setup. Leave blank if you do not want to restict to a specified set.
       </description>
@@ -210,5 +269,28 @@
         <integer required="yes" />
       </type>
     </setting>
+    
+    <setting name="allow-addresses" hidden="yes">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+      <value></value>
+      <description>Provide the addresses a permission access to directly call sipxbridge</description>
+    </setting>
+    
+    <setting name="deny-addresses" hidden="yes">
+      <type>
+        <string multiLine="yes" maxLen="1000"/>
+      </type>
+      <value></value>
+      <description>List of addresses to prevent access or call sipxbridge</description>
+    </setting>
+    
+    <setting name="default-action" hidden="yes">
+      <type refid="acl-default-action"/>
+      <value>deny</value>
+      <description>ACL Default Action for sipxbridge calls</description>
+    </setting>
+    
   </group>
 </model>

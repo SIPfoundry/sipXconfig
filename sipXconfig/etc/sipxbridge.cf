@@ -1,0 +1,207 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipXbridge configuration and process management
+#
+bundle agent sipxbridge {
+  methods:
+    sipxbridge::
+      "any" usebundle => sipxbridge_config;
+    any::
+      "any" usebundle => sipxbridge_running;
+}
+
+bundle agent sipxbridge_config {
+  vars:
+    any::
+      "xml_file_freeswitch_reload_only" slist => { 
+        "dialplan/inbound.xml",
+        "dialplan/outbound.xml"
+      };
+
+      "xml_file_freeswitch" slist => {
+        "freeswitch.xml",
+        "vars.xml",
+        "sip_profiles/internal.xml",
+        "sip_profiles/external.xml",
+        "autoload_configs/acl.conf.xml",
+        "autoload_configs/local_stream.conf.xml"
+      };
+
+      "xml_file" slist => {
+        "sipxbridge.xml",
+        "peeridentities.xml"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxbridge/conf/$(xml_file_freeswitch)"
+        comment => "install sipxbridge freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/sipxbridge/$(xml_file_freeswitch)"),
+        classes => if_repaired("restart_sipxbridge");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxbridge/conf/$(xml_file_freeswitch_reload_only)"
+        comment => "install sipxbridge freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/sipxbridge/$(xml_file_freeswitch_reload_only)"),
+        classes => if_repaired("reload_sipxbridge");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxbridge/conf/autoload_configs/modules.conf.xml"
+        comment => "install freeswitch freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxbridge_fs_modules,
+        classes => if_repaired("restart_sipxbridge");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/$(xml_file)"
+        comment => "install sipxbridge config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/$(xml_file)"),
+        classes => if_repaired("restart_sipxbridge");
+        
+}
+
+bundle edit_line sipxbridge_fs_modules {
+  vars:
+    "mods_part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxbridge/modules.conf.xml.part";
+
+  classes:
+    "fs_g729" expression => fileexists("/usr/lib64/mod/mod_com_g729.so");
+    "has_mods_part" expression => fileexists("$(mods_part)");
+
+  insert_lines:
+
+any::
+"
+<configuration name=\"modules.conf\" description=\"Modules\">
+  <modules>
+    <load module=\"mod_console\"/>
+    <load module=\"mod_logfile\"/>
+    <load module=\"mod_xml_rpc\"/> 
+    <load module=\"mod_event_socket\"/>
+    <load module=\"mod_erlang_event\"/>
+    <load module=\"mod_portaudio\"/> 
+    <load module=\"mod_sofia\"/>
+    <load module=\"mod_loopback\"/>
+    <load module=\"mod_commands\"/>
+    <load module=\"mod_conference\"/>
+    <load module=\"mod_dptools\"/>
+    <load module=\"mod_expr\"/>
+    <load module=\"mod_fifo\"/>
+    <load module=\"mod_spandsp\"/>
+    <load module=\"mod_limit\"/>
+    <load module=\"mod_esf\"/>
+    <load module=\"mod_fsv\"/>
+    <load module=\"mod_valet_parking\"/>
+    <load module=\"mod_dialplan_xml\"/>
+    <load module=\"mod_voipcodecs\"/>
+    <load module=\"mod_g723_1\"/>
+    <load module=\"mod_timerfd\"/>
+";
+
+fs_g729::
+"
+    <load module=\"mod_com_g729\"/>
+";
+
+!fs_g729::
+"
+    <load module=\"mod_g729\"/>
+";
+
+any::
+"
+    <load module=\"mod_amr\"/>
+    <load module=\"mod_amrwb\"/>
+    <load module=\"mod_ilbc\"/>
+    <load module=\"mod_speex\"/>
+    <load module=\"mod_h26x\"/>
+    <load module=\"mod_siren\"/>
+    <load module=\"mod_celt\"/> 
+    <load module=\"mod_bv\"/> 
+    <load module=\"mod_sndfile\"/>
+    <load module=\"mod_native_file\"/>
+    <load module=\"mod_shout\"/>
+    <load module=\"mod_local_stream\"/>
+    <load module=\"mod_tone_stream\"/>
+    <load module=\"mod_file_string\"/>
+    <load module=\"mod_portaudio_stream\"/>
+    <load module=\"mod_spidermonkey\"/>
+    <load module=\"mod_lua\"/>
+    <load module=\"mod_flite\"/>
+    <load module=\"mod_say_en\"/>
+    <load module=\"mod_say_de\"/>
+    <load module=\"mod_ivr\"/>
+    <load module=\"mod_vp8\"/>
+";
+
+  has_mods_part::
+    "$(mods_part)"
+      insert_type => "file";
+
+"
+    <load module=\"mod_g729\"/>
+";
+
+any::
+"
+  </modules>
+</configuration>
+";
+
+  delete_lines:
+    ".*";
+}
+
+bundle agent sipxbridge_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-conf\s$(sipx.SIPX_CONFDIR)/sipxbridge/conf\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
+    !src.sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge on");
+    !src.!sipxbridge::
+      "any" usebundle => rh_chkconfig_status("sipxbridge off");
+
+  commands:
+    (!sipxbridge|stop_sipxecs).sipxbridge_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        comment => "stop sipxbridge",
+        args => "stop";
+
+    sipxbridge.!sipxbridge_running.!stop_sipxecs::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        comment => "start sipxbridge",
+        args => "start";
+
+    sipxbridge.sipxbridge_running.reload_sipxbridge::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        comment => "reload sipxbridge",
+        args => "reload";
+
+    sipxbridge.sipxbridge_running.(restart_sipxecs|restart_sipxbridge|java_ssl_repaired)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+        comment => "restart sipxbridge",
+        args => "asyncrestart";
+}

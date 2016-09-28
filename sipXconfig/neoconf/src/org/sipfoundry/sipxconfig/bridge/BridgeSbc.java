@@ -13,9 +13,12 @@ package org.sipfoundry.sipxconfig.bridge;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -195,6 +198,19 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
             return context;
         }
     }
+    
+    public Set<String> getAclAllowedAddresses() {
+        return getSettingTypeAsList("bridge-configuration/allow-addresses");
+    }
+
+	public Set<String> getAclDenyAddresses() {
+        return getSettingTypeAsList("bridge-configuration/deny-addresses");
+    }
+
+    public String getAclDefaultAction() {
+        return (String) getSettingTypedValue("bridge-configuration/default-action");
+    }
+
 
     public class Defaults {
         private final DeviceDefaults m_defaults;
@@ -240,6 +256,26 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         public int getSipxSupervisorXmlRpcPort() {
             return Location.PROCESS_MONITOR_PORT;
         }
+        
+        @SettingEntry(path = "bridge-configuration/music-on-hold-supported-codecs")
+        public List<String> getFreeswitchCodecs() {
+            ArrayList<String> returnList = new ArrayList<String>();
+            returnList.add("G722");
+            returnList.add("PCMU@20i");
+            returnList.add("PCMA@20i");
+            returnList.add("speex");
+            returnList.add("L16");
+            return returnList;
+        }        
+    }
+    
+    public String getGlobalSipIp() {
+    	return (String) getSettingTypedValue("bridge-configuration/global-address");
+    }
+    
+    public int getGlobalSipPort() {
+    	Integer port = (Integer) getSettingTypedValue("bridge-configuration/global-port");
+    	return port != null ? port : 0;
     }
 
     public int getExternalSipPort() {
@@ -259,4 +295,16 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     public void setConfigManager(ConfigManager configManager) {
         m_configManager = configManager;
     }
+    
+    private Set<String> getSettingTypeAsList(String settingName) {
+        Set<String> list = new HashSet<String>();
+        String listString = (String)getSettingTypedValue(settingName);
+		if (StringUtils.isNotEmpty(listString)) {
+		    String[] listTokens = StringUtils.split(listString, ',');
+		    for (String token : listTokens) {
+		        list.add(StringUtils.trim(token));
+		    }
+		}
+		return list;
+	}
 }

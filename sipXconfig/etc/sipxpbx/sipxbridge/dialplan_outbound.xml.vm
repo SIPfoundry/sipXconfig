@@ -1,0 +1,9 @@
+<context name="public">
+    <extension name="sipxecs">
+        <condition>
+            <action application="set" data="transfer_ringback=${dollar}${dollar}{us-ring}"/>
+            <action application="bridge" data="{ignore_early_media=true}sofia/to-sipx/${dollar}1@${realm}"/>
+            <action application="answer"/>
+        </condition>
+    </extension>
+</context>

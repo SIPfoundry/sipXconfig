@@ -1,0 +1,125 @@
+#macro(apply_gateway_param $field $setting $default)
+#if(${setting} && ${setting} != "")
+      <param name="${field}" value="$!{setting}"/>
+#else
+#if(${default} && ${default} != "")
+      <param name="${field}" value="$!{default}"/>
+#end
+#end
+#end
+#macro(apply_variable_param $field $setting $direction)
+#if(${direction})
+#set($direction = "direction=""$!{direction}""")
+#end
+#if(${setting.Value})
+        <variable name="${field}" value="$!{setting.Value}" $!{direction}/>
+#end
+#end
+#macro(create_sip_addr $acc $name)
+#set($sipAddr = $acc.getSetting("itsp-${name}-address"))
+#set($sipPort = $acc.getSetting("itsp-${name}-listening-port"))
+#set($addr = "$!{sipAddr.Value}")
+#if(${sipPort.Value} && ${sipPort.Value} != "0") 
+#set($addr = "${sipAddr.Value}:${sipPort.Value}")
+#end
+$!addr##
+#end
+#set($bridge = $sbc.Settings.getSetting("bridge-configuration"))
+#set($server = $sbc.Settings.getSetting("bridge-configuration"))
+<profile name="sipxecs">
+  <aliases>
+    <!--
+    <alias name="outbound"/>
+    <alias name="nat"/>
+    -->
+  </aliases>
+  <domains>
+    <domain name="all" alias="false" parse="true"/>
+  </domains>
+
+  <settings>
+    <param name="debug" value="0"/>
+    <param name="sip-trace" value="no"/>
+    <param name="rfc2833-pt" value="101"/>
+    <param name="sip-port" value="${dollar}${dollar}{external_sip_port}"/>
+    <param name="dialplan" value="XML"/>
+    <param name="context" value="public"/>
+    <param name="dtmf-duration" value="100"/>
+    <param name="codec-prefs" value="$bridge.getSetting('music-on-hold-supported-codecs').Value.replace('|',',')"/>
+    <param name="session-timeout" value="$bridge.getSetting('sip-session-timer-interval-seconds').Value"/>
+    <param name="user-agent-string" value="sipxecs/${version} sipXecs/sipxbridge (Linux)"/>
+    <param name="hold-music" value="${dollar}${dollar}{hold_music}"/>
+    <param name="rtp-timer-name" value="soft"/>
+    <param name="inbound-late-negotiation" value="true"/>
+    <!--<param name="enable-100rel" value="true"/>-->
+    <!-- This could be set to "passive" -->
+    <param name="local-network-acl" value="localnet.auto"/>
+    <param name="manage-presence" value="false"/>
+    <!-- used to share presence info across sofia profiles
+     manage-presence needs to be set to passive on this profile
+     if you want it to behave as if it were the internal profile
+     for presence.
+    -->
+    <!-- Name of the db to use for this profile -->
+    <!--<param name="dbname" value="share_presence"/>-->
+    <!--<param name="presence-hosts" value="$org.sipfoundry.sipxconfig.domain.Domain@1"/>-->
+    <!--<param name="force-register-domain" value="$org.sipfoundry.sipxconfig.domain.Domain@1"/>-->
+    <!--all inbound reg will stored in the db using this domain -->
+    <!--<param name="force-register-db-domain" value="$org.sipfoundry.sipxconfig.domain.Domain@1"/>-->
+    <!-- ************************************************* -->
+    <!--<param name="aggressive-nat-detection" value="true"/>-->
+    <param name="inbound-codec-negotiation" value="generous"/>
+    <param name="nonce-ttl" value="60"/>
+    <param name="auth-calls" value="false"/>
+    <param name="accept-blind-auth" value="true"/>
+    <!--
+    DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
+    -->
+    <param name="rtp-ip" value="${dollar}${dollar}{local_ip_v4}"/>
+    <param name="sip-ip" value="${dollar}${dollar}{local_ip_v4}"/>
+#if($externalPublicIp && $externalPublicIp != "")
+    <param name="ext-rtp-ip" value="${externalPublicIp}"/>
+    <param name="ext-sip-ip" value="${externalPublicIp}"/>
+#else
+    <param name="ext-rtp-ip" value="stun:stun.counterpath.com"/>
+    <param name="ext-sip-ip" value="stun:stun.counterpath.com"/>
+#end
+#if($externalPublicPort > 0)
+    <param name="ext-sip-port" value="${externalPublicPort}"/>
+#end
+    <param name="rtp-timeout-sec" value="300"/>
+    <param name="rtp-hold-timeout-sec" value="1800"/>
+    <!-- <param name="enable-3pcc" value="true"/> -->
+    <!-- TLS: disabled by default, set to "true" to enable -->
+    <param name="tls" value="false"/>
+  </settings>
+
+  <gateways>
+#foreach ($itsp in $itsps)
+#set($acc = $itsp.Settings.getSetting("itsp-account"))
+#set($realm = $acc.getSetting("itsp-proxy-domain"))
+#set($proxy = "#create_sip_addr($acc ""proxy"")")
+#set($registrar = "#create_sip_addr($acc ""registrar"")")
+    <gateway name="${realm.Value}-${itsp.id}">
+      <param name="realm" value="${realm.Value}"/>
+      <param name="proxy" value="${proxy}"/>
+#apply_gateway_param("username" $acc.getSetting("user-name").Value $null)
+#apply_gateway_param("password" $acc.getSetting("password").Value $null)
+#apply_gateway_param("register" $acc.getSetting("register-on-initialization").Value "false")
+#apply_gateway_param("register-proxy" $registrar $null)
+#apply_gateway_param("expire-seconds" $acc.getSetting("registration-interval").Value $null)
+#if($!acc.getSetting("sip-keepalive-method").Value == "SIP-OPTION")
+      <param name="ping" value="20"/>
+#end
+      <param name="caller-id-in-from" value="true"/>
+#if($itsp.AddressTransport.Name != "none")
+#set($transport = $itsp.AddressTransport.Name)
+      <param name="register-transport" value="${transport}"/>
+#end      
+      <variables>
+#apply_variable_param('sip_auth_username' $acc.getSetting("authentication-user-name") 'outbound')
+      </variables>
+    </gateway>
+#end  
+  </gateways>
+</profile>

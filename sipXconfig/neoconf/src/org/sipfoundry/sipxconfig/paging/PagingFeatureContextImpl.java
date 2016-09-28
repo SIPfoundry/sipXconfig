@@ -55,7 +55,7 @@ public class PagingFeatureContextImpl extends SipxHibernateDaoSupport<PagingGrou
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (b == Bundle.ADVANCED_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

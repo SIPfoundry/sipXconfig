@@ -36,6 +36,8 @@ dist_cfinputs_DATA = \
 	sipxfreeswitch.cf \
 	sipxconfig.cf \
 	sipxdns.cf \
+	sipxbridge.cf \
+	sipxpage.cf \
 	snmp.cf \
 	snmptrap.cf \
 	tftp.cf \

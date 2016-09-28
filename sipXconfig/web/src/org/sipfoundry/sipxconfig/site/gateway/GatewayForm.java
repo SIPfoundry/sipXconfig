@@ -142,7 +142,7 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
         }
     }
 
-    public boolean isMoreThanOneBrdigeSbcs() {
+    public boolean isMoreThanOneBridgeSbcs() {
         return getSbcDeviceManager().getBridgeSbcs().size() > 1;
     }
 

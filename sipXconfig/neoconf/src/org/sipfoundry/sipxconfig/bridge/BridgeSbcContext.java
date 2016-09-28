@@ -85,9 +85,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
             Location location = bridge.getLocation();
             if (locations.contains(location)) {
                 Address a = new Address(type, bridge.getLocation().getAddress());
-                if (type.equals(XMLRPC_ADDRESS)) {
-                    a.setPort(bridge.getXmlRpcPort());
-                } else if (type.equals(INTERNAL_SIP_ADDRESS)) {
+                if (type.equals(INTERNAL_SIP_ADDRESS)) {
                     a.setPort(bridge.getPort());
                 } else if (type.equals(INTERNAL_TLS_ADDRESS)) {
                     // no TLS port setting available?
@@ -110,7 +108,7 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (b == Bundle.CORE_TELEPHONY) {
             b.addFeature(FEATURE);
         }
     }

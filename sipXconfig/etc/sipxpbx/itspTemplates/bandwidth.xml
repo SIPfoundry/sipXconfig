@@ -74,7 +74,7 @@
     <setting name="itsp-transport" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressTransport -->
     </setting>
-    <setting name="use-global-addressing" advanced="yes">
+    <setting name="use-global-addressing" hidden="yes">
       <label>Use public address for call setup</label>
       <type refid="switch" />
       <value>true</value>
@@ -144,7 +144,7 @@
       <value>600</value>
       <description>Registration interval (seconds)</description>
     </setting>
-    <setting name="sip-session-timer-interval-seconds" advanced="yes">
+    <setting name="sip-session-timer-interval-seconds" hidden="yes">
       <label>Session Timer Interval</label>
       <type>
         <integer />
@@ -161,17 +161,17 @@
             <value>NONE</value>
           </option>
           <option>
-            <label>Empty SIP message</label>
-            <value>CR-LF</value>
+            <label>SIP OPTION message</label>
+            <value>SIP-OPTION</value>
           </option>
         </enum>
       </type>
-      <value>CR-LF</value>
+      <value>SIP-OPTION</value>
       <description>
-        Defines the mechanism to use for SIP keepalive. If nothing is specified, CR-LF (empty SIP message) is used.
+        Defines the mechanism to use for SIP keepalive. If nothing is specified, SIP-OPTION (SIP Option Message) is used.
       </description>
     </setting>
-    <setting name="rtp-keepalive-method" advanced="yes">
+    <setting name="rtp-keepalive-method" hidden="yes">
       <label>Method to use for RTP keepalive.</label>
       <type>
         <enum>
@@ -192,7 +192,7 @@
       <value>NONE</value>
       <description>Defines the mechanism to use for media (RTP) keepalive.</description>
     </setting>
-    <setting name="always-relay-media" advanced="yes">
+    <setting name="always-relay-media" hidden="yes">
       <label>Always Relay Media</label>
       <type refid="switch"></type>
       <value>true</value>

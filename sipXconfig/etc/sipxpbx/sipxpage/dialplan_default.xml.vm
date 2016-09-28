@@ -1,0 +1,22 @@
+<context name="private">
+#foreach ($pagingGroup in $pagingGroups)
+    <extension name="sipxpage-group-${pagingGroup.pageGroupNumber}">
+        <!-- Extract Alert Info on SIP Request -->
+        <condition field='${sip_req_params}' expression='Alert-info=(.*)'>
+            <action application="set" data="conference_auto_outcall_prefix={sip_h_X-Alert-Info=$1, sip_h_Call-Info='<sip:localhost>;answer-after=0',execute_on_answer='bind_meta_app 2 a s1 transfer::intercept:${uuid} inline'}"/>
+        </condition>
+
+        <condition field='destination_number' expression='${pagingGroup.pageGroupNumber}'>
+            <action application="set" data="conference_auto_outcall_caller_id_name=Page Group ${pagingGroup.pageGroupNumber}"/>
+            <action application="set" data="conference_auto_outcall_caller_id_number=${pagingGroup.pageGroupNumber}"/>
+            <action application="set" data="conference_auto_outcall_timeout=${pagingGroup.timeout}"/>
+            <action application="set" data="conference_auto_outcall_flags=mute"/>
+#foreach ($user in $pagingGroup.users)            
+            <action application="conference_set_auto_outcall" data="sofia/sipxpage/${user.userName}@${realm}"/>
+#end            
+            <action application="playback" data="${audioDirectory}/${pagingGroup.sound}"/> 
+            <action application="conference" data="paging_group${pagingGroup.pageGroupNumber}@default+flags{endconf|deaf}"/>    
+        </condition>
+    </extension>
+#end
+</context>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
+  <bean id="fsPagingConfigFile" abstract="true" scope="prototype">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="pagingContext" ref="pagingContext" />
+  </bean>
+  
+  <!-- Mandatory Paging Config -->
+  <bean id="fsPagingFreeswitchConfig" class="org.sipfoundry.sipxconfig.paging.config.FreeswitchConfiguration" parent="fsPagingConfigFile">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+  <bean id="fsPagingVarConfig" class="org.sipfoundry.sipxconfig.paging.config.VarsConfiguration" parent="fsPagingConfigFile">
+    <property name="featureManager" ref="featureManager"/>
+  </bean>
+  
+  <!-- Module Paging Config -->
+  <bean id="fsPagingLocalStreamConfig" class="org.sipfoundry.sipxconfig.paging.config.ModuleLocalStreamConfiguration" parent="fsPagingConfigFile">
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="docDir" value="${sysdir.doc}" />
+  </bean>
+  
+  <bean id="fsPagingSwitchConfig" class="org.sipfoundry.sipxconfig.paging.config.ModuleSwitchConfiguration" parent="fsPagingConfigFile">
+  </bean>
+  
+  <!-- Dialplan Paging Config -->
+  <bean id="fsDialPlanDefault" class="org.sipfoundry.sipxconfig.paging.config.DialPlanConfiguration" parent="fsPagingConfigFile">
+    <property name="domainManager" ref="domainManager" />
+    <property name="audioDirectory" value="${sysdir.var}/sipxpage/music"/>
+  </bean>
+  
+  <!-- SIP Profile Config -->
+  <bean id="fsSipProfile" class="org.sipfoundry.sipxconfig.paging.config.SIPProfileConfiguration" parent="fsPagingConfigFile">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+</beans>

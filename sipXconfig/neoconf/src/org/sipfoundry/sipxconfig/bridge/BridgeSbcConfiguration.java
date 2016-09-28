@@ -17,7 +17,10 @@
 package org.sipfoundry.sipxconfig.bridge;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,9 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.alarm.AlarmProvider;
 import org.sipfoundry.sipxconfig.alarm.AlarmServerManager;
+import org.sipfoundry.sipxconfig.bridge.config.AbstractTrunkConfiguration;
+import org.sipfoundry.sipxconfig.bridge.config.FSTrunkProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
@@ -50,12 +56,22 @@ import org.sipfoundry.sipxconfig.snmp.ProcessDefinition;
 import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.tls.TlsPeerManager;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 
-public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, FeatureProvider, AlarmProvider {
+public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, FeatureProvider, AlarmProvider, BeanFactoryAware {
     // uses of this definition are not related, just defined in one place to avoid checkstyle err
     private static final String SIPXBRIDGE = "sipxbridge";
+    
     private SbcDeviceManager m_sbcDeviceManager;
-
+    private BridgeSbcContext m_sbcBridgeContext;
+    private ListableBeanFactory m_beanFactory;
+    
+    /** Default sbc to use freeswitch instead of sipxbridge **/
+    private boolean m_useFreeswitch = true;
+    
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(ProxyManager.FEATURE, BridgeSbcContext.FEATURE, TlsPeerManager.FEATURE)) {
@@ -75,16 +91,11 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
             ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
 
             if (bridgeHere) {
-                Setting settings = bridge.getSettings();
-                Setting bridgeSettings = settings.getSetting("bridge-configuration");
-                String log4jFileName = "log4j-bridge.properties.part";
-                String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxbridge",
-                                         "log4j.logger.org.sipfoundry.commons" };
-                SettingUtil.writeLog4jSetting(bridgeSettings, dir, log4jFileName, logLevelKeys);
-
-                // strange object for profile location to be compatible with device module
-                ProfileLocation profileLocation = bridge.getProfileLocation();
-                bridge.generateFiles(profileLocation);
+            	if(m_useFreeswitch) {
+            		replicateFreeswitchBridge(bridge, location, dir);
+            	} else {
+            		replicateInternalBridge(bridge, location, dir);
+            	}
             }
         }
     }
@@ -95,9 +106,12 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-        boolean enabled = manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location);
-        return (enabled ? Collections
-                .singleton(ProcessDefinition.sipxByRegex(SIPXBRIDGE, ".*\\s-Dprocname=sipxbridge\\s.*")) : null);
+    	if (!manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location)) {
+            return null;
+        }
+                
+        ProcessDefinition def = ProcessDefinition.sipxByRegex("sipxbridge", ".*\\s-conf\\s$(sipx.SIPX_CONFDIR)/sipxbridge/conf\\s.*");
+        return Collections.singleton(def);
     }
 
     @Override
@@ -138,7 +152,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.EXPERIMENTAL) {
+        if (b == Bundle.ADVANCED_TELEPHONY) {
             b.addFeature(BridgeSbcContext.FEATURE);
         }
     }
@@ -156,5 +170,65 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
         };
 
         return AlarmDefinition.asArray(ids);
+    }
+    
+    @Override
+	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		m_beanFactory = (ListableBeanFactory) beanFactory;
+	}
+    
+    public void setSbcBridgeContext(BridgeSbcContext sbcBridgeContext) {
+    	m_sbcBridgeContext = sbcBridgeContext;
+    }
+    
+    public void setUseFreeswitch(boolean useFreeswitch) {
+    	m_useFreeswitch = useFreeswitch;
+    }
+    
+    private void replicateInternalBridge(BridgeSbc bridge, Location location, File configDir) 
+    		throws IOException {
+    	Setting settings = bridge.getSettings();
+        Setting bridgeSettings = settings.getSetting("bridge-configuration");
+        String log4jFileName = "log4j-bridge.properties.part";
+        String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxbridge",
+                                 "log4j.logger.org.sipfoundry.commons" };
+        SettingUtil.writeLog4jSetting(bridgeSettings, configDir, log4jFileName, logLevelKeys);
+
+        // strange object for profile location to be compatible with device module
+        ProfileLocation profileLocation = bridge.getProfileLocation();
+        bridge.generateFiles(profileLocation);
+    }
+    
+    private void replicateFreeswitchBridge(BridgeSbc bridge, Location location, File configDir) 
+    		throws IOException {
+    	Map<String, AbstractTrunkConfiguration> configs = m_beanFactory
+                .getBeansOfType(AbstractTrunkConfiguration.class);
+        for (AbstractTrunkConfiguration config : configs.values()) {
+        	File f = new File(configDir, config.getFileName());
+            f.getParentFile().mkdirs();
+            FileWriter writer = new FileWriter(f);
+            config.write(writer, location, bridge);
+            IOUtils.closeQuietly(writer);
+        }
+
+        Map<String, FSTrunkProvider> providers = m_beanFactory.getBeansOfType(FSTrunkProvider.class);
+        Writer modWriter = null;
+        try {
+            modWriter = new FileWriter(new File(configDir, "sipxbridge/modules.conf.xml.part"));
+            writeModsParts(modWriter, providers.values(), location);
+        } finally {
+            IOUtils.closeQuietly(modWriter);
+        }
+    }
+    
+    private void writeModsParts(Writer w, Collection<FSTrunkProvider> providers, Location location) throws IOException {
+        List<String> mods = new ArrayList<String>();
+        for (FSTrunkProvider provider : providers) {
+            mods.addAll(provider.getRequiredModules(m_sbcBridgeContext, location));
+        }
+        for (String mod : mods) {
+            String entry = String.format("<load module=\"%s\"/>\n", mod);
+            w.append(entry);
+        }
     }
 }

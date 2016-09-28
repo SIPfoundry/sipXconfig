@@ -1,0 +1,221 @@
+# Copyright (c) 2012 eZuce, Inc. All rights reserved.
+# Contributed to SIPfoundry under a Contributor Agreement
+
+# This software is free software; you can redistribute it and/or modify it under
+# the terms of the Affero General Public License (AGPL) as published by the
+# Free Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+
+# This software is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+
+#
+# sipxpage configuration and process management
+#
+bundle agent sipxpage {
+  methods:
+    sipxpage::
+      "any" usebundle => sipxpage_config;
+    any::
+      "any" usebundle => sipxpage_running;
+}
+
+bundle agent sipxpage_config {
+  vars:
+    any::
+      "xml_file_freeswitch_reload_only" slist => { 
+        "dialplan/default.xml"
+      };
+
+      "xml_file_freeswitch" slist => {
+        "freeswitch.xml",
+        "vars.xml",
+        "sip_profiles/sipxpage.xml",
+        "autoload_configs/switch.conf.xml",
+        "autoload_configs/local_stream.conf.xml"
+      };
+
+  files:
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxpage/conf/$(xml_file_freeswitch)"
+        comment => "install sipxpage freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/sipxpage/$(xml_file_freeswitch)"),
+        classes => if_repaired("restart_sipxpage");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxpage/conf/$(xml_file_freeswitch_reload_only)"
+        comment => "install sipxpage freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        copy_from => copy_from_cfdata("$(sipx.location_id)/sipxpage/$(xml_file_freeswitch_reload_only)"),
+        classes => if_repaired("reload_sipxpage");
+
+    any::
+      "$(sipx.SIPX_CONFDIR)/sipxpage/conf/autoload_configs/modules.conf.xml"
+        comment => "install freeswitch freeswitch config $(this.promiser)",
+        create => "true",
+        perms => m("644"),
+        edit_line => sipxpage_fs_modules,
+        classes => if_repaired("restart_sipxpage");
+
+    !primary::
+      "$(sipx.SIPX_VARDIR)/sipxpage/music"
+        comment => "sync Page Server prompts",
+        create => "true",
+        perms => mog("644","$(sipx.SIPXPBXUSER)","$(sipx.SIPXPBXGROUP)"),
+        copy_from => copy_prompts("$(sipx.master_address)","$(sipx.SIPX_VARDIR)/sipxpage/music"),
+        file_select => wav_prompt,
+        depth_search => recurse("1");
+}
+
+bundle edit_line sipxpage_log4j_properties_contents {
+  insert_lines:
+    any::
+      "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/log4j-page.properties.part"
+        insert_type => "file";
+      "log4j.rootLogger=warn, file";        
+      "log4j.appender.file=org.sipfoundry.commons.log4j.SipFoundryAppender";
+      "log4j.appender.file.File=$(sipx.SIPX_LOGDIR)/sipxpage.log";
+      "log4j.appender.file.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";
+      "log4j.appender.file.layout.facility=sipXpage";
+      "# ALARMS log";
+      "log4j.logger.alarms=info,alarms";
+    "log4j.additivity.alarms=false";
+    "log4j.appender.alarms=org.sipfoundry.commons.log4j.SipFoundryAppender";
+    "log4j.appender.alarms.File=$(sipx.SIPX_LOGDIR)/sipxpage-alarms.log";
+    "log4j.appender.alarms.layout=org.sipfoundry.commons.log4j.SipFoundryLayout";      
+  delete_lines:
+    any::
+      ".*";
+}
+
+bundle edit_line sipxpage_fs_modules {
+  vars:
+    "mods_part" string => "$(sipx.SIPX_CFDATA)/$(sipx.location_id)/sipxpage/modules.conf.xml.part";
+
+  classes:
+    "fs_g729" expression => fileexists("/usr/lib64/mod/mod_com_g729.so");
+    "has_mods_part" expression => fileexists("$(mods_part)");
+
+  insert_lines:
+
+any::
+"
+<configuration name=\"modules.conf\" description=\"Modules\">
+  <modules>
+    <load module=\"mod_console\"/>
+    <load module=\"mod_logfile\"/>
+    <load module=\"mod_xml_rpc\"/> 
+    <load module=\"mod_event_socket\"/>
+    <load module=\"mod_erlang_event\"/>
+    <load module=\"mod_portaudio\"/> 
+    <load module=\"mod_sofia\"/>
+    <load module=\"mod_loopback\"/>
+    <load module=\"mod_commands\"/>
+    <load module=\"mod_conference\"/>
+    <load module=\"mod_dptools\"/>
+    <load module=\"mod_expr\"/>
+    <load module=\"mod_fifo\"/>
+    <load module=\"mod_spandsp\"/>
+    <load module=\"mod_limit\"/>
+    <load module=\"mod_esf\"/>
+    <load module=\"mod_fsv\"/>
+    <load module=\"mod_valet_parking\"/>
+    <load module=\"mod_dialplan_xml\"/>
+    <load module=\"mod_voipcodecs\"/>
+    <load module=\"mod_g723_1\"/>
+    <load module=\"mod_timerfd\"/>
+";
+
+fs_g729::
+"
+    <load module=\"mod_com_g729\"/>
+";
+
+!fs_g729::
+"
+    <load module=\"mod_g729\"/>
+";
+
+any::
+"
+    <load module=\"mod_amr\"/>
+    <load module=\"mod_amrwb\"/>
+    <load module=\"mod_ilbc\"/>
+    <load module=\"mod_speex\"/>
+    <load module=\"mod_h26x\"/>
+    <load module=\"mod_siren\"/>
+    <load module=\"mod_celt\"/> 
+    <load module=\"mod_bv\"/> 
+    <load module=\"mod_sndfile\"/>
+    <load module=\"mod_native_file\"/>
+    <load module=\"mod_shout\"/>
+    <load module=\"mod_local_stream\"/>
+    <load module=\"mod_tone_stream\"/>
+    <load module=\"mod_file_string\"/>
+    <load module=\"mod_portaudio_stream\"/>
+    <load module=\"mod_spidermonkey\"/>
+    <load module=\"mod_lua\"/>
+    <load module=\"mod_flite\"/>
+    <load module=\"mod_say_en\"/>
+    <load module=\"mod_say_de\"/>
+    <load module=\"mod_ivr\"/>
+    <load module=\"mod_vp8\"/>
+";
+
+  has_mods_part::
+    "$(mods_part)"
+      insert_type => "file";
+
+"
+    <load module=\"mod_g729\"/>
+";
+
+any::
+"
+  </modules>
+</configuration>
+";
+
+  delete_lines:
+    ".*";
+}
+
+bundle agent sipxpage_running {
+  vars:
+    any::
+      "service_command" string => ".*\s-conf\s$(sipx.SIPX_CONFDIR)/sipxpage/conf\s.*";
+
+  methods:
+    any::
+      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxpage_running");
+    !src.sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage on");
+    !src.!sipxpage::
+      "any" usebundle => rh_chkconfig_status("sipxpage off");
+
+  commands:
+    (!sipxpage|stop_sipxecs).sipxpage_running::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        comment => "stop sipxpage",
+        args => "stop";
+
+    sipxpage.!sipxpage_running.!stop_sipxecs::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        comment => "start sipxpage",
+        args => "start";
+
+    sipxpage.sipxpage_running.reload_sipxpage::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        comment => "reload sipxpage",
+        args => "reload";
+
+    sipxpage.sipxpage_running.(restart_sipxecs|restart_sipxpage|java_ssl_repaired)::
+      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+        comment => "restart sipxpage",
+        args => "asyncrestart";
+}

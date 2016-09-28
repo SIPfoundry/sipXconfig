@@ -52,7 +52,7 @@ public class FreeswitchConfigurationProvider implements ConfigProvider, BeanFact
             Map<String, AbstractFreeswitchConfiguration> configs = m_beanFactory
                     .getBeansOfType(AbstractFreeswitchConfiguration.class);
             for (AbstractFreeswitchConfiguration config : configs.values()) {
-                File f = new File(dir, config.getFileName());
+            	File f = new File(dir, config.getFileName());
                 f.getParentFile().mkdirs();
                 FileWriter writer = new FileWriter(f);
                 config.write(writer, location, settings);
@@ -89,4 +89,5 @@ public class FreeswitchConfigurationProvider implements ConfigProvider, BeanFact
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
+    
 }

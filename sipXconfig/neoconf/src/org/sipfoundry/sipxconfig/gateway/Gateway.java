@@ -73,7 +73,6 @@ public class Gateway extends Device implements Replicable, DeployConfigOnEdit, S
 
     private boolean m_useSipXBridge = true; // default enabled
 
-
     public Gateway() {
     }
 

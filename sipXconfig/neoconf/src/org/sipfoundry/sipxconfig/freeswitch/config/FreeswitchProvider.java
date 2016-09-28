@@ -27,4 +27,5 @@ public interface FreeswitchProvider {
      * return a list of modules in modules.conf.xml you want loaded.
      */
     public List<String> getRequiredModules(FreeswitchFeature feature, Location location);
+    
 }

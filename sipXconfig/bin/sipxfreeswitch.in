@@ -17,6 +17,7 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin:@FREESWITCH_PREFIX@/bin
 DESC="FreeSwitch Voice Switching System"
 NAME=freeswitch
 DAEMON=$NAME
+REGEX=conf\\s@SIPX_CONFDIR@/freeswitch/conf
 FS_CLI=fs_cli
 DAEMON_ARGS="\
   -conf @SIPX_CONFDIR@/freeswitch/conf \
@@ -31,6 +32,7 @@ DAEMON_START_ARGS="-nc -nonat \
 DAEMON_STOP_ARGS="-stop \
    $DAEMON_ARGS"
 PIDFILE=@SIPX_RUNDIR@/freeswitch.pid
+LOCKFILE=@SIPX_LOCKDIR@/sipxfreeswitch
 
 do_setlimits() {
         ulimit -c unlimited
@@ -81,7 +83,7 @@ do_audio_setup() {
 base=${0##*/}
 
 do_start() {
-  checkRunningInstance @SIPXPBXUSER@ $DAEMON $NAME > /dev/null
+  checkRunningInstance @SIPXPBXUSER@ $REGEX $NAME > /dev/null
   RETVAL=$?
   [ $RETVAL -eq 0 ] && { echo -n "$NAME $runningError"; echo_failure; echo; exit $ERUNNING; }
   do_setlimits
@@ -92,10 +94,10 @@ do_start() {
 
   if [ $# -gt 0 ]; then
     #check if process spawned
-    checkRunningInstanceTimeout @SIPXPBXUSER@ $DAEMON
+    checkRunningInstanceTimeout @SIPXPBXUSER@ $REGEX
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ESRCH; }
-    checkIfListening $NAME
+    checkIfListening `cat $PIDFILE`/$NAME
     RETVAL=$?
     [ $RETVAL -eq 0 ] || { echo_failure; echo; exit $ENOSCKT; }
     [ $RETVAL -eq 0 ] && { echo_success; echo; }
@@ -107,8 +109,9 @@ do_start() {
 }
 
 do_stop() {
-  fspid=$(pidof $NAME)
+  status -p "$PIDFILE" -l "$LOCKFILE" $NAME > /dev/null
   status=$?
+  [ $status -ne 0 ] && { echo -n "$NAME is already stop"; echo_failure; echo; return $ESRCH; }
   $DAEMON $DAEMON_STOP_ARGS
   RETVAL=$?
   [ $RETVAL = 0 ] && success $"$base shutdown" || failure $"$base shutdown"
@@ -117,17 +120,17 @@ do_stop() {
   while [[ $status -lt 1 && $i -lt 10 ]]
     do
     sleep 1
-      fspid=$(pidof $NAME)
+      status -p "$PIDFILE" -l "$LOCKFILE" $NAME > /dev/null 
   status=$?
   i=$(expr $i + 1)
   done
   if [ $status -lt 1 ]; then
     echo "Process did not exit cleanly. Aborting..."
-    killproc $NAME
+    killproc -p $PIDFILE $DAEMON
   fi
-  rm -f $LOCKFILE
+  rm -f $PIDFILE $LOCKFILE
   echo
-  killAnyOrphans @SIPXPBXUSER@ $DAEMON
+  killAnyOrphans @SIPXPBXUSER@ $REGEX
   return $RETVAL
 }
 
@@ -166,7 +169,7 @@ case "$1" in
     do_asyncrestart
     ;;
   status)
-    checkRunningInstance @SIPXPBXUSER@ $DAEMON $NAME
+    checkRunningInstance @SIPXPBXUSER@ $REGEX $NAME
     ;;
   *)
     echo $"Usage: $0 {start|stop|status}"

@@ -18,6 +18,8 @@ initd_SCRIPTS = \
 	mongodb-sync \
 	kamailio-proxy \
 	kamailio-presence \
+	sipxbridge \
+	sipxpage \
 	oss_core
 
 bin_SCRIPTS = \

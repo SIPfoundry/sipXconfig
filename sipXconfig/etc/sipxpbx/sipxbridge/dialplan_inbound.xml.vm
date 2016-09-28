@@ -1,0 +1,45 @@
+<context name="private">
+#foreach ($itsp in $itsps)
+#set($acc = $itsp.Settings.getSetting("itsp-account"))
+    <extension name="sipxecs-lineid-${itsp.id}" continue="yes">
+        <condition field='${dollar}{sip_req_params}' expression='sipxecs-lineid=${itsp.id}'/>
+        <condition field="destination_number" expression="^(.*)$">
+            <action application="set" data="transfer_ringback=${dollar}${dollar}{us-ring}"/>
+#if($acc.getSetting("strip-private-headers").Value == "true")
+            <!-- Strip Private Header(s) is enabled -->
+            <action application="unset" data="sip_h_Subject"/>
+            <action application="unset" data="sip_h_Organization"/>
+            <action application="unset" data="sip_h_Reply-To"/>
+            <action application="unset" data="sip_h_In-Reply-To"/>
+            <action application="unset" data="sip_h_User-Agent"/>
+            <action application="set" data="effective_caller_id_name=_undef_"/>
+#end
+#if("$!{acc.getSetting(""default-asserted-identity"").Value}" == "false" && "$!{acc.getSetting(""asserted-identity"").Value}" != "")
+            <!-- Use asserted identity -->
+            <action application="export" data="sip_cid_type=pid"/>
+            <action application="export" data="origination_privacy=screen+hide_name+hide_number"/>
+            <action application="export" data="sip_from_uri=sip:$!{acc.getSetting("asserted-identity").Value}"/>
+#else
+#if("$!{acc.getSetting(""default-preferred-identity"").Value}" == "false" && "$!{acc.getSetting(""preferred-identity"").Value}" != "")
+            <!-- Use preferred identity-->
+            <action application="export" data="sip_cid_type=pid"/>
+            <action application="export" data="origination_privacy=hide_name+hide_number"/>
+            <action application="export" data="effective_caller_id_number=sip:$!{acc.getSetting("preferred-identity").Value}"/>
+            <action application="export" data="sip_from_uri=sip:$!{acc.getSetting("preferred-identity").Value}"/>
+#end
+#end
+#if($acc.getSetting("is-user-phone").Value == "true")
+            <!-- Add user=phone on request URI -->
+            <action application="export" data="nolocal:sip_invite_params=user=phone"/>
+#end
+#if($itsp.AddressTransport.Name != "none")
+#set($transport = $itsp.AddressTransport.Name)
+            <action application="bridge" data="sofia/gateway/${acc.getSetting("itsp-proxy-domain").Value}-${itsp.id}/${dollar}0;transport=${transport}"/>
+#else
+            <action application="bridge" data="sofia/gateway/${acc.getSetting("itsp-proxy-domain").Value}-${itsp.id}/${dollar}0"/>
+#end
+            <action application="answer"/>
+        </condition>
+    </extension>
+#end
+</context>

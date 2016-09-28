@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  
+  <bean id="fsTrunkConfigFile" abstract="true" scope="prototype">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+  
+  <!-- Mandatory Trunk Config -->
+  <bean id="fsTrunkFreeswitchConfig" class="org.sipfoundry.sipxconfig.bridge.config.FreeswitchConfiguration" parent="fsTrunkConfigFile">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+  <bean id="fsTrunkVarConfig" class="org.sipfoundry.sipxconfig.bridge.config.VarsConfiguration" parent="fsTrunkConfigFile">
+    <property name="featureManager" ref="featureManager"/>
+  </bean>
+  
+  <!-- Module Trunk Config -->
+  <bean id="fsTrunkAclConfig" class="org.sipfoundry.sipxconfig.bridge.config.ModuleAclConfiguration" parent="fsTrunkConfigFile">
+    <property name="locationManager" ref="locationsManager"/>
+  </bean>
+  
+  <bean id="fsTrunkLocalStreamConfig" class="org.sipfoundry.sipxconfig.bridge.config.ModuleLocalStreamConfiguration" parent="fsTrunkConfigFile">
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="docDir" value="${sysdir.doc}" />
+  </bean>
+  
+  <!-- Dialplan Trunk Config -->
+  <bean id="fsDialPlanInbound" class="org.sipfoundry.sipxconfig.bridge.config.DialPlanInboundConfiguration" parent="fsTrunkConfigFile">
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+  <bean id="fsDialPlanOutbound" class="org.sipfoundry.sipxconfig.bridge.config.DialPlanOutboundConfiguration" parent="fsTrunkConfigFile">
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+  <!-- Profile Config -->
+  <bean id="fsSipProfileInternal" class="org.sipfoundry.sipxconfig.bridge.config.SIPProfileInternalConfiguration" parent="fsTrunkConfigFile">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+  
+  <bean id="fsSipProfileExternal" class="org.sipfoundry.sipxconfig.bridge.config.SIPProfileExternalConfiguration" parent="fsTrunkConfigFile">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+
+</beans>

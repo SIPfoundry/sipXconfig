@@ -1,0 +1,18 @@
+<configuration name="acl.conf" description="Network Lists">
+  <network-lists>
+    <list name="domains" default="deny">
+      <node type="allow" domain="${dollar}${dollar}{domain}"/>
+    </list>
+    
+    <list name="$acl_id" default="$acl_default_action">
+#foreach($allow in $acl_allow)
+      <node type="allow" cidr="${allow}" />
+#end
+#foreach($deny in $acl_deny)
+      <node type="deny" cidr="${deny}" />
+#end
+    </list>
+
+  </network-lists>
+</configuration>
+
