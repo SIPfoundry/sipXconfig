@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
@@ -34,9 +35,14 @@ public class KamailioConfiguration implements ConfigProvider {
             return;
         }
         
-        KamailioSettings settings = m_kamailioManager.getSettings();
+        List<Location> presenceLocations = manager.getFeatureManager().getLocationsForEnabledFeature(KamailioManager.FEATURE_PRESENCE);
+        if (presenceLocations.isEmpty()) {
+        	return;
+        }
         
+        KamailioSettings settings = m_kamailioManager.getSettings();
         Set<Location> locations = request.locations(manager);
+        Location presenceLocation = presenceLocations.get(0);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(KamailioManager.FEATURE_PROXY, location);
@@ -44,7 +50,7 @@ public class KamailioConfiguration implements ConfigProvider {
             
             Writer kamailioCf = new FileWriter(new File(dir, "kamailio.cfdat"));
             try {
-                writeCfConfig(kamailioCf, settings, location, proxyEnabled, presenceEnabled);
+                writeCfConfig(kamailioCf, settings, location, presenceLocation, proxyEnabled, presenceEnabled);
             } finally {
                 IOUtils.closeQuietly(kamailioCf);
             }
@@ -73,7 +79,7 @@ public class KamailioConfiguration implements ConfigProvider {
         
     }
     
-    private void writeCfConfig(Writer wtr, KamailioSettings settings, Location location, boolean proxy, boolean presence)
+    private void writeCfConfig(Writer wtr, KamailioSettings settings, Location location, Location presenceLocation, boolean proxy, boolean presence)
             throws IOException {
         CfengineModuleConfiguration config = new CfengineModuleConfiguration(wtr);
         config.writeClass(KamailioManager.FEATURE_PROXY.getId(), proxy);
@@ -83,7 +89,7 @@ public class KamailioConfiguration implements ConfigProvider {
         String presenceConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_PRESENCE_DB, MongoConfig.GLOBAL_REPLSET, location);
         String userConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_SIPXUSER_DB, MongoConfig.GLOBAL_REPLSET, location);
         
-        config.write("kamailioPresenceBindIp", location.getAddress());
+        config.write("kamailioPresenceBindIp", presenceLocation.getAddress());
         config.write("kamailioPresenceBindPort", settings.getPresenceSipTcpPort());
         config.write("kamailioPresenceBlaPollInterval", settings.getBLAUserPollInterval());
         config.write("kamailioPresenceEnableSipXPlugin", settings.isEnableBLFSipXPlugin() ? 1 : 0);
