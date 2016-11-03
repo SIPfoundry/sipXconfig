@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.mongo.MongoConfig;
 import org.sipfoundry.sipxconfig.mongo.MongoManager;
 import org.sipfoundry.sipxconfig.mysql.MySql;
+import org.sipfoundry.sipxconfig.redis.Redis;
 
 public class KamailioConfiguration implements ConfigProvider {
 	
@@ -89,12 +90,22 @@ public class KamailioConfiguration implements ConfigProvider {
         String presenceConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_PRESENCE_DB, MongoConfig.GLOBAL_REPLSET, location);
         String userConnectionUrl = m_mongoConfig.generateConnectionUrl(KAMAILIO_SIPXUSER_DB, MongoConfig.GLOBAL_REPLSET, location);
         
+        
+        config.write("kamailioForkChildren", settings.getDefaultChildren());
+        config.write("kamailioTcpWriteQueueSize", settings.getTcpWriteQueueSize());
+        config.write("kamailioTcpReadBufferSize", settings.getTcpReadBufferSize());
+        config.write("kamailioTcpConnectionLifetime", settings.getTcpConnectionLifetime());
+        
         config.write("kamailioPresenceBindIp", presenceLocation.getAddress());
         config.write("kamailioPresenceBindPort", settings.getPresenceSipTcpPort());
         config.write("kamailioPresenceBlaPollInterval", settings.getBLAUserPollInterval());
         config.write("kamailioPresenceEnableSipXPlugin", settings.isEnableBLFSipXPlugin() ? 1 : 0);
         config.write("kamailioPresenceEnablePollBlaUser", settings.isEnablePollBLAUser() ? 1 : 0);
         config.write("kamailioPresenceSipXPluginLogLevel", settings.getBLFSipXPluginLogSetting());
+        
+        config.write("kamailioPresenceEnableBlaMessageQueue", settings.isEnableBLAMessageQueue() ? 1 : 0);
+        config.write("kamailioPresenceBLARedisAddress", presenceLocation.getAddress());
+        config.write("kamailioPresenceBLARedisPort", Redis.SERVER.getCanonicalPort());
         
         config.write("kamailioProxyBindIp", location.getAddress());
         config.write("kamailioProxyBindPort", settings.getProxySipTcpPort());
@@ -104,6 +115,7 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("kamailioSIPXUserDB", userConnectionUrl);
 
         config.writeClass(MySql.FEATURE.getId(), proxy || presence);
+        config.writeClass(Redis.FEATURE.getId(), proxy || presence);
     }
     
     private void writeKamailioDefault(Writer wtr, KamailioSettings settings)

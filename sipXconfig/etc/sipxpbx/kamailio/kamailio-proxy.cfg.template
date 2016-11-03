@@ -57,13 +57,15 @@ memlog=5
 log_facility=LOG_LOCAL1
 
 fork=yes
-children=4
+children=$(sipx.kamailioForkChildren)
 
 alias=$(sipx.domain)
 
 # life time of TCP connection when there is no traffic
 # - a bit higher than registration expires to cope with UA behind NAT
-tcp_connection_lifetime=3605
+tcp_connection_lifetime=$(sipx.kamailioTcpConnectionLifetime)
+tcp_conn_wq_max=$(sipx.kamailioTcpWriteQueueSize)
+tcp_rd_buf_size=$(sipx.kamailioTcpReadBufferSize)
 enable_tls=1
 
 ####### Custom Parameters #########

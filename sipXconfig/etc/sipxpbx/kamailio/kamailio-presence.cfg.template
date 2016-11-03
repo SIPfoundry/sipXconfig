@@ -48,12 +48,14 @@ memlog=5
 log_facility=LOG_LOCAL2
 
 fork=yes
-children=4
+children=$(sipx.kamailioForkChildren)
 
 /* add local domain aliases */
 alias="$(sipx.domain)"
 
-tcp_connection_lifetime=3605
+tcp_connection_lifetime=$(sipx.kamailioTcpConnectionLifetime)
+tcp_conn_wq_max=$(sipx.kamailioTcpWriteQueueSize)
+tcp_rd_buf_size=$(sipx.kamailioTcpReadBufferSize)
 
 ####### Custom Parameters #########
 
@@ -261,7 +263,7 @@ modparam("presence_xml", "disable_bla", 1)
 modparam("presence_dialoginfo", "force_single_dialog", 1)
 modparam("presence_dialoginfo", "use_dialog_event_collator", $(sipx.kamailioPresenceEnableSipXPlugin))
 modparam("presence_dialoginfo", "dialog_collator_plugin_path", "$(sipx.SIPX_LIBDIR)")
-modparam("presence_dialoginfo", "dialog_collator_log_file", "$(sipx.SIPX_LOGDIR)/dialog_collator.log")
+modparam("presence_dialoginfo", "dialog_collator_log_file", "$(sipx.SIPX_LOGDIR)/sipx-kamailio-plugin.log")
 modparam("presence_dialoginfo", "dialog_collator_log_level", $(sipx.kamailioPresenceSipXPluginLogLevel))
 
 # ----- pua params -----
@@ -282,6 +284,11 @@ modparam("sipx_bla", "outbound_proxy", "sip:$(sipx.kamailioProxyBindIp):$(sipx.k
 modparam("sipx_bla", "bla_header_name", "SIPXSender")
 modparam("sipx_bla", "poll_sipx_bla_user", $(sipx.kamailioPresenceEnablePollBlaUser))
 modparam("sipx_bla", "poll_sipx_interval", $(sipx.kamailioPresenceBlaPollInterval))
+modparam("sipx_bla", "use_bla_message_queue", $(sipx.kamailioPresenceEnableBlaMessageQueue));
+modparam("sipx_bla", "bla_message_queue_plugin_path", "$(sipx.SIPX_LIBDIR)");
+modparam("sipx_bla", "bla_message_queue_log_file", "$(sipx.SIPX_LOGDIR)/sipx-kamailio-plugin.log")
+modparam("sipx_bla", "bla_message_queue_redis_address", "$(sipx.kamailioPresenceBLARedisAddress)")
+modparam("sipx_bla", "bla_message_queue_redis_port", $(sipx.kamailioPresenceBLARedisPort))
 #!endif
 #!endif
 
