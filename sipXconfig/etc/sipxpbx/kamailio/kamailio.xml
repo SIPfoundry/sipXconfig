@@ -71,7 +71,7 @@
       <type>
         <integer />
       </type>
-      <value>16</value>
+      <value>8</value>
     </setting>
     <setting name="TCP_WRITE_QUEUE_SIZE" advanced="yes">
       <type>

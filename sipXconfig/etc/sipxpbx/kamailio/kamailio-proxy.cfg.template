@@ -296,6 +296,7 @@ modparam("pua_dialoginfo", "override_lifetime", 124)
 #!ifdef WITH_SIPX
 modparam("sipx_bla", "bla_header_name", "SIPXSender")
 modparam("sipx_bla", "poll_sipx_bla_user", 0)
+modparam("sipx_bla", "use_bla_message_queue", 0)
 #!endif
 
 #!endif
