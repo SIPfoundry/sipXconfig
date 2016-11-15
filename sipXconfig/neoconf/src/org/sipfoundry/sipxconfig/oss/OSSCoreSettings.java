@@ -17,6 +17,8 @@ public class OSSCoreSettings extends PersistableSettings implements DeployConfig
     public static final String OSS_SIP_UDP_PUBLIC_PORT_SETTING = ROOT_SETTING + "/PUBLIC_UDP_PORT";
     public static final String OSS_SIP_TLS_PUBLIC_PORT_SETTING = ROOT_SETTING + "/PUBLIC_TLS_PORT";
     public static final String OSS_SIP_WS_PUBLIC_PORT_SETTING  = ROOT_SETTING + "/PUBLIC_WS_PORT";
+    public static final String OSS_SIP_RTP_LOW_PORT_SETTING  = ROOT_SETTING + "/PUBLIC_RTP_PORT_LOW";
+    public static final String OSS_SIP_RTP_HIGH_PORT_SETTING  = ROOT_SETTING + "/PUBLIC_RTP_PORT_HIGH";
     
     public static final String OSS_SIP_INTERNAL_PORT_SETTING = ROOT_SETTING + "/INTERNAL_PORT";
     public static final String OSS_SIP_INTERNAL_TRANSPORT_SETTING = ROOT_SETTING + "/INTERNAL_TRANSPORT";
@@ -53,6 +55,14 @@ public class OSSCoreSettings extends PersistableSettings implements DeployConfig
     
     public String getAdvertiseIp() {
         return getSettingValue(OSS_SIP_TCP_ADVERTISE_IP_SETTING);
+    }
+
+    public int getRtpLowestPort() {
+        return (Integer) getSettingTypedValue(OSS_SIP_RTP_LOW_PORT_SETTING);
+    }
+
+    public int getRtpHighestPort() {
+        return (Integer) getSettingTypedValue(OSS_SIP_RTP_HIGH_PORT_SETTING);
     }
     
     @Override
