@@ -4,10 +4,9 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.kamailio.KamailioManager;
-import org.sipfoundry.sipxconfig.kamailio.KamailioSettings;
 import org.sipfoundry.sipxconfig.oss.OSSCoreManager;
 import org.sipfoundry.sipxconfig.oss.OSSCoreSettings;
 
@@ -32,6 +31,12 @@ public abstract class EditSBC extends PageWithCallback implements PageBeginRende
     }
 
     public void apply() {
+        int lowestPort = getSettings().getRtpLowestPort();
+        int highestPort = getSettings().getRtpHighestPort();
+        if(lowestPort > highestPort) {
+            throw new UserException(getMessages().getMessage("error.invalid.rtp.port"));
+        }
+
     	getOSSCoreManager().saveSettings(getSettings());
     }
     

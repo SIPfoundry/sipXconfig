@@ -71,6 +71,20 @@ $(sipx.SIPX_LOGDIR)/freeswitch*.log {
     endscript
 }
 
+$(sipx.SIPX_LOGDIR)/kamailio-proxy.log {
+    sharedscripts
+    postrotate
+       /bin/kill -HUP `cat /var/run/syslogd.pid 2>/dev/null` 2>/dev/null || true
+    endscript
+}
+
+$(sipx.SIPX_LOGDIR)/kamailio-presence.log {
+    sharedscripts
+    postrotate
+       /bin/kill -HUP `cat /var/run/syslogd.pid 2>/dev/null` 2>/dev/null || true
+    endscript
+}
+
 $(sipx.SIPX_LOGDIR)/firewall/*.log {
     notifempty
     postrotate

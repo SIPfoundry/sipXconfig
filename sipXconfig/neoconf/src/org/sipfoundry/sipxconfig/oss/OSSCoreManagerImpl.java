@@ -32,7 +32,7 @@ public class OSSCoreManagerImpl implements OSSCoreManager, FeatureProvider, Addr
 		, ProcessProvider, FirewallProvider {
 	
 	public static final Collection<AddressType> PUBLIC_ADDRESS_TYPES = Arrays.asList(
-			PUBLIC_TCP_ADDRESS, PUBLIC_UDP_ADDRESS, PUBLIC_TLS_ADDRESS
+			PUBLIC_TCP_ADDRESS, PUBLIC_UDP_ADDRESS, PUBLIC_TLS_ADDRESS, PUBLIC_RTP_ADDRESS
 		);
 	
 	public static final Collection<AddressType> INTERNAL_ADDRESS_TYPES = Arrays.asList(
@@ -90,6 +90,9 @@ public class OSSCoreManagerImpl implements OSSCoreManager, FeatureProvider, Addr
                 address = new Address(INTERNAL_TCP_ADDRESS, location.getAddress(), 5050);
             } else if (type.equals(INTERNAL_UDP_ADDRESS)) {
                 address = new Address(INTERNAL_UDP_ADDRESS, location.getAddress(), 5050);
+            } else if (type.equals(PUBLIC_RTP_ADDRESS)) {
+            	address = new Address(PUBLIC_RTP_ADDRESS, location.getAddress(), getSettings().getRtpLowestPort());
+            	address.setEndPort(getSettings().getRtpHighestPort());
             }
             addresses.add(address);
         }

@@ -17,6 +17,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String TABLE_DIALOG_VARS_VERSION = ROOT_SETTING + "/TABLE_DIALOG_VARS_VERSION";    
     public static final String DEFAULT_SHARED_MEMORY = ROOT_SETTING + "/DEFAULT_SHARED_MEMORY";
     public static final String DEFAULT_PRIVATE_MEMORY = ROOT_SETTING + "/DEFAULT_PRIVATE_MEMORY";
+    public static final String DEFAULT_CHILDREN = ROOT_SETTING + "/DEFAULT_CHILDREN";
+    public static final String TCP_WRITE_QUEUE_SIZE = ROOT_SETTING + "/TCP_WRITE_QUEUE_SIZE";
+    public static final String TCP_READ_BUFFER_SIZE = ROOT_SETTING + "/TCP_READ_BUFFER_SIZE";
+    public static final String TCP_CONNECTION_LIFETIME = ROOT_SETTING + "/TCP_CONNECTION_LIFETIME";
     public static final String DEFAULT_DUMP_CORE = ROOT_SETTING + "/DEFAULT_DUMP_CORE";
     
     /* Proxy Settings */
@@ -32,6 +36,7 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String PRESENCE_SIP_TLS_PORT_SETTING = PRESENCE_ROOT_SETTING + "/TLS_PORT";
     public static final String ENABLE_BLF_SIPX_PLUGIN_SETTING = PRESENCE_ROOT_SETTING + "/ENABLE_BLF_SIPX_PLUGIN";
     public static final String BLF_SIPX_PLUGIN_LOG_SETTING = PRESENCE_ROOT_SETTING + "/BLF_SIPX_PLUGIN_LOG_SETTING";
+    public static final String ENABLE_BLA_MESSAGE_QUEUE = PRESENCE_ROOT_SETTING + "/ENABLE_BLA_MESSAGE_QUEUE";
     public static final String ENABLE_POLL_BLA_USER_SETTING = PRESENCE_ROOT_SETTING + "/ENABLE_POLL_BLA_USER_SETTING";
     public static final String BLA_USER_POLL_INTERVAL_SETTING = PRESENCE_ROOT_SETTING + "/BLA_USER_POLL_INTERVAL_SETTING";
 
@@ -53,6 +58,22 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     
     public int getDefaultPrivateMemory() {
         return (Integer) getSettingTypedValue(DEFAULT_PRIVATE_MEMORY);
+    }
+    
+    public int getDefaultChildren() {
+        return (Integer) getSettingTypedValue(DEFAULT_CHILDREN);
+    }
+    
+    public int getTcpWriteQueueSize() {
+        return (Integer) getSettingTypedValue(TCP_WRITE_QUEUE_SIZE);
+    }
+    
+    public int getTcpReadBufferSize() {
+        return (Integer) getSettingTypedValue(TCP_READ_BUFFER_SIZE);
+    }
+    
+    public int getTcpConnectionLifetime() {
+        return (Integer) getSettingTypedValue(TCP_CONNECTION_LIFETIME);
     }
     
     public String getDumpCore() {
@@ -97,6 +118,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     
     public boolean isEnablePollBLAUser() {
         return (Boolean) getSettingTypedValue(ENABLE_POLL_BLA_USER_SETTING);
+    }
+    
+    public boolean isEnableBLAMessageQueue() {
+        return (Boolean) getSettingTypedValue(ENABLE_BLA_MESSAGE_QUEUE);
     }
     
     public int getBLAUserPollInterval() {

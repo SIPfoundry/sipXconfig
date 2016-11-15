@@ -11,6 +11,9 @@ public interface OSSCoreManager {
     
     public static final AddressType INTERNAL_TCP_ADDRESS = AddressType.sipTcp("sbcInternalTCP");
     public static final AddressType INTERNAL_UDP_ADDRESS = AddressType.sipUdp("sbcInternalUDP");
+    
+    public static final AddressType PUBLIC_RTP_ADDRESS = new AddressType("natRtp", "rtp:%s:%d", 30000,
+            AddressType.Protocol.udp);
 
     public OSSCoreSettings getSettings();
 

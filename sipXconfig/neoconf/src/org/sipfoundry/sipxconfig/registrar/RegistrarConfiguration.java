@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.feature.GlobalFeature;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
+import org.sipfoundry.sipxconfig.redis.Redis;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
@@ -140,6 +141,9 @@ public class RegistrarConfiguration implements ConfigProvider, ApplicationContex
         file.write("SIP_REDIRECT_HOOK_LIBRARY.998-TIMEOFDAY", "$(sipx.SIPX_LIBDIR)/libRedirectorTimeOfDay.so");
         file.write("SIP_REDIRECT_HOOK_LIBRARY.999-AUTHROUTER", "$(sipx.SIPX_LIBDIR)/libRedirectorAuthRouter.so");
         file.write("SIP_REGISTRAR_HOOK_LIBRARY.MWI", "$(sipx.SIPX_LIBDIR)/libRegistrarImpliedMWI.so");
+        file.write("SIP_REGISTRAR_HOOK_LIBRARY.BLA", "$(sipx.SIPX_LIBDIR)/libRegistrarBlaQueueEvent.so");
+        file.write("SIP_REGISTRAR.BLA.REDIS.ADDRESS", "$(sipx.kamailioPresenceBindIp)");
+        file.write("SIP_REGISTRAR.BLA.REDIS.PORT", Redis.SERVER.getCanonicalPort());
         file.write("SIP_REGISTRAR_AUTHENTICATE_REALM", domain.getSipRealm());
         file.write("SIP_REGISTRAR_DOMAIN_NAME", domain.getName());
         file.write("SIP_REGISTRAR_PROXY_PORT", proxy.getPort());

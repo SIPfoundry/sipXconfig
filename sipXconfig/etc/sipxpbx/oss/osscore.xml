@@ -65,5 +65,17 @@
       	<string/>
       </type>
     </setting>
+    <setting name="PUBLIC_RTP_PORT_LOW">
+      <type>
+        <integer />
+      </type>
+      <value>30000</value>
+    </setting>
+    <setting name="PUBLIC_RTP_PORT_HIGH">
+      <type>
+        <integer />
+      </type>
+      <value>60000</value>
+    </setting>
   </group>
 </model>

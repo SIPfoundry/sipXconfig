@@ -65,12 +65,36 @@
       <type>
         <integer />
       </type>
-      <value>8</value>
+      <value>64</value>
     </setting>        
-	<setting name="DEFAULT_DUMP_CORE">
+    <setting name="DEFAULT_CHILDREN" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>8</value>
+    </setting>
+    <setting name="TCP_WRITE_QUEUE_SIZE" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>65536</value>
+    </setting>
+    <setting name="TCP_READ_BUFFER_SIZE" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>65536</value>
+    </setting>
+	<setting name="TCP_CONNECTION_LIFETIME" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3605</value>
+    </setting>
+    <setting name="DEFAULT_DUMP_CORE" >
       <type refid="true-false" />
       <value>false</value>
-    </setting>            
+    </setting>                        
   </group>
   <group name="kamailio-proxy-configuration">
     <setting name="TCP_PORT" hidden="yes">
@@ -119,11 +143,15 @@
       <type refid="pluginLogLevel" />
       <value>6</value>
     </setting>
-    <setting name="ENABLE_POLL_BLA_USER_SETTING">
+    <setting name="ENABLE_BLA_MESSAGE_QUEUE" hidden="yes">
       <type refid="true-false" />
       <value>true</value>
     </setting>
-    <setting name="BLA_USER_POLL_INTERVAL_SETTING">
+    <setting name="ENABLE_POLL_BLA_USER_SETTING" hidden="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
+    <setting name="BLA_USER_POLL_INTERVAL_SETTING" hidden="yes">
       <type>
         <integer />
       </type>

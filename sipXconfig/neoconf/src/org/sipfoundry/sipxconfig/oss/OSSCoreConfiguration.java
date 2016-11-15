@@ -81,6 +81,9 @@ public class OSSCoreConfiguration implements ConfigProvider {
 		config.write("target-interface-port", settings.getInternalSipPort());
 		config.write("target-transport", settings.getInternalSipTransport());
 		config.write("target-domain", "$(sipx.domain)");
+
+        config.write("rtp-port-low", settings.getRtpLowestPort());
+        config.write("rtp-port-high", settings.getRtpHighestPort());
 		
 		if(!StringUtils.isEmpty(settings.getAdvertiseIp())) {
 			config.write("external-address", settings.getAdvertiseIp());
