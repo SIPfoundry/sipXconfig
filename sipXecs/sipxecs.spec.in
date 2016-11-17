@@ -90,6 +90,7 @@ Requires: freeswitch-format-tone-stream
 Requires: freeswitch-timer-posix
 Requires: freeswitch-xml-cdr
 Requires: freeswitch-xml-curl
+Requires: oss_core-app >= %version
 Requires: sipxacccode-ng >= %version
 Requires: sipxcallcontroller-ng >= %version
 Requires: sipxcdr-ng >= %version
