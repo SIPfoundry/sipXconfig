@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -79,18 +80,19 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     public void saveDefaultIvrBackupHost() {
     	IvrSettings settings = getSettings();
     	String backupHost = settings.getBackupHost();
-    	boolean setDefault = (backupHost == null);
-    	if (!setDefault) {
+    	if (!StringUtils.isEmpty(backupHost)) {
 			Location location = m_configManager.getLocationManager().getLocationByAddress(backupHost);
-			setDefault = !m_featureManager.isFeatureEnabled(Ivr.FEATURE, location);
+			if(location != null && m_featureManager.isFeatureEnabled(Ivr.FEATURE, location)) {
+				return; //Ivr backup host is valid
+			}
     	}
-    	if (setDefault) {
-    		List<Location> locations = m_featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
-    		if (!CollectionUtils.isEmpty(locations)) {
-    			settings.setSettingValue(IvrSettings.IVR_BACKUP_HOST, locations.get(0).getAddress());
-				saveSettings(settings);
-    		}
-    	}
+    	
+    	//Set default backup host for ivr
+    	List<Location> locations = m_featureManager.getLocationsForEnabledFeature(Ivr.FEATURE);
+		if (!CollectionUtils.isEmpty(locations)) {
+			settings.setSettingValue(IvrSettings.IVR_BACKUP_HOST, locations.get(0).getAddress());
+			saveSettings(settings);
+		}
     }
     
     public IvrSettings getSettings() {
