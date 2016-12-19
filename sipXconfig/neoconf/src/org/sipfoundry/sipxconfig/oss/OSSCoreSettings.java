@@ -24,6 +24,7 @@ public class OSSCoreSettings extends PersistableSettings implements DeployConfig
     public static final String OSS_SIP_INTERNAL_TRANSPORT_SETTING = ROOT_SETTING + "/INTERNAL_TRANSPORT";
     
     public static final String OSS_SIP_TCP_ADVERTISE_IP_SETTING = ROOT_SETTING + "/ADVERTISE_IP";
+    public static final String OSS_SIP_VERIFY_TLS_PEER_CERTIFICATE = ROOT_SETTING + "/VERIFY_TLS_PEER_CERTIFICATE";
 
     public int getLogSetting() {
         return (Integer) getSettingTypedValue(LOG_SETTING);
@@ -47,6 +48,10 @@ public class OSSCoreSettings extends PersistableSettings implements DeployConfig
     
     public int getInternalSipPort() {
         return (Integer) getSettingTypedValue(OSS_SIP_INTERNAL_PORT_SETTING);
+    }
+    
+    public Boolean isVerifyTlsPeerCerticate() {
+    	return (Boolean) getSettingTypedValue(OSS_SIP_VERIFY_TLS_PEER_CERTIFICATE);
     }
     
     public String getInternalSipTransport() {

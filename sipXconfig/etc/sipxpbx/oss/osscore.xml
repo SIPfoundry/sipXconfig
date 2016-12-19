@@ -2,6 +2,16 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="true-false">
+	<boolean>
+		<true>
+			<value>true</value>
+		</true>
+		<false>
+			<value>false</value>
+		</false>
+	</boolean>
+  </type>    
   <type id="loglevel">
      <enum>
       <option><value>0</value></option>
@@ -76,6 +86,10 @@
         <integer />
       </type>
       <value>60000</value>
+    </setting>
+    <setting name="VERIFY_TLS_PEER_CERTIFICATE">
+      <type refid="true-false" />
+      <value>true</value>
     </setting>
   </group>
 </model>

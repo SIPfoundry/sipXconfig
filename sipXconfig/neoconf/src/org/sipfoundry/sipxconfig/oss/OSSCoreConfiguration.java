@@ -94,6 +94,7 @@ public class OSSCoreConfiguration implements ConfigProvider {
 		config.write("tls-cert", "$(sipx.SIPX_CONFDIR)/ssl/ssl.crt");
 		config.write("tls-private-key", "$(sipx.SIPX_CONFDIR)/ssl/ssl.key");
 		config.write("tls-peer-ca-directory", "$(sipx.SIPX_CONFDIR)/ssl/authorities");
+		config.write("tls-verify-peer", settings.isVerifyTlsPeerCerticate());
 	}
 
 	public OSSCoreManager getManager() {
