@@ -1,0 +1,1 @@
+delete from feature_local where feature_id = 'openuc-saa';

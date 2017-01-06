@@ -483,6 +483,9 @@
     <antcall target="migrate_openuc_e911" />
     <antcall target="migrate_new_canary_features" />
   	<antcall target="mask_caller_id" />
+  	<antcall target="mask_caller_id_constraint" />
+  	<antcall target="migrate_openuc_ccid" />
+  	<antcall target="remove_openuc_saa" />
   </target>
 
   <target name="plugin-patches">
@@ -1480,8 +1483,16 @@
   <target name="mask_caller_id" unless="mask_caller_id">
     <db-patch patch="mask_caller_id" />
   </target>
+  <target name="mask_caller_id_constraint" unless="mask_caller_id_constraint">
+    <db-patch patch="mask_caller_id_constraint" />
+  </target>
+  <target name="migrate_openuc_ccid" unless="migrate_openuc_ccid">
+    <plsql-patch patch="migrate_openuc_ccid" />
+  </target>
+  <target name="remove_openuc_saa" unless="remove_openuc_saa">
+    <db-patch patch="remove_openuc_saa" />
+  </target>
   
-
   <!--
     - SUPPORT UTILITIES
   -->

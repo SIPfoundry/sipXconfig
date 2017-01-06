@@ -1,0 +1,1 @@
+alter table mask_caller_id add constraint mcid_from_unique unique(mcid_from);
