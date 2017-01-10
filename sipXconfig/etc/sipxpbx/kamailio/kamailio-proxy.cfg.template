@@ -59,8 +59,6 @@ log_facility=LOG_LOCAL1
 fork=yes
 children=$(sipx.kamailioForkChildren)
 
-alias=$(sipx.domain)
-
 # life time of TCP connection when there is no traffic
 # - a bit higher than registration expires to cope with UA behind NAT
 tcp_connection_lifetime=$(sipx.kamailioTcpConnectionLifetime)
