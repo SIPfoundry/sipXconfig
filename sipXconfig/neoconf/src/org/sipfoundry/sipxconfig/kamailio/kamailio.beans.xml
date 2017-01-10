@@ -26,6 +26,8 @@
     
   <bean id="kamailioConfiguration" class="org.sipfoundry.sipxconfig.kamailio.KamailioConfiguration">
     <property name="kamailioManager" ref="kamailioManager" />
+    <property name="domainManager" ref="domainManager"/>
+    <property name="locationManager" ref="locationManager"/>
     <property name="mongoConfig" ref="mongoConfig"/>
   </bean>
   

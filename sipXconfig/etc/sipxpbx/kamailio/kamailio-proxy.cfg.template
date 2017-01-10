@@ -448,7 +448,7 @@ route[RELAY] {
 
 #!ifdef WITH_SIPX
 	# dispatch destinations to SIPX
-	if($rd == "$(sipx.domain)") 
+	if(uri==myself) 
 	{
 		$du = "sip:ip.$(sipx.domain)";
 		if (!t_relay_to_tcp()) 
@@ -605,7 +605,8 @@ route[PRESENCE]
 	if(!is_method("PUBLISH|SUBSCRIBE|NOTIFY"))
 		return;
 
-	if(is_method("SUBSCRIBE") && ($hdr(Event)=="message-summary" || $hdr(Event)=="reg")) 
+    #route event message-summary and reg to sipXproxy
+	if(is_method("PUBLISH|SUBSCRIBE|NOTIFY") && ($hdr(Event)=="message-summary" || $hdr(Event)=="reg")) 
 	{
 #!ifdef WITH_SIPX
 	    route(RELAY);
@@ -614,9 +615,10 @@ route[PRESENCE]
 		return;
 	}
 
+    #otherwise route all presence event to kamailio presence
 	if(is_method("PUBLISH|SUBSCRIBE|NOTIFY")) {
 		#route to presence manager for subscribe or publish
-		if($rd == "$(sipx.domain)") 
+		if(uri==myself) 
 		{
 			$du = "sip:pm.$(sipx.domain)";
 			t_relay_to_tcp();

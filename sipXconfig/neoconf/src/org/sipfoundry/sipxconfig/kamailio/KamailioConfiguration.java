@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +15,9 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.commserver.Location;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.mongo.MongoConfig;
 import org.sipfoundry.sipxconfig.mongo.MongoManager;
 import org.sipfoundry.sipxconfig.mysql.MySql;
@@ -26,7 +30,9 @@ public class KamailioConfiguration implements ConfigProvider {
     private static String KAMAILIO_SIPXUSER_DB = "imdb";
 
     private KamailioManager m_kamailioManager;
+    private DomainManager m_domainManager;
     private MongoConfig m_mongoConfig; 
+    private LocationsManager m_locationsManager;
     
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -148,6 +154,29 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("listen", "udp:" + location.getAddress() + ':' + port);
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
         config.write("listen", "tls:" + location.getAddress() + ':' + settings.getProxySipTlsPort());
+
+        //Configure domain aliases
+        Domain domain = m_domainManager.getDomain();
+        Set<String> aliases = new LinkedHashSet<String>();
+        Set<String> configuredAliases = domain.getAliases();
+        if (configuredAliases != null) {
+            aliases.addAll(configuredAliases);
+        }
+
+        Location[] locations = m_locationsManager.getLocations();
+        for (Location loc : locations) {
+            aliases.add(loc.getAddress());
+            String fqdn = loc.getFqdn();
+            if (!fqdn.equalsIgnoreCase(domain.getName())) {
+                aliases.add(fqdn);
+            }
+        }
+        
+        //Set main domain
+        config.write("alias", domain.getName());        
+        for(String alias : aliases) {
+        	config.write("alias", alias);
+        }
     }
     
     private void writeKamailioPresenceGlobal(Writer wtr, KamailioSettings settings, Location location)
@@ -174,6 +203,14 @@ public class KamailioConfiguration implements ConfigProvider {
 
     public void setKamailioManager(KamailioManager kamailioManager) {
         this.m_kamailioManager = kamailioManager;
+    }
+    
+    public void setDomainManager(DomainManager domainManager) {
+    	this.m_domainManager = domainManager;
+    }
+    
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public MongoConfig getMongoConfig() {
