@@ -38,7 +38,8 @@ public class KamailioConfiguration implements ConfigProvider {
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(KamailioManager.FEATURE_PROXY) && 
             !request.applies(KamailioManager.FEATURE_PRESENCE) &&
-            !request.applies(MongoManager.FEATURE_ID)) {
+            !request.applies(MongoManager.FEATURE_ID) &&
+            !request.applies(DomainManager.FEATURE)) {
             return;
         }
         
