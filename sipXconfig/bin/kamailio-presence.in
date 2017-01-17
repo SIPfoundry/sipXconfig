@@ -52,6 +52,7 @@ start() {
       check_fork
   fi
 	echo -n $"Starting $PROG: "
+	ulimit -n $FD_LIMIT
 	daemon $KAM $OPTIONS >/dev/null 2>/dev/null
 	RETVAL=$?
 	echo
