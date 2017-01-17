@@ -2,7 +2,6 @@ package org.sipfoundry.sipxconfig.kamailio;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
@@ -21,6 +20,7 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String TCP_WRITE_QUEUE_SIZE = ROOT_SETTING + "/TCP_WRITE_QUEUE_SIZE";
     public static final String TCP_READ_BUFFER_SIZE = ROOT_SETTING + "/TCP_READ_BUFFER_SIZE";
     public static final String TCP_CONNECTION_LIFETIME = ROOT_SETTING + "/TCP_CONNECTION_LIFETIME";
+    public static final String FD_LIMIT = ROOT_SETTING + "/FD_LIMIT";
     public static final String DEFAULT_DUMP_CORE = ROOT_SETTING + "/DEFAULT_DUMP_CORE";
     
     /* Proxy Settings */
@@ -75,6 +75,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public int getTcpConnectionLifetime() {
         return (Integer) getSettingTypedValue(TCP_CONNECTION_LIFETIME);
     }
+    
+	public int getFdLimit() {
+		return (Integer) getSettingTypedValue(FD_LIMIT);
+	}
     
     public String getDumpCore() {
         return getSettingValue(DEFAULT_DUMP_CORE);

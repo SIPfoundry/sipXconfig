@@ -136,6 +136,7 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("SHM_MEMORY", settings.getDefaultSharedMemory());
         config.write("PKG_MEMORY", settings.getDefaultPrivateMemory());
         config.write("DUMP_CORE", settings.getDumpCore());
+        config.write("FD_LIMIT", settings.getFdLimit());
     }
     
     private void writeKamailioProxyGlobal(Writer wtr, KamailioSettings settings, Location location)

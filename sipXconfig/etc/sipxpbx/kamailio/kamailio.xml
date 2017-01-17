@@ -91,6 +91,12 @@
       </type>
       <value>3605</value>
     </setting>
+    <setting name="FD_LIMIT">
+      <type>
+        <integer />
+      </type>
+      <value>65536</value>
+    </setting>
     <setting name="DEFAULT_DUMP_CORE" >
       <type refid="true-false" />
       <value>false</value>
