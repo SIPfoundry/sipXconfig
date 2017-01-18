@@ -809,7 +809,8 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     }
 
     public boolean hasImAccount() {
-        return isNotEmpty(getImId());
+//        return isNotEmpty(getImId());
+    	return false;
     }
 
     public String getMusicOnHoldUri() {

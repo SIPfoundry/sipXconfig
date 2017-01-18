@@ -370,6 +370,7 @@ public abstract class UserGroupSettings extends GroupSettings implements PageBeg
         names.add(E911);
         names.add(TIMEZONE_TAB);
         names.add(HOTELLING_TAB);
+        names.add("im");
         return StringUtils.join(names, SEPARATOR);
     }
 

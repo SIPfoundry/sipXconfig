@@ -28,7 +28,8 @@ public class ImAccount {
     }
 
     public boolean isEnabled() {
-        return (Boolean) m_user.getSettingTypedValue(IM_ACCOUNT);
+//        return (Boolean) m_user.getSettingTypedValue(IM_ACCOUNT);
+    	return false;
     }
 
     public void setEnabled(boolean enabled) {

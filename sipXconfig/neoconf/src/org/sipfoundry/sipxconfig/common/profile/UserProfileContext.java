@@ -96,7 +96,7 @@ public class UserProfileContext implements DaoEventListener, SetupListener {
                         m_locationManager.getPrimaryLocation().getFqdn(), user.getUserName()));
                 profile.setBranchName(user.getSite() != null ? user.getSite().getName() : EMPTY);
                 profile.setBranchAddress(user.getSite() != null ? createBranchAddress(user.getSite()) : new Address());
-                profile.setImDisplayName(new ImAccount(user).getImDisplayName());
+//                profile.setImDisplayName(new ImAccount(user).getImDisplayName());
                 Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                 profile.setTimestamp(cal.getTimeInMillis());
                 m_systemAuditManager.auditUserProfile(user);

@@ -23,10 +23,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.ALT_EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ALT_NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.ATTACH_AUDIO;
 import static org.sipfoundry.commons.mongo.MongoConstants.BUTTONS;
-import static org.sipfoundry.commons.mongo.MongoConstants.CALL_FROM_ANY_IM;
-import static org.sipfoundry.commons.mongo.MongoConstants.CALL_IM;
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_ENTRY_IM;
-import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXIT_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.DIALPAD;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISPLAY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
@@ -34,16 +30,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.FORCE_PIN_CHANGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_ADVERTISE_ON_CALL_STATUS;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_DISPLAY_NAME;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
-import static org.sipfoundry.commons.mongo.MongoConstants.IM_SHOW_ON_CALL_DETAILS;
 import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
-import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
-import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.MOH;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
@@ -56,7 +44,6 @@ import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
 import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
-import static org.sipfoundry.commons.mongo.MongoConstants.VMONDND;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
 import static org.sipfoundry.sipxconfig.vm.DistributionList.SETTING_PATH_DISTRIBUTION_LIST;
 
@@ -69,7 +56,6 @@ import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
@@ -157,6 +143,8 @@ public class Mailstore extends AbstractDataSetGenerator {
             removeField(top, PASSWD);
         }
 
+        /*
+         * Disable ImAccount profile generation
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
         // The following settings used to be in contact-information.xml
@@ -175,6 +163,7 @@ public class Mailstore extends AbstractDataSetGenerator {
         putOnlyIfNotNull(top, IM_ON_THE_PHONE_MESSAGE, imAccount.getOnThePhoneMessage());
         putOnlyIfNotNull(top, IM_ADVERTISE_ON_CALL_STATUS, imAccount.advertiseSipPresence());
         putOnlyIfNotNull(top, IM_SHOW_ON_CALL_DETAILS, imAccount.includeCallInfo());
+        */
         // personal attendant
         //if user chose to not have voicemail deposited, the default VM options prompt is
         //not played

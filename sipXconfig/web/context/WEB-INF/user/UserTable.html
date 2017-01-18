@@ -1,5 +1,5 @@
 <table jwcid="userTable@common/Table" id="user:list"
-  columns="* userName,firstName,lastName,!imId,!aliases:aliasesString,!enabledAndLdapManaged"
+  columns="* userName,firstName,lastName,!aliases:aliasesString,!enabledAndLdapManaged"
   usePager="true"
   source="ognl:tableModel"
   row="ognl:currentUser"
@@ -17,14 +17,6 @@
     </span>
     <span jwcid="@Else" renderTag="false">
       <span jwcid="@Insert" value="ognl:currentUser.userName" />
-    </span>
-  </div>
-  <div jwcid="imIdColumnValue@Block">
-    <span jwcid="@If" condition="ognl:userImAccount.enabled">
-      <span jwcid="@Insert" class="enabled" value="ognl:userImAccount.imId" />
-    </span>
-    <span jwcid="@Else">
-      <span jwcid="@Insert" class="disabled" value="ognl:userImAccount.imId" />
     </span>
   </div>
   <div jwcid="enabledAndLdapManagedColumnValue@Block">

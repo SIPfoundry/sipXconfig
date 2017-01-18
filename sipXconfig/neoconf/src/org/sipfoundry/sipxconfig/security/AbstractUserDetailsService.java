@@ -94,15 +94,16 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
     }
 
     private User getUserForImId(String imId) {
-        User user = m_coreContext.loadUserByConfiguredImId(imId);
-        if (user != null) {
-            ImAccount imAccount = new ImAccount(user);
-            if (!imAccount.isEnabled()) {
-                return null;
-            }
-        }
-
-        return user;
+//        User user = m_coreContext.loadUserByConfiguredImId(imId);
+//        if (user != null) {
+//            ImAccount imAccount = new ImAccount(user);
+//            if (!imAccount.isEnabled()) {
+//                return null;
+//            }
+//        }
+//
+//        return user;
+    	return null;
     }
 
     private List<User> getUsersForAuthAccountName(String authAccountName) {

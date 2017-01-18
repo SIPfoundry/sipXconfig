@@ -63,9 +63,16 @@ public class UserProfile {
     private String m_assistantPhoneNumber;
     private String m_faxNumber;
     private String m_didNumber;
+    
+    @Transient
     private String m_imId;
+    
+    @Transient
     private String m_imDisplayName;
+    
+    @Transient
     private String m_alternateImId;
+    
     private String m_emailAddress;
     private String m_alternateEmailAddress;
     //email aliases to persist in mongo

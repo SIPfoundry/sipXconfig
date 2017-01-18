@@ -521,10 +521,11 @@ public class ValidUsers {
         group.setGroupName(getStringValue(groupResult, UID));
         group.setDescription(getStringValue(groupResult, DESCR));
         group.setSysId(getStringValue(groupResult, ID));
-        String imBotEnabled = getStringValue(groupResult, MY_BUDDY_GROUP);
-        if (StringUtils.equals(imBotEnabled, "1")) {
-            group.setImBotEnabled(true);
-        }
+//        String imBotEnabled = getStringValue(groupResult, MY_BUDDY_GROUP);
+//        if (StringUtils.equals(imBotEnabled, "1")) {
+//            group.setImBotEnabled(true);
+//        }
+        group.setImBotEnabled(false);
         return group;
     }
 

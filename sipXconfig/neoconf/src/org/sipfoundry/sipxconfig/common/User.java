@@ -111,12 +111,12 @@ public class User extends AbstractUser implements Replicable {
             mappings.add(mapping);
         }
 
-        ImAccount imAccount = new ImAccount(this);
-        if (imAccount.isEnabled() && !StringUtils.isEmpty(imAccount.getImId())
-                && !imAccount.getImId().equals(getUserName()) && !getAliases().contains(imAccount.getImId())) {
-            AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact, ALIAS_RELATION);
-            mappings.add(mapping);
-        }
+//        ImAccount imAccount = new ImAccount(this);
+//        if (imAccount.isEnabled() && !StringUtils.isEmpty(imAccount.getImId())
+//                && !imAccount.getImId().equals(getUserName()) && !getAliases().contains(imAccount.getImId())) {
+//            AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact, ALIAS_RELATION);
+//            mappings.add(mapping);
+//        }
 
         // add fax extension aliases
         String faxExtension = getFaxExtension();
@@ -279,7 +279,8 @@ public class User extends AbstractUser implements Replicable {
     }
 
     public boolean isImEnabled() {
-        return (Boolean) getSettingTypedValue(IM_ACCOUNT);
+//        return (Boolean) getSettingTypedValue(IM_ACCOUNT);
+    	return false;
     }
 
     public void setE911LocationId(Integer id) {

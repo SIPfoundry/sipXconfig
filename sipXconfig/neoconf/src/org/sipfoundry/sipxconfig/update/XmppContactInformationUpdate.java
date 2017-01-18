@@ -28,10 +28,10 @@ public class XmppContactInformationUpdate {
     }
 
     public void notifyChange(User user) {
-        ImAccount imAccount = new ImAccount(user);
-        if (imAccount.isEnabled()) {
-            getApi().notifyContactChange(imAccount.getImId());
-        }
+//        ImAccount imAccount = new ImAccount(user);
+//        if (imAccount.isEnabled()) {
+//            getApi().notifyContactChange(imAccount.getImId());
+//        }
     }
 
     private ContactInfoChangeApi getApi() {

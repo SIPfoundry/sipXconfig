@@ -440,11 +440,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                     }
                 }
                 // check if user ImId is unique in alias namespace
-                ImAccount imAccount = new ImAccount(user);
-                if (!m_aliasManager.canObjectUseAlias(user, imAccount.getImId())) {
-                    result = imAccount.getImId();
-                    duplicateEntity = result != null ? new DuplicateEntity(DuplicateType.USER_IM, result) : null;
-                }
+    //            if (!m_aliasManager.canObjectUseAlias(user, imAccount.getImId())) {
+    //                result = imAccount.getImId();
+    //                duplicateEntity = result != null ? new DuplicateEntity(DuplicateType.USER_IM, result) : null;
+    //            }
 
                 // check if the user's fax extension and DID areunique in the alias namespace
                 if (!faxExtension.isEmpty()) {
@@ -678,8 +677,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         admin.setPin(StringUtils.defaultString(pin));
         admin.addGroup(adminGroup);
         // enable IM for superadmin
-        ImAccount imAccount = new ImAccount(admin);
-        imAccount.setEnabled(true);
+//        ImAccount imAccount = new ImAccount(admin);
+//        imAccount.setEnabled(true);
         saveUser(admin);
         getDaoEventPublisher().publishSave(admin);
     }

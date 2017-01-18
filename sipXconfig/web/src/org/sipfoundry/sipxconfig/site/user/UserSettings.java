@@ -71,10 +71,10 @@ public abstract class UserSettings extends UserBasePage implements PageBeginRend
     }
 
     public void apply() {
-        ImAccount imAccount = new ImAccount(getUser());
-        if (imAccount.getDefaultImDisplayName().equals(getUser().getImDisplayName())) {
-            getUser().setImDisplayName(null);
-        }
+//      ImAccount imAccount = new ImAccount(getUser());
+//      if (imAccount.getDefaultImDisplayName().equals(getUser().getImDisplayName())) {
+//          getUser().setImDisplayName(null);
+//      }
 
         User savedUser = getCoreContext().loadUser(getUserId());
         boolean adminChanged = getUser().isAdmin() != savedUser.isAdmin();
