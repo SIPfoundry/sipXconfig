@@ -157,9 +157,13 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("listen", "tcp:" + location.getAddress() + ':' + port);
         config.write("listen", "tls:" + location.getAddress() + ':' + settings.getProxySipTlsPort());
 
-        //Configure domain aliases
-        Domain domain = m_domainManager.getDomain();
         Set<String> aliases = new LinkedHashSet<String>();
+        Domain domain = m_domainManager.getDomain();
+        
+        //Set main domain
+        aliases.add(domain.getName()); 
+        
+        //Configure domain aliases
         Set<String> configuredAliases = domain.getAliases();
         if (configuredAliases != null) {
             aliases.addAll(configuredAliases);
@@ -173,11 +177,10 @@ public class KamailioConfiguration implements ConfigProvider {
                 aliases.add(fqdn);
             }
         }
-        
-        //Set main domain
-        config.write("alias", domain.getName());        
+               
         for(String alias : aliases) {
-        	config.write("alias", alias);
+        	config.write("alias", alias + ":" + port);
+        	config.write("alias", alias + ":" + settings.getProxySipTlsPort());
         }
     }
     
