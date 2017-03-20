@@ -132,7 +132,6 @@ any::
     <load module=\"mod_shout\"/>
     <load module=\"mod_local_stream\"/>
     <load module=\"mod_tone_stream\"/>
-    <load module=\"mod_file_string\"/>
     <load module=\"mod_portaudio_stream\"/>
     <load module=\"mod_lua\"/>
     <load module=\"mod_flite\"/>
