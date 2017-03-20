@@ -150,9 +150,7 @@ any::
     <load module=\"mod_fsv\"/>
     <load module=\"mod_valet_parking\"/>
     <load module=\"mod_dialplan_xml\"/>
-    <load module=\"mod_voipcodecs\"/>
     <load module=\"mod_g723_1\"/>
-    <load module=\"mod_timerfd\"/>
 ";
 
 fs_g729::
@@ -170,7 +168,6 @@ any::
     <load module=\"mod_amr\"/>
     <load module=\"mod_amrwb\"/>
     <load module=\"mod_ilbc\"/>
-    <load module=\"mod_speex\"/>
     <load module=\"mod_h26x\"/>
     <load module=\"mod_siren\"/>
     <load module=\"mod_celt\"/> 
@@ -180,13 +177,10 @@ any::
     <load module=\"mod_shout\"/>
     <load module=\"mod_local_stream\"/>
     <load module=\"mod_tone_stream\"/>
-    <load module=\"mod_file_string\"/>
     <load module=\"mod_portaudio_stream\"/>
-    <load module=\"mod_spidermonkey\"/>
     <load module=\"mod_lua\"/>
     <load module=\"mod_say_en\"/>
-    <load module=\"mod_say_de\"/>
-    <load module=\"mod_ivr\"/>
+    <load module=\"mod_voicemail_ivr\"/>
     <load module=\"mod_vp8\"/>
 ";
 
