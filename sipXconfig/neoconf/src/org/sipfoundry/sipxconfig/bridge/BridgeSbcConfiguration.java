@@ -69,9 +69,6 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
     private BridgeSbcContext m_sbcBridgeContext;
     private ListableBeanFactory m_beanFactory;
     
-    /** Default sbc to use freeswitch instead of sipxbridge **/
-    private boolean m_useFreeswitch = true;
-    
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
         if (!request.applies(ProxyManager.FEATURE, BridgeSbcContext.FEATURE, TlsPeerManager.FEATURE)) {
@@ -91,7 +88,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
             ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
 
             if (bridgeHere) {
-            	if(m_useFreeswitch) {
+            	if(bridge.isUseFreeswitch()) {
             		replicateFreeswitchBridge(bridge, location, dir);
             	} else {
             		replicateInternalBridge(bridge, location, dir);
@@ -179,10 +176,6 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
     
     public void setSbcBridgeContext(BridgeSbcContext sbcBridgeContext) {
     	m_sbcBridgeContext = sbcBridgeContext;
-    }
-    
-    public void setUseFreeswitch(boolean useFreeswitch) {
-    	m_useFreeswitch = useFreeswitch;
     }
     
     private void replicateInternalBridge(BridgeSbc bridge, Location location, File configDir) 

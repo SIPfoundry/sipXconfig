@@ -95,6 +95,8 @@ public class BridgeSbcContext implements FeatureProvider, AddressProvider, Firew
                 } else if (type.equals(EXTERNAL_TLS_ADDRESS)) {
                     // no TLS port setting available?
                     a.setPort(bridge.getExternalSipPort() + 1);
+                } else if (type.equals(XMLRPC_ADDRESS)) {
+                    a.setPort(bridge.getXmlRpcPort());
                 }
                 addresses.add(a);
             }

@@ -63,6 +63,19 @@
     </enum>
   </type>
   <group name="bridge-configuration">
+    <setting name="use-freeswitch" hidden="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>      
+    </setting>
     <setting name="global-address" hidden="yes">
       <label>Public address</label>
       <description>

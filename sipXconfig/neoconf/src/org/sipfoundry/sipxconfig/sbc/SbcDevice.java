@@ -53,6 +53,10 @@ public class SbcDevice extends Device implements NamedObject, SystemAuditable {
         m_model = m_modelSource.getModel(getModelId());
         return m_model;
     }
+    
+    public void reload() {
+    	// If no action is required for a reload then do nothing
+    }
 
     @Required
     public void setModelSource(ModelSource<SbcDescriptor> modelSource) {

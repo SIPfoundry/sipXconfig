@@ -19,22 +19,27 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
@@ -47,11 +52,14 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     public static final String SIXECS_LINEID_END = "</sipxecs-lineid>";
     public static final String CONFIG_FORMAT_PREFIX = "    ";
     public static final String NEW_LINE_FEED = "\n";
+    public static final String FREESWITCH_RESTART_COMMAND = "shutdown restart";
 
     private GatewayContext m_gatewayContext;
     private LocationsManager m_locationsManager;
     private Location m_location;
     private ConfigManager m_configManager;
+    private AddressManager m_addressManager;
+    private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
 
     @Required
     public void setGatewayContext(GatewayContext gatewayContext) {
@@ -61,6 +69,16 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+    
+    @Required
+    public void setFreeswitchApiProvider(ApiProvider<FreeswitchApi> freeswitchApiProvider) {
+        m_freeswitchApiProvider = freeswitchApiProvider;
+    }
+    
+    @Required
+    public void setAddressManager(AddressManager addressManager) {
+        m_addressManager = addressManager;
     }
 
     public void setLocation(Location location) {
@@ -94,6 +112,20 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         profileLocation.setParentDir(path);
         return profileLocation;
     }
+    
+    @Override
+    public void restart() {
+    	if(isUseFreeswitch()) {
+    		api().fsctl(FREESWITCH_RESTART_COMMAND);
+    	}
+    }
+    
+    @Override
+    public void reload() {
+    	if(isUseFreeswitch()) {
+    		api().reloadxml();
+    	}
+    }
 
     boolean isRedundant(SipTrunk sipTrunk, List<SipTrunk> list) {
         for (SipTrunk t : list) {
@@ -121,6 +153,8 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         }
         return false;
     }
+    
+    
 
     void addGWReference(SipTrunk sipTrunk, List< ? extends SipTrunk> list) {
         String lineID;
@@ -178,6 +212,12 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         }
         return m_locationsManager.getLocation(id);
     }
+    
+    private FreeswitchApi api() {
+        String url = m_addressManager.getSingleAddress(BridgeSbcContext.XMLRPC_ADDRESS, getLocation())
+                .toString();
+        return m_freeswitchApiProvider.getApi(url);
+    }
 
     public void updateBridgeLocationId() {
         Location location = m_locationsManager.getLocationByAddress(getAddress());
@@ -211,7 +251,10 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         return (String) getSettingTypedValue("bridge-configuration/default-action");
     }
 
-
+    public Boolean isUseFreeswitch() {
+        return (Boolean) getSettingTypedValue("bridge-configuration/use-freeswitch");
+    }
+    
     public class Defaults {
         private final DeviceDefaults m_defaults;
         private final Location m_location;

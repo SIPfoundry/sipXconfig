@@ -16,7 +16,7 @@
     <property name="featureManager" ref="featureManager"/>
   </bean>
   
-  <!-- Module Trunk Config -->
+  <!-- Freeswitch Module Config -->
   <bean id="fsTrunkAclConfig" class="org.sipfoundry.sipxconfig.bridge.config.ModuleAclConfiguration" parent="fsTrunkConfigFile">
     <property name="locationManager" ref="locationsManager"/>
   </bean>
@@ -24,6 +24,9 @@
   <bean id="fsTrunkLocalStreamConfig" class="org.sipfoundry.sipxconfig.bridge.config.ModuleLocalStreamConfiguration" parent="fsTrunkConfigFile">
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="docDir" value="${sysdir.doc}" />
+  </bean>
+  
+  <bean id="fsTrunkXmlRpcConfig" class="org.sipfoundry.sipxconfig.bridge.config.ModuleXmlRpcConfiguration" parent="fsTrunkConfigFile">
   </bean>
   
   <!-- Dialplan Trunk Config -->

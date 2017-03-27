@@ -21,10 +21,12 @@
 
   <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.bridge.BridgeSbc" scope="prototype"
     parent="sbcGeneric">
+    <property name="freeswitchApiProvider" ref="freeswitchBridgeApiProvider" />
     <property name="gatewayContext" ref="gatewayContext" />
     <!-- eager replication here: profile generation is already in the background -->
     <property name="locationsManager" ref="locationsManager" />
     <property name="configManager" ref="configManager"/>
+    <property name="addressManager" ref="addressManager" />
   </bean>
 
   <bean id="sbcSipXbridgeConfiguration" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcConfiguration">
@@ -45,6 +47,13 @@
 
   <bean id="sbcSipXbridgeSbcContext" class="org.sipfoundry.sipxconfig.bridge.BridgeSbcContext">
     <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+  
+  <bean id="freeswitchBridgeApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi" />
+    <property name="marshaller">
+      <bean class="org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiMarshaller" />
+    </property>
   </bean>
 
 </beans>

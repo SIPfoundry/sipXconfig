@@ -61,10 +61,10 @@
       <label>ITSP server address</label>
       <description>
         If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
-        route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain. sip.ca2.voip.ms is
+        route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain. toronto.voip.ms is
         the Toronto, Canada server. Please see your voip.ms account information for other servers.
       </description>
-      <value>sip.ca2.voip.ms</value>
+      <value>toronto.voip.ms</value>
     </setting>
     <setting name="itsp-proxy-listening-port" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressPort -->

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.gateway;
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.NONE;
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.UDP;
 
+import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -53,8 +54,28 @@ public class SipTrunk extends Gateway {
             addDefaultBeanSettingHandler(new Defaults(this));
         }
     }
-
+    
     @Override
+    public void restart() {
+    	if(getUseSipXBridge()) {
+    		SbcDevice sbcDevice = getSbcDevice();
+        	sbcDevice.restart();	
+    	} else {
+    		super.restart();
+    	}
+    }
+    
+    @Override
+	public void generateProfiles(ProfileLocation location) {
+    	if(getUseSipXBridge()) {
+    		SbcDevice sbcDevice = getSbcDevice();
+    		sbcDevice.generateProfiles(location);
+    	} else {
+    		super.generateProfiles(location);	
+    	}
+	}
+
+	@Override
     public String getRoute() {
         SbcDevice sbcDevice = getSbcDevice();
         if (sbcDevice != null) {
@@ -62,6 +83,8 @@ public class SipTrunk extends Gateway {
         }
         return null;
     }
+    
+    
 
     public static class Defaults {
         private final SipTrunk m_trunk;
