@@ -24,15 +24,15 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.feature.Feature;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchFeature;
 import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.proxy.ProxyManager;
@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
@@ -53,6 +54,7 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     public static final String CONFIG_FORMAT_PREFIX = "    ";
     public static final String NEW_LINE_FEED = "\n";
     public static final String FREESWITCH_RESTART_COMMAND = "shutdown restart";
+    public static final String XML_RPC_EXCEPTION = "&xml.rpc.error.operation";
 
     private GatewayContext m_gatewayContext;
     private LocationsManager m_locationsManager;
@@ -89,15 +91,26 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("bridge-sbc.xml", "sipxbridge");
     }
+    
+    @Override
+    public Profile[] getProfileTypes() {
+        String profileFilename = getProfileFilename();
+        if (profileFilename == null) {
+            return null;
+        }
+        return new Profile[] {
+            new Profile(profileFilename)
+        };
+    }
 
     @Override
     protected ProfileContext createContext() {
-        return new Context(this, "sipxbridge/bridge.xml.vm");
+        return new Context(this, "sipxbridge/sofia_external.xml.vm");
     }
 
     @Override
     public String getProfileFilename() {
-        return "sipxbridge.xml";
+        return "external.xml";
     }
 
     @Override
@@ -109,21 +122,17 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     public ProfileLocation getProfileLocation() {
         String path = m_configManager.getLocationDataDirectory(getLocation()).getAbsolutePath();
         FileSystemProfileLocation profileLocation = new FileSystemProfileLocation();
-        profileLocation.setParentDir(path);
+        profileLocation.setParentDir(path + "/sipxbridge/sip_profiles");
         return profileLocation;
     }
     
-    @Override
-    public void restart() {
+    public void restartFreeswitch() {
     	if(isUseFreeswitch()) {
-    		api().fsctl(FREESWITCH_RESTART_COMMAND);
-    	}
-    }
-    
-    @Override
-    public void reload() {
-    	if(isUseFreeswitch()) {
-    		api().reloadxml();
+    		try {
+    			api().fsctl(FREESWITCH_RESTART_COMMAND);
+            } catch (XmlRpcRemoteException xrre) {
+                throw new FreeswitchApiConnectException(getLocation(), xrre);
+            }
     	}
     }
 
@@ -233,8 +242,9 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             BridgeSbc device = getDevice();
-            // context.put("trunks", device.getMySipTrunks());
             context.put("itsps", device.getMySipItsps());
+            context.put("externalPublicIp", device.getGlobalSipIp());
+    		context.put("externalPublicPort", device.getGlobalSipPort());
             return context;
         }
     }

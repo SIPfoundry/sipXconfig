@@ -15,6 +15,7 @@
 
   <bean id="sipTrunkStandard" class="org.sipfoundry.sipxconfig.gateway.SipTrunkModel" parent="abstractGatewayModel">
     <property name="label" value="SIP trunk" />
+    <property name="restartSupported" value="true"/>
   </bean>
   
   <bean id="gatewayOnEdit" class="org.sipfoundry.sipxconfig.gateway.GatewayOnEdit">

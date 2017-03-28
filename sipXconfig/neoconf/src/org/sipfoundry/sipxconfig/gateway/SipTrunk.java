@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.gateway;
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.NONE;
 import static org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport.UDP;
 
+import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -57,12 +58,20 @@ public class SipTrunk extends Gateway {
     
     @Override
     public void restart() {
-    	if(getUseSipXBridge()) {
-    		SbcDevice sbcDevice = getSbcDevice();
-        	sbcDevice.restart();	
-    	} else {
-    		super.restart();
+    	SbcDevice sbcDevice = getSbcDevice();
+    	
+    	/**
+    	 * TODO: Provide a better way for siptrunk to
+    	 *       restart BridgeSbc through the interface
+    	 *       SbcDevice  
+    	 */
+    	if(getUseSipXBridge() && sbcDevice != null 
+    			&& sbcDevice instanceof BridgeSbc) {
+    		BridgeSbc bridgeSbc = (BridgeSbc)sbcDevice;
+    		bridgeSbc.restartFreeswitch();
     	}
+    	
+    	super.restart();
     }
     
     @Override

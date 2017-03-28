@@ -43,7 +43,7 @@ import org.sipfoundry.sipxconfig.sbc.SbcDeviceManager;
 
 public class BridgeSbcContext implements FeatureProvider, AddressProvider, FirewallProvider {
     public static final LocationFeature FEATURE = new LocationFeature("sbcBridge");
-    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "http://%s:%d");
+    public static final AddressType XMLRPC_ADDRESS = new AddressType("sbcBridgeXmlRpc", "http://%s:%d/RPC2");
     public static final AddressType INTERNAL_SIP_ADDRESS = AddressType.sipTcp("sbcBridgeSip");
     public static final AddressType INTERNAL_TLS_ADDRESS = AddressType.sipTcp("sbcBridgeTls");
     public static final AddressType EXTERNAL_SIP_ADDRESS = AddressType.externalSipTcp("sbcBridgeSipExternal");
