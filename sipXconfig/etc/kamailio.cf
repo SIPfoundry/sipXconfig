@@ -230,6 +230,14 @@ bundle edit_line sipXpresence_config_contents() {
 }
 
 bundle edit_line kamailioproxy_config_contents() {
+ vars:
+    sipxproxy::
+      "internalProxyFlag" string => "#!define WITH_SIPX_PROXY";
+    !sipxproxy::
+      "internalProxyFlag" string => "";
+    any::
+      "customFlags" string => "$(internalProxyFlag)";
+
  insert_lines:
     any::
       "$(sipx.SIPX_CONFDIR)/kamailio/kamailio-proxy.cfg.template"

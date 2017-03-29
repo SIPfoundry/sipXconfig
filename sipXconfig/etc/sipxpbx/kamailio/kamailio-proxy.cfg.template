@@ -7,6 +7,7 @@
 #!define WITH_PRESENCE
 #!define WITH_SIPX
 #!define WITH_TLS
+$(customFlags)
 
 ####### Include Local Config If Exists #########
 
@@ -449,7 +450,19 @@ route[RELAY] {
 	# dispatch destinations to SIPX
 	if(uri==myself) 
 	{
+#!ifdef WITH_SIPX_PROXY
+		if( ($rd=="$(sipx.kamailioProxyBindIp)" || $rd=="$(sipx.kamailioProxyHostName)")
+		   && $rp==$(sipx.kamailioProxyBindPort))
+		{
+			$du = "sip:$(sipx.kamailioProxyBindIp):5066";
+		} else 
+		{
+			$du = "sip:ip.$(sipx.domain)";
+		}
+#!else
 		$du = "sip:ip.$(sipx.domain)";
+#!endif
+		
 		if (!t_relay_to_tcp()) 
 		{
 			sl_reply_error();
