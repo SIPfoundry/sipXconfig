@@ -138,7 +138,6 @@ any::
     <load module=\"mod_amr\"/>
     <load module=\"mod_amrwb\"/>
     <load module=\"mod_ilbc\"/>
-    <load module=\"mod_speex\"/>
     <load module=\"mod_h26x\"/>
     <load module=\"mod_siren\"/>
     <load module=\"mod_celt\"/> 
@@ -149,7 +148,6 @@ any::
     <load module=\"mod_local_stream\"/>
     <load module=\"mod_tone_stream\"/>
     <load module=\"mod_portaudio_stream\"/>
-    <load module=\"mod_spidermonkey\"/>
     <load module=\"mod_flite\"/>
     <load module=\"mod_say_en\"/>
     <load module=\"mod_vp8\"/>
