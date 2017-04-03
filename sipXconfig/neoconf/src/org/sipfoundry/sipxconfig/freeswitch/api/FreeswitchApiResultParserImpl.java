@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch.api;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +18,10 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -26,6 +32,12 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.NoSuchConferenceException;
 import org.sipfoundry.sipxconfig.conference.NoSuchMemberException;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  * Parses the string returned from a FreeSWITCH XML-RPC call.
@@ -39,11 +51,15 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
     private static final Pattern CONFERENCE_NAME_PATTERN = Pattern.compile("Conference ([" + SipUriSetting.USER_NAME
             + "]+) \\((\\d+) members? rate: \\d+( locked)? flags: .*\\)");
-
+    
     private static final int CONFERENCE_NAME_PATTERN_GROUP_INDEX = 1;
     private static final int CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX = 2;
     private static final int CONFERENCE_LOCKED_PATTERN_GROUP_INDEX = 3;
 
+    private static final Pattern ACTIVE_CALLS_PATTERN = Pattern.compile("(d+) total.");
+    
+    private static final int ACTIVE_CALLS_COUNT_PATTERN_GROUP_INDEX = 1;
+    
     // the misspelling is intentional - typo in freeswitch API
     private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Exist[ae]nt ID [\\d]+\\n");
 
@@ -146,6 +162,67 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
         return activeConferences;
     }
+    
+    @Override
+    public List<FreeswitchSofiaStatus> getSofiaStatuses(String resultString) {
+        if (StringUtils.isBlank(resultString)) {
+            return Collections.emptyList();
+        }
+        if (resultString.equals(EMPTY_STRING)) {
+            return Collections.emptyList();
+        }
+        
+        List<FreeswitchSofiaStatus> statuses = new ArrayList<FreeswitchSofiaStatus>();
+        try {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            InputSource xmlSource = new InputSource(new StringReader(resultString));
+            Document doc = dBuilder.parse(xmlSource);
+            
+            doc.getDocumentElement().normalize();
+            
+            NodeList nodeList = doc.getChildNodes();
+            for (int index = 0; index < nodeList.getLength(); index++) {
+                Node node = nodeList.item(index);
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+                    FreeswitchSofiaStatus sofiaStatus = createFromXml(element);
+                    if(sofiaStatus != null) {
+                        statuses.add(sofiaStatus);
+                    }
+                }
+            }
+            
+        } catch(ParserConfigurationException|SAXException|IOException ex)
+        {
+            LOG.error("Failed to parse xml: " + resultString, ex);
+        }
+        
+        return statuses;
+    }
+    
+    @Override
+    public int getCallCount(String resultString)
+    {
+    	if (StringUtils.isBlank(resultString)) {
+            return 0;
+        }
+        if (resultString.equals(EMPTY_STRING)) {
+            return 0;
+        }
+        
+        int count = 0;
+        Matcher matcher = ACTIVE_CALLS_PATTERN.matcher(resultString);
+        if (matcher.find()) {
+        	try {
+        		count = Integer.parseInt(matcher.group(ACTIVE_CALLS_COUNT_PATTERN_GROUP_INDEX));	
+        	} catch(NumberFormatException ex) {
+        		LOG.warn("Failed to parse active call: " + resultString, ex);
+        	}
+        }
+        
+        return count;
+    }
 
     public List<ActiveConferenceMember> getConferenceMembers(String resultString, Conference conference) {
         List<ActiveConferenceMember> members = new ArrayList<ActiveConferenceMember>();
@@ -196,6 +273,36 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         member.setVolumeOut(scan.nextInt());
         member.setEnergyLevel(scan.nextInt());
         return member;
+    }
+    
+    private static FreeswitchSofiaStatus createFromXml(Element element) {
+        FreeswitchSofiaStatus status = new FreeswitchSofiaStatus();
+        status.setName(getTextFromElement(element, "name"));
+        status.setData(getTextFromElement(element, "data"));
+        
+        try {
+            status.setType(FreeswitchSofiaStatus.Type.fromString(
+                    getTextFromElement(element, "type")
+                ));    
+            
+            status.setStatus(FreeswitchSofiaStatus.Status.fromString(
+                    getTextFromElement(element, "status")
+                ));
+        } catch(IllegalArgumentException ex) {
+            LOG.warn("Unable to parse sofia type/status for " + status.getName(), ex);
+            return null;
+        }
+                
+        return status;
+    }
+    
+    private static String getTextFromElement(Element element, String tagName) {
+        NodeList nodeList = element.getElementsByTagName(tagName);
+        if(nodeList.getLength() > 0) {
+            return nodeList.item(0).getTextContent();
+        }
+        
+        return "";
     }
 
 }

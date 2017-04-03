@@ -24,6 +24,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.commserver.Location;
 import org.sipfoundry.sipxconfig.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchApi;
+import org.sipfoundry.sipxconfig.freeswitch.api.FreeswitchSofiaStatus;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 import org.sipfoundry.sipxconfig.test.TestHelper;
@@ -47,11 +49,19 @@ public class BridgeSbcStatisticsTest {
         m_sbc.setSettingValue("bridge-configuration/xml-rpc-port", "8888");
 
         Integer callCountResult = new Integer(10);
-
-        Map<String, String> registrationMap = new HashMap<String, String>();
-        registrationMap.put("47.123.2.34", "INIT");
-        registrationMap.put("47.123.2.35", "INIT");
-        registrationMap.put("47.123.2.36", "INIT");
+        
+        String sofiaProfiles = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>"
+        		+ "<profiles>"
+        		+ "<gateway>"
+        		+ "<name>id-1</name><type>gateway</type><data>sip:1@47.123.2.34</data><state>REGED</state>"
+        		+ "</gateway>"
+        		+ "<gateway>"
+        		+ "<name>id-2</name><type>gateway</type><data>sip:1@47.123.2.35</data><state>REGED</state>"
+        		+ "</gateway>"
+        		+ "<gateway>"
+        		+ "<name>id-3</name><type>gateway</type><data>sip:1@47.123.2.36</data><state>REGED</state>"
+        		+ "</gateway>"
+        		+ "</profiles>";
 
         List<ServiceStatus> stats = new ArrayList<ServiceStatus>();
         ServiceStatus status = new ServiceStatus("sipxbridge", ServiceStatus.Status.Running, false, false);
@@ -61,21 +71,21 @@ public class BridgeSbcStatisticsTest {
         expectLastCall().andReturn(stats);
         replay(snmpMgr);
 
-        final BridgeSbcXmlRpcApi bridgeSbcApiProvider = createMock(BridgeSbcXmlRpcApi.class);
-        bridgeSbcApiProvider.getCallCount();
+        final FreeswitchApi freeswitchApiProvider = createMock(FreeswitchApi.class);
+        freeswitchApiProvider.sofia("xmlstatus");
         expectLastCall().andReturn(callCountResult);
-        bridgeSbcApiProvider.getRegistrationStatus();
-        expectLastCall().andReturn(registrationMap);
-        replay(bridgeSbcApiProvider);
+        freeswitchApiProvider.show("calls count");
+        expectLastCall().andReturn(sofiaProfiles);
+        replay(freeswitchApiProvider);
 
-        ApiProvider<BridgeSbcXmlRpcApi> provider = new ApiProvider<BridgeSbcXmlRpcApi>() {
-            public BridgeSbcXmlRpcApi getApi(String serviceUrl) {
-                return bridgeSbcApiProvider;
+        ApiProvider<FreeswitchApi> provider = new ApiProvider<FreeswitchApi>() {
+            public FreeswitchApi getApi(String serviceUrl) {
+                return freeswitchApiProvider;
             }
         };
 
         m_sbcStats = new BridgeSbcStatistics();
-        m_sbcStats.setBridgeSbcApiProvider(provider);
+        m_sbcStats.setFreeswitchApiProvider(provider);
         m_sbcStats.setSnmpManager(snmpMgr);
     }
 
@@ -92,13 +102,15 @@ public class BridgeSbcStatisticsTest {
         for (BridgeSbcRegistrationRecord record : bridgeSbcRegistrationRecords) {
             recordMap.put(record.getRegisteredAddress(), record);
         }
+        
+        String expectedStatus = FreeswitchSofiaStatus.Status.STATUS_REGISTERED.getMessage();
 
         assertEquals(3, bridgeSbcRegistrationRecords.length);
-        assertTrue(recordMap.containsKey("47.123.2.36"));
-        assertTrue(recordMap.containsKey("47.123.2.34"));
-        assertTrue(recordMap.containsKey("47.123.2.35"));
-        assertEquals("INIT", recordMap.get("47.123.2.36").getRegistrationStatus());
-        assertEquals("INIT", recordMap.get("47.123.2.34").getRegistrationStatus());
-        assertEquals("INIT", recordMap.get("47.123.2.35").getRegistrationStatus());
+        assertTrue(recordMap.containsKey("sip:1@47.123.2.34"));
+        assertTrue(recordMap.containsKey("sip:1@47.123.2.35"));
+        assertTrue(recordMap.containsKey("sip:1@47.123.2.36"));
+        assertEquals(expectedStatus, recordMap.get("sip:1@47.123.2.34").getRegistrationStatus());
+        assertEquals(expectedStatus, recordMap.get("sip:1@47.123.2.35").getRegistrationStatus());
+        assertEquals(expectedStatus, recordMap.get("sip:1@47.123.2.36").getRegistrationStatus());
     }
 }
