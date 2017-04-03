@@ -133,6 +133,7 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("RUN_KAMAILIO", "yes");
         config.write("USER", "$(sipx.SIPXPBXUSER)");
         config.write("GROUP", "$(sipx.SIPXPBXGROUP)");
+        config.write("KAM_DOMAIN", "$(sipx.domain)");
         
         config.write("SHM_MEMORY", settings.getDefaultSharedMemory());
         config.write("PKG_MEMORY", settings.getDefaultPrivateMemory());
