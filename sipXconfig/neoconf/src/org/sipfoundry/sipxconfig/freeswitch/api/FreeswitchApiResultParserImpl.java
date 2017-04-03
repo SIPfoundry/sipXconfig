@@ -56,7 +56,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     private static final int CONFERENCE_MEMBERS_PATTERN_GROUP_INDEX = 2;
     private static final int CONFERENCE_LOCKED_PATTERN_GROUP_INDEX = 3;
 
-    private static final Pattern ACTIVE_CALLS_PATTERN = Pattern.compile("(d+) total.");
+    private static final Pattern ACTIVE_CALLS_PATTERN = Pattern.compile("(\\d+)\\stotal\\.");
     
     private static final int ACTIVE_CALLS_COUNT_PATTERN_GROUP_INDEX = 1;
     
@@ -181,17 +181,8 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
             
             doc.getDocumentElement().normalize();
             
-            NodeList nodeList = doc.getChildNodes();
-            for (int index = 0; index < nodeList.getLength(); index++) {
-                Node node = nodeList.item(index);
-                if(node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element element = (Element) node;
-                    FreeswitchSofiaStatus sofiaStatus = createFromXml(element);
-                    if(sofiaStatus != null) {
-                        statuses.add(sofiaStatus);
-                    }
-                }
-            }
+            getSofiaStatuses(doc.getElementsByTagName("profile"), statuses);
+            getSofiaStatuses(doc.getElementsByTagName("gateway"), statuses);
             
         } catch(ParserConfigurationException|SAXException|IOException ex)
         {
@@ -204,7 +195,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     @Override
     public int getCallCount(String resultString)
     {
-    	if (StringUtils.isBlank(resultString)) {
+        if (StringUtils.isBlank(resultString)) {
             return 0;
         }
         if (resultString.equals(EMPTY_STRING)) {
@@ -214,11 +205,11 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         int count = 0;
         Matcher matcher = ACTIVE_CALLS_PATTERN.matcher(resultString);
         if (matcher.find()) {
-        	try {
-        		count = Integer.parseInt(matcher.group(ACTIVE_CALLS_COUNT_PATTERN_GROUP_INDEX));	
-        	} catch(NumberFormatException ex) {
-        		LOG.warn("Failed to parse active call: " + resultString, ex);
-        	}
+            try {
+                count = Integer.parseInt(matcher.group(ACTIVE_CALLS_COUNT_PATTERN_GROUP_INDEX));    
+            } catch(NumberFormatException ex) {
+                LOG.warn("Failed to parse active call: " + resultString, ex);
+            }
         }
         
         return count;
@@ -275,18 +266,27 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         return member;
     }
     
+    private static void getSofiaStatuses(NodeList nodeList, List<FreeswitchSofiaStatus> statuses) {
+        for (int index = 0; index < nodeList.getLength(); index++) {
+            Node node = nodeList.item(index);
+            if(node.getNodeType() == Node.ELEMENT_NODE) {
+                Element element = (Element) node;
+                FreeswitchSofiaStatus sofiaStatus = createFromXml(element);
+                if(sofiaStatus != null) {
+                    statuses.add(sofiaStatus);
+                }
+            }
+        }
+    }
+    
     private static FreeswitchSofiaStatus createFromXml(Element element) {
         FreeswitchSofiaStatus status = new FreeswitchSofiaStatus();
         status.setName(getTextFromElement(element, "name"));
         status.setData(getTextFromElement(element, "data"));
-        
+        status.setState(getTextFromElement(element, "state"));
         try {
             status.setType(FreeswitchSofiaStatus.Type.fromString(
                     getTextFromElement(element, "type")
-                ));    
-            
-            status.setStatus(FreeswitchSofiaStatus.Status.fromString(
-                    getTextFromElement(element, "state")
                 ));
         } catch(IllegalArgumentException ex) {
             LOG.warn("Unable to parse sofia type/status for " + status.getName(), ex);

@@ -127,13 +127,13 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     }
     
     public void restartFreeswitch() {
-    	if(isUseFreeswitch()) {
-    		try {
-    			api().fsctl(FREESWITCH_RESTART_COMMAND);
+        if(isUseFreeswitch()) {
+            try {
+                api().fsctl(FREESWITCH_RESTART_COMMAND);
             } catch (XmlRpcRemoteException xrre) {
                 throw new FreeswitchApiConnectException(getLocation(), xrre);
             }
-    	}
+        }
     }
 
     boolean isRedundant(SipTrunk sipTrunk, List<SipTrunk> list) {
@@ -244,7 +244,7 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
             BridgeSbc device = getDevice();
             context.put("itsps", device.getMySipItsps());
             context.put("externalPublicIp", device.getGlobalSipIp());
-    		context.put("externalPublicPort", device.getGlobalSipPort());
+            context.put("externalPublicPort", device.getGlobalSipPort());
             return context;
         }
     }
@@ -253,7 +253,7 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
         return getSettingTypeAsList("bridge-configuration/allow-addresses");
     }
 
-	public Set<String> getAclDenyAddresses() {
+    public Set<String> getAclDenyAddresses() {
         return getSettingTypeAsList("bridge-configuration/deny-addresses");
     }
 
@@ -323,12 +323,12 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     }
     
     public String getGlobalSipIp() {
-    	return (String) getSettingTypedValue("bridge-configuration/global-address");
+        return (String) getSettingTypedValue("bridge-configuration/global-address");
     }
     
     public int getGlobalSipPort() {
-    	Integer port = (Integer) getSettingTypedValue("bridge-configuration/global-port");
-    	return port != null ? port : 0;
+        Integer port = (Integer) getSettingTypedValue("bridge-configuration/global-port");
+        return port != null ? port : 0;
     }
 
     public int getExternalSipPort() {
@@ -352,12 +352,12 @@ public class BridgeSbc extends SbcDevice implements DeployConfigOnEdit {
     private Set<String> getSettingTypeAsList(String settingName) {
         Set<String> list = new HashSet<String>();
         String listString = (String)getSettingTypedValue(settingName);
-		if (StringUtils.isNotEmpty(listString)) {
-		    String[] listTokens = StringUtils.split(listString, ',');
-		    for (String token : listTokens) {
-		        list.add(StringUtils.trim(token));
-		    }
-		}
-		return list;
-	}
+        if (StringUtils.isNotEmpty(listString)) {
+            String[] listTokens = StringUtils.split(listString, ',');
+            for (String token : listTokens) {
+                list.add(StringUtils.trim(token));
+            }
+        }
+        return list;
+    }
 }

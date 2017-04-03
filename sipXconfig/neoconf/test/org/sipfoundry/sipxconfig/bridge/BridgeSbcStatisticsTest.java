@@ -103,7 +103,7 @@ public class BridgeSbcStatisticsTest {
             recordMap.put(record.getRegisteredAddress(), record);
         }
         
-        String expectedStatus = FreeswitchSofiaStatus.Status.STATUS_REGISTERED.getMessage();
+        String expectedStatus = FreeswitchSofiaStatus.State.STATE_REGISTERED.getMessage();
 
         assertEquals(3, bridgeSbcRegistrationRecords.length);
         assertTrue(recordMap.containsKey("sip:1@47.123.2.34"));

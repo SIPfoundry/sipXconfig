@@ -28,14 +28,14 @@ import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BridgeSbcStatistics {
-	private static final Log LOG = LogFactory.getLog(BridgeSbcStatistics.class);
-	
-	private final FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
-	private final String SHOW_ACTIVE_CALL_PARAM = "calls count";
-	private final String SHOW_SOFIA_PROFILE_STATUS_PARAM = "xmlstatus";
-	
-	private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
-	private AddressManager m_addressManager;
+    private static final Log LOG = LogFactory.getLog(BridgeSbcStatistics.class);
+    
+    private final FreeswitchApiResultParser m_freeswitchApiParser = new FreeswitchApiResultParserImpl();
+    private final String SHOW_ACTIVE_CALL_PARAM = "calls count";
+    private final String SHOW_SOFIA_PROFILE_STATUS_PARAM = "xmlstatus";
+    
+    private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
+    private AddressManager m_addressManager;
     private SnmpManager m_snmpManager;
 
     /**
@@ -47,12 +47,12 @@ public class BridgeSbcStatistics {
     public int getCallCount(BridgeSbc bridgeSbc) throws Exception {
         FreeswitchApi api = api(bridgeSbc);
         if(api == null) {
-        	return 0;
+            return 0;
         }
         
         String result = "";
         try {
-			result = api.show(SHOW_ACTIVE_CALL_PARAM);
+            result = api.show(SHOW_ACTIVE_CALL_PARAM);
         } catch (XmlRpcRemoteException xrre) {
             LOG.warn("Unable to retrieve active calls from sipxbridge", xrre);
         }
@@ -87,7 +87,7 @@ public class BridgeSbcStatistics {
      * @throws Exception
      */
     public BridgeSbcRegistrationRecord[] getRegistrationRecords(BridgeSbc bridgeSbc) throws Exception {
-    	FreeswitchApi api = api(bridgeSbc);
+        FreeswitchApi api = api(bridgeSbc);
         if (api == null) {
             return null;
         }
@@ -99,20 +99,27 @@ public class BridgeSbcStatistics {
         
         List<FreeswitchSofiaStatus> sofiaStatuses = m_freeswitchApiParser.getSofiaStatuses(result);
         if(sofiaStatuses.isEmpty()) {
-        	return null;
+            return null;
         }
         
         List<BridgeSbcRegistrationRecord> registrationRecords = new ArrayList<>(); 
         for(FreeswitchSofiaStatus sofiaStatus : sofiaStatuses) {
-        	if(sofiaStatus.getType() == Type.SOFIA_GATEWAY) {
-        		registrationRecords.add(new BridgeSbcRegistrationRecord(sofiaStatus.getData()
-        				, sofiaStatus.getStatus().getMessage()));
-        	}
+            if(sofiaStatus.getType() == Type.SOFIA_GATEWAY) {
+                String state = sofiaStatus.getState();
+                try {
+                    state = FreeswitchSofiaStatus.State.fromString(state).getMessage();
+                } catch(IllegalArgumentException ex) {
+                    LOG.warn("Unable to retrieve state message", ex);
+                }
+                registrationRecords.add(
+                            new BridgeSbcRegistrationRecord(sofiaStatus.getData(), state)
+                        );
+            }
         }
         
         return !registrationRecords.isEmpty() ?
-        		registrationRecords.toArray(new BridgeSbcRegistrationRecord[registrationRecords.size()])
-        		: null;
+                registrationRecords.toArray(new BridgeSbcRegistrationRecord[registrationRecords.size()])
+                : null;
     }
 
     @Required
@@ -122,7 +129,7 @@ public class BridgeSbcStatistics {
     
     @Required
     public void setAddressManager(AddressManager addressManager) {
-    	m_addressManager = addressManager;
+        m_addressManager = addressManager;
     }
 
     @Required

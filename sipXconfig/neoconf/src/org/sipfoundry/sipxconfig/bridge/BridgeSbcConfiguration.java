@@ -88,11 +88,11 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
             ConfigUtils.enableCfengineClass(dir, "sipxbridge.cfdat", bridgeHere, SIPXBRIDGE);
 
             if (bridgeHere) {
-            	if(bridge.isUseFreeswitch()) {
-            		replicateFreeswitchBridge(bridge, location, dir);
-            	} else {
-            		replicateInternalBridge(bridge, location, dir);
-            	}
+                if(bridge.isUseFreeswitch()) {
+                    replicateFreeswitchBridge(bridge, location, dir);
+                } else {
+                    replicateInternalBridge(bridge, location, dir);
+                }
             }
         }
     }
@@ -103,7 +103,7 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
 
     @Override
     public Collection<ProcessDefinition> getProcessDefinitions(SnmpManager manager, Location location) {
-    	if (!manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location)) {
+        if (!manager.getFeatureManager().isFeatureEnabled(BridgeSbcContext.FEATURE, location)) {
             return null;
         }
                 
@@ -170,17 +170,17 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
     }
     
     @Override
-	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-		m_beanFactory = (ListableBeanFactory) beanFactory;
-	}
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
     
     public void setSbcBridgeContext(BridgeSbcContext sbcBridgeContext) {
-    	m_sbcBridgeContext = sbcBridgeContext;
+        m_sbcBridgeContext = sbcBridgeContext;
     }
     
     private void replicateInternalBridge(BridgeSbc bridge, Location location, File configDir) 
-    		throws IOException {
-    	Setting settings = bridge.getSettings();
+            throws IOException {
+        Setting settings = bridge.getSettings();
         Setting bridgeSettings = settings.getSetting("bridge-configuration");
         String log4jFileName = "log4j-bridge.properties.part";
         String[] logLevelKeys = {"log4j.logger.org.sipfoundry.sipxbridge",
@@ -193,11 +193,11 @@ public class BridgeSbcConfiguration implements ConfigProvider, ProcessProvider, 
     }
     
     private void replicateFreeswitchBridge(BridgeSbc bridge, Location location, File configDir) 
-    		throws IOException {
-    	Map<String, AbstractTrunkConfiguration> configs = m_beanFactory
+            throws IOException {
+        Map<String, AbstractTrunkConfiguration> configs = m_beanFactory
                 .getBeansOfType(AbstractTrunkConfiguration.class);
         for (AbstractTrunkConfiguration config : configs.values()) {
-        	File f = new File(configDir, config.getFileName());
+            File f = new File(configDir, config.getFileName());
             f.getParentFile().mkdirs();
             FileWriter writer = new FileWriter(f);
             config.write(writer, location, bridge);
