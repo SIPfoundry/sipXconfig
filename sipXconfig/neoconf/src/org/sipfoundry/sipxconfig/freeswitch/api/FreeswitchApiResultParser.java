@@ -53,4 +53,8 @@ public interface FreeswitchApiResultParser {
     public List<ActiveConference> getActiveConferences(String resultString);
 
     public List<ActiveConferenceMember> getConferenceMembers(String resultString, Conference conference);
+    
+    public List<FreeswitchSofiaStatus> getSofiaStatuses(String resultString);
+    
+    public int getCallCount(String resultString);
 }

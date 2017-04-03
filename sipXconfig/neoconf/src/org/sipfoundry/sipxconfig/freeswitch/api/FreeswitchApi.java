@@ -15,6 +15,8 @@ package org.sipfoundry.sipxconfig.freeswitch.api;
 public interface FreeswitchApi {
     void reloadxml();
     void fsctl(String command);
+    String sofia(String command);
+    String show(String command);
     String conference(String command);
     String g729_status();
     String g729_available();
