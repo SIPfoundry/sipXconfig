@@ -286,7 +286,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
                 ));    
             
             status.setStatus(FreeswitchSofiaStatus.Status.fromString(
-                    getTextFromElement(element, "status")
+                    getTextFromElement(element, "state")
                 ));
         } catch(IllegalArgumentException ex) {
             LOG.warn("Unable to parse sofia type/status for " + status.getName(), ex);
