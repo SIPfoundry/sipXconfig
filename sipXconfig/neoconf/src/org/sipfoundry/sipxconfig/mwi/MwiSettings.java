@@ -26,6 +26,12 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class MwiSettings extends PersistableSettings implements DeployConfigOnEdit {
 
+    public enum SubscriptionBehavior
+    {
+        ENABLE_MWI_SUBSCRIPTION,
+        DISABLE_MWI_SUBSCRIPTION
+    };
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile("sipxstatus/sipxstatus.xml");
@@ -45,6 +51,20 @@ public class MwiSettings extends PersistableSettings implements DeployConfigOnEd
 
     public int getHttpsApiPort() {
         return ((Integer) getSettingTypedValue("status-config/SIP_STATUS_HTTPS_PORT")).intValue();
+    }
+
+    public SubscriptionBehavior getMwiSubscriptionBehavior() {
+        int subscriptionType = ((Integer) getSettingTypedValue("status-config/MWI_SUBSCRIBE_BEHAVIOR")).intValue();
+        switch(subscriptionType) {
+        case 0: return SubscriptionBehavior.ENABLE_MWI_SUBSCRIPTION;
+        case 1: return SubscriptionBehavior.DISABLE_MWI_SUBSCRIPTION;
+        default: 
+            throw new UnsupportedOperationException("Unsupported MWI subscription behavior"); 
+        }
+    }
+    
+    public boolean isMwiSubscriptionEnable() {
+    	return getMwiSubscriptionBehavior() == SubscriptionBehavior.ENABLE_MWI_SUBSCRIPTION;
     }
 
     @Override

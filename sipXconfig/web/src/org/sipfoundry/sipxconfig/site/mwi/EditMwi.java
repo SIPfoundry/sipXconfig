@@ -16,6 +16,7 @@
  */
 package org.sipfoundry.sipxconfig.site.mwi;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -23,8 +24,11 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
 import org.sipfoundry.sipxconfig.mwi.MwiSettings;
+import org.sipfoundry.sipxconfig.setting.AbstractSetting;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class EditMwi extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "mwi/EditMwi";
@@ -34,6 +38,9 @@ public abstract class EditMwi extends PageWithCallback implements PageBeginRende
 
     @InjectObject("spring:mwi")
     public abstract Mwi getMwi();
+    
+    @InjectObject("spring:featureManager")
+    public abstract FeatureManager getFeatureManager();
 
     public abstract MwiSettings getSettings();
 
@@ -41,8 +48,23 @@ public abstract class EditMwi extends PageWithCallback implements PageBeginRende
 
     @Override
     public void pageBeginRender(PageEvent arg0) {
+    	MwiSettings settings = getMwi().getSettings();
+    	if(!getFeatureManager().isFeatureEnabled(Mwi.FEATURE)) {
+    		//Hide all settings except Phone MWI Subscription behavior
+    		Setting statusConfig = settings.getSettings().getSetting("status-config");
+        	for(Setting setting : statusConfig.getValues()) {
+        		if(!StringUtils.equals(setting.getProfileName(), "MWI_SUBSCRIBE_BEHAVIOR")) {
+        			((AbstractSetting) setting).setHidden(true);
+        		}
+        	}
+        	
+        	//Hide resource limit as it isn't needed here
+        	Setting resourceConfig = settings.getSettings().getSetting("resource-limits");
+        	((AbstractSetting) resourceConfig).setHidden(true);
+    	}
+    	
         if (getSettings() == null) {
-            setSettings(getMwi().getSettings());
+            setSettings(settings);
         }
     }
 
