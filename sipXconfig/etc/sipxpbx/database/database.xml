@@ -472,7 +472,8 @@
     <antcall target="system-audit" />
     <antcall target="config-change-value" />
     <antcall target="openacd-custom-header" />
-    <antcall target="e911" />
+    <antcall target="canary_e911" />
+    <antcall target="canary_e911_constraints" />
     <antcall target="add_phone_supported_flag" />
     <antcall target="migrate-yealinkPhone-to-yealink" />
     <antcall target="update-expiration-time" />
@@ -1448,8 +1449,11 @@
   <target name="openacd-custom-header" unless="openacd-custom-header">
     <db-patch patch="openacd-custom-header"/>
   </target>
-  <target name="e911" unless="e911">
-    <db-patch patch="e911" />
+  <target name="canary_e911" unless="canary_e911">
+    <db-patch patch="canary_e911" />
+  </target>
+  <target name="canary_e911_constraints" unless="canary_e911_constraints">
+    <plsql-patch patch="canary_e911_constraints" />
   </target>
   <target name="add_phone_supported_flag" unless="add_phone_supported_flag">
     <db-patch patch="add_phone_supported_flag" />
