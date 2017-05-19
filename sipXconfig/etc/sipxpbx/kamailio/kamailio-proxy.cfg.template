@@ -278,7 +278,7 @@ modparam("domain", "register_myself", 1)
 # ----- pua params -----
 modparam("pua", "db_url", DBURL)
 modparam("pua", "db_mode", 2)
-modparam("pua", "outbound_proxy", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort)")
+modparam("pua", "outbound_proxy", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort);transport=tcp")
 modparam("pua", "update_period", 60)
 modparam("pua", "dlginfo_increase_version", 0)
 modparam("pua", "reginfo_increase_version", 0)
