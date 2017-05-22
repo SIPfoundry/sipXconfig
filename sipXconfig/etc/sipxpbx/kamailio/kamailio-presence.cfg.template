@@ -253,6 +253,7 @@ modparam("presence", "db_update_period", 20)
 modparam("presence", "clean_period", 40)
 modparam("presence", "subs_db_mode", 2)
 modparam("presence", "fetch_rows", 1000)
+modparam("presence", "timeout_rm_subs", 0)
 
 # ----- presence_xml params -----
 modparam("presence_xml", "db_url", DBURL)
