@@ -38,13 +38,15 @@ public class BridgeCommand extends CallCommand {
     }
 
     public boolean start() {
-        if(m_uuid == null) {
-            return super.start();
-        }
         m_finished = false;
         // Send the command to the socket
-        m_fses.cmd("sendmsg " + m_uuid +
-                "\ncall-command: execute\nexecute-app-name: " + m_command);
+        if(m_uuid == null) {
+            m_fses.cmdResponse("sendmsg " + m_fses.getSessionUUID() + 
+                    "\ncall-command: execute\nexecute-app-name: " + m_command);
+        } else {
+            m_fses.cmdResponse("sendmsg " + m_uuid +
+                    "\ncall-command: execute\nexecute-app-name: " + m_command);    
+        }
         return false;
     }
 }
