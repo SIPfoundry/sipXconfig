@@ -150,8 +150,12 @@ public abstract class EditPhoneDefaults extends PhoneBasePage implements PageBeg
 
     public void apply() {
         getSettingDao().saveGroup(getGroup());
-        getPhoneContext().applyGroupFirmwareVersion(getGroup(),
-            DeviceVersion.getDeviceVersion(getPhone().getBeanId() + getDeviceVersion().getVersionId()), getPhone().getModelId());
+        if (getDeviceVersion() != null) {
+            DeviceVersion deviceVersion = DeviceVersion.getDeviceVersion(
+                    getPhone().getBeanId() + getDeviceVersion().getVersionId());
+            getPhoneContext().applyGroupFirmwareVersion(getGroup(), deviceVersion
+                    , getPhone().getModelId());
+        }
     }
 
     public IPage cancel(IRequestCycle cycle) {
