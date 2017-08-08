@@ -106,6 +106,7 @@ Requires: sipxgrandstream-ng >= %version
 Requires: sipxpolycom-ng >= %version
 Requires: sipxyealink-ng >= %version
 Requires: sipxcisco-ng >= %version
+Requires: sipxsnom-ng >= %version
 Requires: sipxprovision-ng >= %version
 Requires: sipxproxy-ng >= %version
 Requires: sipxpublisher-ng >= %version
