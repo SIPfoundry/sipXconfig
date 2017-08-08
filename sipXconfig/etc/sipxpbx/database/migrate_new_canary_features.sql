@@ -35,6 +35,8 @@ begin
     delete from feature_local where feature_id = 'imbot';
     delete from feature_local where feature_id = 'instantMessage';
     delete from feature_local where feature_id = 'sipxsqa';
+    delete from feature_local where feature_id = 'saa';
+    delete from feature_local where feature_id = 'callqueue';
 end;	
 $$ language plpgsql;
 
