@@ -214,7 +214,7 @@ db.voicemail.files.createIndex( { "filename": 1, "uploadDate": 1 } );
 db.voicemail.files.createIndex( { "metadata.voicemailId": 1} );
 db.voicemail.metadata.createIndex( { "user": 1, "label": 1, "messageId": 1 } );
 
-db.fs.files.find({}).forEach( function(doc) {
+db.fs.files.find({}).addOption(DBQuery.Option.noTimeout).forEach( function(doc) {
   print("Migrating user: " + doc.metadata.user + " filename: " + doc.filename);
   var audioToken = doc.filename.match('(.*)-([0-9A-Z][0-9A-Z])\.([a-z][a-z][a-z])');
   if(audioToken != null) {
