@@ -36,8 +36,23 @@ function importVmMetadata(messageId, audioCode, audioType, doc) {
   }
 
   var priority = 'normal';
-  if(doc.metadata.urgent) {
-    priority = 'urgent'
+  if(doc.metadata.urgent != null && doc.metadata.urgent) {
+    priority = 'urgent';
+  }
+
+  var unheard = false;
+  if(doc.metadata.new != null) {
+    unheard = doc.metadata.new;
+  }
+
+  var label = "deleted"
+  if(doc.metadata.folder != null) {
+    label = doc.metadata.folder;
+  }
+
+  var subject = doc.metadata.msgid;
+  if(doc.metadata.subject != null) {
+    subject = doc.metadata.subject;
   }
 
   var otherRecipients = [];
@@ -49,13 +64,13 @@ function importVmMetadata(messageId, audioCode, audioType, doc) {
   var metadata = {
     "_id":metadataId,
     "user":doc.metadata.user,
-    "label":doc.metadata.folder,
+    "label":label,
     "messageId":doc.metadata.msgid,
     "audioIdentifier":audioIdentifier,
-    "unheard":doc.metadata.new,
+    "unheard":unheard,
     "userURI":doc.metadata.id,
     "fromURI":doc.metadata.from,
-    "subject":doc.metadata.subject,
+    "subject":subject,
     "timestamp": new NumberLong(new Date(doc.metadata.timestamp).getTime()),
     "audioFormat":audioType,
     "priority":priority,
