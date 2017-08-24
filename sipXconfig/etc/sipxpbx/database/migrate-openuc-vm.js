@@ -1,3 +1,4 @@
+
 function importVmMetadata(messageId, audioCode, audioType, doc) {
   var audioIdentifier = null;
 
@@ -174,11 +175,16 @@ function importVmFile(doc, metadata) {
     contentType = "audio/mpeg";
   }
 
+  var duration = new NumberLong(0);
+  if(doc.metadata.durationsecs != null) {
+    duration = new NumberLong(doc.metadata.durationsecs);
+  }
+
   var vmFile = {
       "_id": doc._id,
       "chunkSize": doc.chunkSize,
       "length": doc.length,
-      "md5": doc.mp5,
+      "md5": doc.md5,
       "filename": doc.filename,
       "contentType": contentType,
       "uploadDate": doc.uploadDate,
@@ -186,7 +192,7 @@ function importVmFile(doc, metadata) {
       "metadata":{
         "voicemailId":metadata._id,
         "audioIdentifier":metadata.audioIdentifier,
-        "duration":doc.metadata.durationsecs != null ? new NumberLong(doc.metadata.durationsecs) : new NumberLong(0),
+        "duration":duration,
         "timestamp":metadata.timestamp,
         "filePath":null,
         "audioFormat":metadata.audioFormat,
@@ -195,18 +201,6 @@ function importVmFile(doc, metadata) {
     };
 
   db.voicemail.files.insert(vmFile);
-  importVmChunk(doc, metadata);
-}
-
-function importVmChunk(doc, metadata) {
-  var cursor = db.fs.chunks.find({"files_id":doc._id});
-  if(cursor.hasNext()) {
-    db.voicemail.chunks.insert(cursor.toArray());
-  } else {
-    print("Unable to locate chunk file for: " + doc._id + ": " + metadata.messageId);
-    db.voicemail.files.remove({"_id": doc._id});
-    db.voicemail.metadata.remove({"_id": metadata._id});
-  }
 }
 
 db.voicemail.chunks.createIndex( { "files_id": 1, "n": 1 }, { unique: true } );
@@ -214,8 +208,10 @@ db.voicemail.files.createIndex( { "filename": 1, "uploadDate": 1 } );
 db.voicemail.files.createIndex( { "metadata.voicemailId": 1} );
 db.voicemail.metadata.createIndex( { "user": 1, "label": 1, "messageId": 1 } );
 
+print("Start Migrating VM Metadata Schema.");
+
 db.fs.files.find({}).addOption(DBQuery.Option.noTimeout).forEach( function(doc) {
-  print("Migrating user: " + doc.metadata.user + " filename: " + doc.filename);
+  print("Migrating VM Metadata Schema -> user: " + doc.metadata.user + " filename: " + doc.filename);
   var audioToken = doc.filename.match('(.*)-([0-9A-Z][0-9A-Z])\.([a-z][a-z][a-z])');
   if(audioToken != null) {
     importVmMetadata(audioToken[1], audioToken[2], audioToken[3], doc);
@@ -234,3 +230,29 @@ db.fs.files.find({}).addOption(DBQuery.Option.noTimeout).forEach( function(doc) 
     }
   }
 });
+
+print("Done Migrating VM Metadata Schema.");
+print("Start Migrating VM Chunk Files.");
+
+var voicemailSize = db.voicemail.files.count({});
+var percentLog = Math.round(voicemailSize * (2/100));
+var counter = 0;
+
+db.voicemail.files.find({}).addOption(DBQuery.Option.noTimeout).forEach( function(doc) {
+  var cursor = db.fs.chunks.find({"files_id":doc._id});
+  if(cursor.hasNext()) {
+    cursor.forEach(function(chunk) {
+      db.voicemail.chunks.insert(chunk);
+    });
+  }
+
+  if((++counter % percentLog) == 0) {
+    print("Transfered VM Chunk Files: " + counter);
+  }
+});
+
+if((counter % percentLog) != 0) {
+  print("Transfered VM Chunk Files: " + counter);
+}
+
+print("Done Migrating VM Chunk Files.");
