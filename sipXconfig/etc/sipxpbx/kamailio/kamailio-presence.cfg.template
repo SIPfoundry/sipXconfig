@@ -252,6 +252,7 @@ modparam("presence", "send_fast_notify", 1)
 modparam("presence", "db_update_period", 20)
 modparam("presence", "clean_period", 40)
 modparam("presence", "subs_db_mode", 2)
+modparam("presence", "subs_use_highest_version", 1)
 modparam("presence", "fetch_rows", 1000)
 modparam("presence", "timeout_rm_subs", 0)
 
