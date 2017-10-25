@@ -43,8 +43,8 @@ bundle agent redis_running {
         classes => if_repaired("restart_redis_clients");
 
       "/etc/redis.conf"
-        comment => "remove bind 127.0.0.1 from redis.conf",
-        edit_line => delete_lines_matching('bind 127.0.0.1'),
+        comment => "update bind address from redis.conf",
+        edit_line => redis_update_bind_address,
         classes => if_repaired("restart_redis");
 
   commands:
@@ -62,5 +62,14 @@ bundle agent redis_running {
       "$(service)"
         comment => "start redis",
         args => "restart";
+}
+
+
+bundle edit_line redis_update_bind_address {
+  delete_lines:
+    "^bind\s.*";
+
+  insert_lines:
+    "bind 0.0.0.0";
 }
 
