@@ -244,6 +244,12 @@
         </type>
         <value>0</value>
       </setting>
+      <setting name="days-to-keep-vm" advanced="yes">
+        <type>
+          <integer min="0" max="365" advanced="yes"/>
+        </type>
+        <value>0</value>
+      </setting>
     </group>
     <group name="fax" hidden="yes">
       <setting name="extension">
@@ -320,6 +326,12 @@
           <string />
         </type>
       </setting>
+      <setting name="forward-delete-voicemail">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>      
       <setting name="primary-email-voicemail-notification">
         <type>
           <enum>

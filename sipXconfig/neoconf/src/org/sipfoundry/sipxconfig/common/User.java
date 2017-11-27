@@ -53,6 +53,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String E911_SETTING_PATH = "e911/location";
     private static final String PHANTOM_USER = "phantom/enabled";
     private static final String FORCE_PIN_CHANGE = "voicemail/security/force-pin-change";
+    private static final String DAYS_TO_KEEP_VM = "voicemail/security/days-to-keep-vm";
     private String m_identity;
     private boolean m_validUser = true;
 
@@ -267,6 +268,14 @@ public class User extends AbstractUser implements Replicable {
         getSettings().getSetting(FORCE_PIN_CHANGE).setTypedValue(force);
     }
 
+    public Integer getDaysToKeepVM() {
+        return (Integer) getSettingTypedValue(DAYS_TO_KEEP_VM);
+    }
+
+    public void setDaysToKeepVM(Integer daysToKeepVm) {
+        getSettings().getSetting(DAYS_TO_KEEP_VM).setTypedValue(daysToKeepVm);
+    }
+    
     public Integer getE911LocationId() {
         if (getSettingTypedValue(E911_SETTING_PATH) == null) {
             return null;

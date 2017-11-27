@@ -35,6 +35,7 @@ public class User {
     private Vector<String> m_aliases;
     private HashMap<String, DistributionList> m_distributionLists;
     private Locale m_locale; // The locale for the UI to present to this user
+    private boolean m_forwardDeleteVoicemail;
     private String m_emailAddress;
     private String m_altEmailAddress;
     private boolean m_attachAudioToEmail;
@@ -84,6 +85,7 @@ public class User {
     private boolean m_admin;
     private boolean m_hotelingEnabled;
     private boolean m_forcePinChange;
+    private int m_daysToKeepVM;
     private String m_vmLanguage;
 
     public enum EmailFormats {
@@ -256,6 +258,14 @@ public class User {
 
     public void setLocale(Locale locale) {
         m_locale = locale;
+    }
+
+    public boolean isForwardDeleteVoicemail() {
+        return m_forwardDeleteVoicemail;
+    }
+
+    public void setForwardDeleteVoicemail(String value) {
+        m_forwardDeleteVoicemail = value.equals("1") || value.equals("true");
     }
 
     public String getEmailAddress() {
@@ -717,6 +727,14 @@ public class User {
 
     public void setForcePinChange(String value) {
        m_forcePinChange = value.equals("1") || value.equals("true");
+    }
+
+    public int getDaysToKeepVM() {
+        return m_daysToKeepVM;
+    }
+
+    public void setDaysToKeepVM(int value) {
+        m_daysToKeepVM = value;
     }
 
     public String getSipPassword() {

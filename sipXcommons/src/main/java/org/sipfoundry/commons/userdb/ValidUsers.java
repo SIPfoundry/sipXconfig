@@ -46,7 +46,9 @@ import static org.sipfoundry.commons.mongo.MongoConstants.DISTRIB_LISTS;
 import static org.sipfoundry.commons.mongo.MongoConstants.EMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.ENTITY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.FAX_NUMBER;
+import static org.sipfoundry.commons.mongo.MongoConstants.FORWARD_DELETE_VOICEMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.FORCE_PIN_CHANGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.DAYS_TO_KEEP_VM;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HASHED_PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOME_CITY;
@@ -707,6 +709,11 @@ public class ValidUsers {
         }
 
         user.setVoicemailTui(getStringValue(obj, VOICEMAILTUI));
+
+        if (getStringValue(obj, FORWARD_DELETE_VOICEMAIL) != null) {
+            user.setForwardDeleteVoicemail(getStringValue(obj, FORWARD_DELETE_VOICEMAIL));
+        }
+
         user.setEmailAddress(getStringValue(obj, EMAIL));
         if (obj.keySet().contains(NOTIFICATION)) {
             user.setEmailFormat(getStringValue(obj, NOTIFICATION));
@@ -719,9 +726,15 @@ public class ValidUsers {
         }
         user.setAltAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, ALT_ATTACH_AUDIO)));
 
-        if (getStringValue(obj, FORCE_PIN_CHANGE) != null) {
-            user.setForcePinChange(getStringValue(obj, FORCE_PIN_CHANGE));
+        String forcePinChange = getStringValue(obj, FORCE_PIN_CHANGE);
+        if (forcePinChange != null) {
+            user.setForcePinChange(forcePinChange);
         }
+
+        Integer daysToKeepVM = getIntegerValue(obj, DAYS_TO_KEEP_VM);
+        if (daysToKeepVM != null) {
+            user.setDaysToKeepVM(daysToKeepVM);
+        }        
 
         BasicDBList aliasesObj = (BasicDBList) obj.get(ALIASES);
         if (aliasesObj != null) {
@@ -845,10 +858,19 @@ public class ValidUsers {
         return user;
     }
 
-    private static String getStringValue(DBObject obj, String key) {
+    public static String getStringValue(DBObject obj, String key) {
         if (obj.keySet().contains(key)) {
             if (obj.get(key) != null) {
                 return obj.get(key).toString();
+            }
+        }
+        return null;
+    }
+
+    public static Integer getIntegerValue(DBObject obj, String key) {
+        if (obj.keySet().contains(key)) {
+            if (obj.get(key) != null) {
+                return Integer.parseInt(obj.get(key).toString());
             }
         }
         return null;

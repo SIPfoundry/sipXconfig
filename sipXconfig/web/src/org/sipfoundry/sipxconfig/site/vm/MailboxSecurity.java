@@ -40,13 +40,19 @@ public abstract class MailboxSecurity extends BaseComponent {
 
     public abstract void setForcePinChange(boolean forcePinChange);
 
+    public abstract int getDaysToKeepVM();
+
+    public abstract void setDaysToKeepVM(int daysToKeepVM);    
+
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
 
         setForcePinChange(getUser().isForcePinChange());
+        setDaysToKeepVM(getUser().getDaysToKeepVM());
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this)) {
             getUser().setForcePinChange(isForcePinChange());
+            getUser().setDaysToKeepVM(getDaysToKeepVM());
         }
     }
 }
