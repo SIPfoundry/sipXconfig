@@ -142,7 +142,6 @@ public class MappingRules extends RulesXmlFile {
     @Override
     public void end() {
         m_mappings.add(m_hostMatch);
-        addBottomExternalRules(m_mappings);
     }
 
     public static String[] getHostStrings() {
