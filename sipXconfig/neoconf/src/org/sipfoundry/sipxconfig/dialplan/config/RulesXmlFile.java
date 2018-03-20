@@ -17,6 +17,7 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentFactory;
@@ -52,6 +53,18 @@ public abstract class RulesXmlFile extends RulesFile {
      * @param mappings - root element of the document
      */
     protected void addExternalRules(Element mappings) {
+        addTopExternalRules(mappings);
+    }
+    
+    protected void addTopExternalRules(Element mappings) {
+        addExternalRules(mappings, AppendType.APPEND_TOP, true);
+    }
+    
+    protected void addBottomExternalRules(Element mappings) {
+        addExternalRules(mappings, AppendType.APPEND_BOTTOM, false);
+    }
+    
+    protected void addExternalRules(Element mappings, AppendType appendType, boolean appendByDefault) {
         if (m_externalRulesFileName == null) {
             return;
         }
@@ -61,12 +74,23 @@ public abstract class RulesXmlFile extends RulesFile {
             return;
         }
         SAXReader reader = new SAXReader();
+        reader.setMergeAdjacentText(true);
+        reader.setStripWhitespaceText(true);
         try {
             Document externalRules = reader.read(externalRulesFile);
             Element rootElement = externalRules.getRootElement();
             for (Iterator i = rootElement.elementIterator(); i.hasNext();) {
                 Element hostMatch = (Element) i.next();
-                mappings.add(hostMatch.detach());
+                Attribute attribute = hostMatch.attribute("append");
+                if(attribute != null) {
+                    if(StringUtils.equals(attribute.getValue(), appendType.getType())) {
+                        removeAllAttributes(hostMatch, "append");
+                        mappings.add(hostMatch.detach());        
+                    }
+                } else if(appendByDefault) {
+                    removeAllAttributes(hostMatch, "append");
+                    mappings.add(hostMatch.detach());
+                }
             }
         } catch (DocumentException e) {
             LOG.error("Cannot parse external rules file", e);
@@ -101,6 +125,29 @@ public abstract class RulesXmlFile extends RulesFile {
         String nameText = rule.getName();
         if (!StringUtils.isBlank(nameText)) {
             hostMatch.addComment(nameText);
+        }
+    }
+    
+    private void removeAllAttributes(Element element, String attributeName) {
+        for (Iterator i = element.attributeIterator(); i.hasNext();) {
+            Attribute attributeMatch = (Attribute) i.next();
+            if (StringUtils.equals(attributeMatch.getName(), attributeName)) {
+                element.remove(attributeMatch);
+            }
+        }
+    }    
+    
+    enum AppendType {
+        APPEND_TOP("top"),
+        APPEND_BOTTOM("bottom");
+        
+        final String type;
+        private AppendType(String type) {
+            this.type = type;
+        }
+        
+        String getType() {
+            return type;
         }
     }
 }
