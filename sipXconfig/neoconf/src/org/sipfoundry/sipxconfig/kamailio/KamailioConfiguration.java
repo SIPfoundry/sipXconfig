@@ -117,6 +117,7 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("kamailioProxyBindIp", location.getAddress());
         config.write("kamailioProxyBindPort", settings.getProxySipTcpPort());
         config.write("kamailioProxyHostName", location.getFqdn());
+        config.write("kamailioProxyIngressSrvRouting", settings.isEnableIngressSrvRouting() ? 1 : 0);
         
         config.write("kamailioPresenceDB", presenceConnectionUrl);
         config.write("kamailioProxyDB", proxyConnectionUrl);

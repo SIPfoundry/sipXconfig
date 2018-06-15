@@ -7,7 +7,7 @@
 #!define WITH_PRESENCE
 #!define WITH_SIPX
 #!define WITH_TLS
-$(customFlags)
+$(sipXproxyFlag)
 
 ####### Include Local Config If Exists #########
 
@@ -39,7 +39,7 @@ import_file "kamailio-local.cfg"
 
 # - flags
 #   FLT_ - per transaction (message) flags
-#	FLB_ - per branch flags
+#    FLB_ - per branch flags
 #!define FLT_ACC 1
 #!define FLT_ACCMISSED 2
 #!define FLT_ACCFAILED 3
@@ -49,6 +49,9 @@ import_file "kamailio-local.cfg"
 
 #!define FLB_NATB 6
 #!define FLB_NATSIPPING 7
+
+# - sipxecs flags
+#!define SIPX_INGRESS_SRV_ROUTING $(sipx.kamailioProxyIngressSrvRouting)
 
 ####### Global Parameters #########
 
@@ -67,6 +70,7 @@ tcp_conn_wq_max=$(sipx.kamailioTcpWriteQueueSize)
 tcp_rd_buf_size=$(sipx.kamailioTcpReadBufferSize)
 enable_tls=1
 dns_srv_lb=on
+use_dns_failover=yes
 
 ####### Custom Parameters #########
 
@@ -213,8 +217,8 @@ modparam("acc", "detect_direction", 0)
 modparam("acc", "log_flag", FLT_ACC)
 modparam("acc", "log_missed_flag", FLT_ACCMISSED)
 modparam("acc", "log_extra", 
-	"src_user=$fU;src_domain=$fd;src_ip=$si;"
-	"dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
+    "src_user=$fU;src_domain=$fd;src_ip=$si;"
+    "dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
 modparam("acc", "failed_transaction_flag", FLT_ACCFAILED)
 /* enhanced DB accounting */
 #!ifdef WITH_ACCDB
@@ -222,8 +226,8 @@ modparam("acc", "db_flag", FLT_ACC)
 modparam("acc", "db_missed_flag", FLT_ACCMISSED)
 modparam("acc", "db_url", DBURL)
 modparam("acc", "db_extra",
-	"src_user=$fU;src_domain=$fd;src_ip=$si;"
-	"dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
+    "src_user=$fU;src_domain=$fd;src_ip=$si;"
+    "dst_ouser=$tU;dst_user=$rU;dst_domain=$rd")
 #!endif
 
 
@@ -368,418 +372,422 @@ modparam("path", "use_received", 1)
 request_route 
 {
 
-	# per request initial checks
-	route(REQINIT);
+    # per request initial checks
+    route(REQINIT);
 
-	# NAT detection
-	route(NATDETECT);
+    # NAT detection
+    route(NATDETECT);
 
-	# CANCEL processing
-	if (is_method("CANCEL")) 
-	{
-		if (t_check_trans()) 
-		{
-			route(RELAY);
-		}
-		exit;
-	}
+    # CANCEL processing
+    if (is_method("CANCEL")) 
+    {
+        if (t_check_trans()) 
+        {
+            route(RELAY);
+        }
+        exit;
+    }
 
-	# handle requests within SIP dialogs
-	route(WITHINDLG);
+    # handle requests within SIP dialogs
+    route(WITHINDLG);
 
-	### only initial requests (no To tag)
+    ### only initial requests (no To tag)
 
-	# handle retransmissions
-	if(t_precheck_trans()) 
-	{
-		t_check_trans();
-		exit;
-	}
+    # handle retransmissions
+    if(t_precheck_trans()) 
+    {
+        t_check_trans();
+        exit;
+    }
 
-	t_check_trans();
+    t_check_trans();
 
-	# record routing for dialog forming requests (in case they are routed)
-	# - remove preloaded route headers
-	remove_hf("Route");
-	if (is_method("INVITE|SUBSCRIBE"))
-		record_route();
+    # record routing for dialog forming requests (in case they are routed)
+    # - remove preloaded route headers
+    remove_hf("Route");
+    if (is_method("INVITE|SUBSCRIBE"))
+        record_route();
 
-	# account only INVITEs
-	if (is_method("INVITE")) 
-	{
-		setflag(FLT_ACC); # do accounting
-	}
+    # account only INVITEs
+    if (is_method("INVITE")) 
+    {
+        setflag(FLT_ACC); # do accounting
+    }
 
-	### requests for my local domains
+    ### requests for my local domains
 
-	# handle presence related requests
-	route(PRESENCE);
+    # handle presence related requests
+    route(PRESENCE);
 
-	route(REGISTRAR);
+    route(REGISTRAR);
 
-	route(RELAY);
+    route(RELAY);
 }
 
 # Wrapper for relaying requests
 route[RELAY] {
 
-	# enable additional event routes for forwarded requests
-	# - serial forking, RTP relaying handling, a.s.o.
-	if (is_method("INVITE|BYE|SUBSCRIBE|UPDATE")) 
-	{
-		if(!t_is_set("branch_route")) t_on_branch("MANAGE_BRANCH");
-	}
+    # enable additional event routes for forwarded requests
+    # - serial forking, RTP relaying handling, a.s.o.
+    if (is_method("INVITE|BYE|SUBSCRIBE|UPDATE")) 
+    {
+        if(!t_is_set("branch_route")) t_on_branch("MANAGE_BRANCH");
+    }
 
-	if (is_method("INVITE|SUBSCRIBE|UPDATE")) 
-	{
-		if(!t_is_set("onreply_route")) t_on_reply("MANAGE_REPLY");
-	}
+    if (is_method("INVITE|SUBSCRIBE|UPDATE")) 
+    {
+        if(!t_is_set("onreply_route")) t_on_reply("MANAGE_REPLY");
+    }
 
-	if (is_method("INVITE")) 
-	{
-		if(!t_is_set("failure_route")) t_on_failure("MANAGE_FAILURE");
-	}
+    if (is_method("INVITE")) 
+    {
+        if(!t_is_set("failure_route")) t_on_failure("MANAGE_FAILURE");
+    }
 
-	if(is_method("INVITE|BYE|UPDATE|CANCEL|ACK")) 
-	{
-		setflag(FLT_DLGINFO);
-		dlg_manage();
-	}
+    if(is_method("INVITE|BYE|UPDATE|CANCEL|ACK")) 
+    {
+        setflag(FLT_DLGINFO);
+        dlg_manage();
+    }
 
 #!ifdef WITH_SIPX
-	# dispatch destinations to SIPX
-	if(uri==myself) 
-	{
+    # dispatch destinations to SIPX
+    if(uri==myself) 
+    {
 #!ifdef WITH_SIPX_PROXY
-		if( ($rd=="$(sipx.kamailioProxyBindIp)" || $rd=="$(sipx.kamailioProxyHostName)")
-		   && $rp==$(sipx.kamailioProxyBindPort))
-		{
-			$du = "sip:$(sipx.kamailioProxyBindIp):5066";
-		} else 
-		{
-			$du = "sip:ip.$(sipx.domain)";
-		}
+        if( !SIPX_INGRESS_SRV_ROUTING && (($rd=="$(sipx.kamailioProxyBindIp)" || $rd=="$(sipx.kamailioProxyHostName)")
+           && ($rp==$(sipx.kamailioProxyBindPort) || $rp == $null)))
+        {
+            $du = "sip:$(sipx.kamailioProxyBindIp):5066";
+        } else 
+        {
+            $du = "sip:ip.$(sipx.domain)";
+        }
 #!else
-		$du = "sip:ip.$(sipx.domain)";
+        $du = "sip:ip.$(sipx.domain)";
 #!endif
-		
-		if (!t_relay_to_tcp()) 
-		{
-			sl_reply_error();
-		}
-		exit;
-	}
-#!endif	
 
-	if (!t_relay()) 
-	{
-		sl_reply_error();
-	}
-	exit;
+        # remove port if specified. 
+        # sipXproxy has issue for authorizing calls with port specified in the R-URI 
+        $rp = $null;
+                
+        if (!t_relay_to_tcp()) 
+        {
+            sl_reply_error();
+        }
+        exit;
+    }
+#!endif    
+
+    if (!t_relay()) 
+    {
+        sl_reply_error();
+    }
+    exit;
 }
 
 # Per SIP request initial checks
 route[REQINIT] 
 {
 #!ifdef WITH_ANTIFLOOD
-	# flood dection from same IP and traffic ban for a while
-	# be sure you exclude checking trusted peers, such as pstn gateways
-	# - local host excluded (e.g., loop to self)
-	if(src_ip!=myself) 
-	{
-		if($sht(ipban=>$si)!=$null) 
-		{
-			# ip is already blocked
-			xdbg("request from blocked IP - $rm from $fu (IP:$si:$sp)\n");
-			exit;
-		}
-		if (!pike_check_req()) 
-		{
-			xlog("L_ALERT","ALERT: pike blocking $rm from $fu (IP:$si:$sp)\n");
-			$sht(ipban=>$si) = 1;
-			exit;
-		}
-	}
-	
-	if($ua =~ "friendly-scanner") 
-	{
-		sl_send_reply("200", "OK");
-		exit;
-	}
+    # flood dection from same IP and traffic ban for a while
+    # be sure you exclude checking trusted peers, such as pstn gateways
+    # - local host excluded (e.g., loop to self)
+    if(src_ip!=myself) 
+    {
+        if($sht(ipban=>$si)!=$null) 
+        {
+            # ip is already blocked
+            xdbg("request from blocked IP - $rm from $fu (IP:$si:$sp)\n");
+            exit;
+        }
+        if (!pike_check_req()) 
+        {
+            xlog("L_ALERT","ALERT: pike blocking $rm from $fu (IP:$si:$sp)\n");
+            $sht(ipban=>$si) = 1;
+            exit;
+        }
+    }
+    
+    if($ua =~ "friendly-scanner") 
+    {
+        sl_send_reply("200", "OK");
+        exit;
+    }
 #!endif
 
-	if (!mf_process_maxfwd_header("10")) 
-	{
-		sl_send_reply("483","Too Many Hops");
-		exit;
-	}
+    if (!mf_process_maxfwd_header("10")) 
+    {
+        sl_send_reply("483","Too Many Hops");
+        exit;
+    }
 
-	if(is_method("OPTIONS") && uri==myself && $rU==$null) 
-	{
-		sl_send_reply("200","Keepalive");
-		exit;
-	}
+    if(is_method("OPTIONS") && uri==myself && $rU==$null) 
+    {
+        sl_send_reply("200","Keepalive");
+        exit;
+    }
 
-	if(!sanity_check("1511", "7")) 
-	{
-		xlog("Malformed SIP message from $si:$sp\n");
-		exit;
-	}
+    if(!sanity_check("1511", "7")) 
+    {
+        xlog("Malformed SIP message from $si:$sp\n");
+        exit;
+    }
 }
 
 # Handle requests within SIP dialogs
 route[WITHINDLG] 
 {
-	if (!has_totag()) return;
+    if (!has_totag()) return;
 
-	# sequential request withing a dialog should
-	# take the path determined by record-routing
-	if (loose_route()) 
-	{
-		route(DLGURI);
-		if ( is_method("ACK") ) 
-		{
-			# ACK is forwarded statelessy
-			route(NATMANAGE);
-		} else if ( is_method("NOTIFY") ) 
-		{
+    # sequential request withing a dialog should
+    # take the path determined by record-routing
+    if (loose_route()) 
+    {
+        route(DLGURI);
+        if ( is_method("ACK") ) 
+        {
+            # ACK is forwarded statelessy
+            route(NATMANAGE);
+        } else if ( is_method("NOTIFY") ) 
+        {
             # Add Record-Route for in-dialog NOTIFY as per RFC 6665.
-			record_route();
-		}
-		route(RELAY);
-		exit;
-	}
+            record_route();
+        }
+        route(RELAY);
+        exit;
+    }
 
     if (is_method("SUBSCRIBE") && (uri==myself)) 
     {
-		# in-dialog subscribe requests
-		route(PRESENCE);
-		exit;
-	}
+        # in-dialog subscribe requests
+        route(PRESENCE);
+        exit;
+    }
 
-	if (is_method("NOTIFY") && (uri==myself)) 
-	{
-		# in-dialog subscribe requests
-		route(PRESENCE);
-		exit;
-	}
+    if (is_method("NOTIFY") && (uri==myself)) 
+    {
+        # in-dialog subscribe requests
+        route(PRESENCE);
+        exit;
+    }
 
-	if ( is_method("ACK") ) 
-	{
-		if ( t_check_trans() ) 
-		{
-			# no loose-route, but stateful ACK;
-			# must be an ACK after a 487
-			# or e.g. 404 from upstream server
-			route(RELAY);
-			exit;
-		} else 
-		{
-			# ACK without matching transaction ... ignore and discard
-			exit;
-		}
-	}
-	sl_send_reply("404","Not here");
-	exit;
+    if ( is_method("ACK") ) 
+    {
+        if ( t_check_trans() ) 
+        {
+            # no loose-route, but stateful ACK;
+            # must be an ACK after a 487
+            # or e.g. 404 from upstream server
+            route(RELAY);
+            exit;
+        } else 
+        {
+            # ACK without matching transaction ... ignore and discard
+            exit;
+        }
+    }
+    sl_send_reply("404","Not here");
+    exit;
 }
 
 # Handle SIP registrations
 route[REGISTRAR] 
 {
-	if (!is_method("REGISTER")) return;
+    if (!is_method("REGISTER")) return;
 
 #!ifdef WITH_SIPX
-		add_path_received();
+        add_path_received();
 #!endif
 
-	if(isflagset(FLT_NATS)) 
-	{
-		setbflag(FLB_NATB);
+    if(isflagset(FLT_NATS)) 
+    {
+        setbflag(FLB_NATB);
 #!ifdef WITH_NATSIPPING
-		# do SIP NAT pinging
-		setbflag(FLB_NATSIPPING);
+        # do SIP NAT pinging
+        setbflag(FLB_NATSIPPING);
 #!endif
-	}
+    }
 
 #!ifdef WITH_SIPX
-	//Let kamailio relay register message to SIPX
-	return;
-#!else	
-	if (!save("location"))
-		sl_reply_error();
-	exit;
+    //Let kamailio relay register message to SIPX
+    return;
+#!else    
+    if (!save("location"))
+        sl_reply_error();
+    exit;
 #!endif
 }
 
 # Presence server processing
 route[PRESENCE] 
 {
-	if(!is_method("PUBLISH|SUBSCRIBE|NOTIFY"))
-		return;
+    if(!is_method("PUBLISH|SUBSCRIBE|NOTIFY"))
+        return;
 
     #route event message-summary and reg to sipXproxy
-	if(is_method("PUBLISH|SUBSCRIBE|NOTIFY") && ($hdr(Event)=="message-summary" || $hdr(Event)=="reg")) 
-	{
+    if(is_method("PUBLISH|SUBSCRIBE|NOTIFY") && ($hdr(Event)=="message-summary" || $hdr(Event)=="reg")) 
+    {
 #!ifdef WITH_SIPX
-	    route(RELAY);
-		exit;
+        route(RELAY);
+        exit;
 #!endif
-		return;
-	}
+        return;
+    }
 
     #otherwise route all presence event to kamailio presence
-	if(is_method("PUBLISH|SUBSCRIBE|NOTIFY")) {
-		#route to presence manager for subscribe or publish
-		if(uri==myself) 
-		{
-			$du = "sip:pm.$(sipx.domain)";
-			t_relay_to_tcp();
-		} else {
-			route(RELAY);
-		}
-		exit;
-	}
-	
-	sl_send_reply("404", "Not here");
-	exit;
+    if(is_method("PUBLISH|SUBSCRIBE|NOTIFY")) {
+        #route to presence manager for subscribe or publish
+        if(uri==myself) 
+        {
+            $du = "sip:pm.$(sipx.domain)";
+            t_relay_to_tcp();
+        } else {
+            route(RELAY);
+        }
+        exit;
+    }
+    
+    sl_send_reply("404", "Not here");
+    exit;
 }
 
 # Caller NAT detection
 route[NATDETECT] 
 {
 #!ifdef WITH_NAT
-	force_rport();
-	if (nat_uac_test("19")) 
-	{
-		if (is_method("REGISTER")) 
-		{
-			fix_nated_register();
-		} else {
-			if(is_first_hop())
-				set_contact_alias();
-		}
-		setflag(FLT_NATS);
-	}
+    force_rport();
+    if (nat_uac_test("19")) 
+    {
+        if (is_method("REGISTER")) 
+        {
+            fix_nated_register();
+        } else {
+            if(is_first_hop())
+                set_contact_alias();
+        }
+        setflag(FLT_NATS);
+    }
 #!endif
-	return;
+    return;
 }
 
 # RTPProxy control and singaling updates for NAT traversal
 route[NATMANAGE] 
 {
 #!ifdef WITH_NAT
-	if (is_request()) 
-	{
-		if(has_totag()) 
-		{
-			if(check_route_param("nat=yes")) 
-			{
-				setbflag(FLB_NATB);
-			}
-		}
-	}
+    if (is_request()) 
+    {
+        if(has_totag()) 
+        {
+            if(check_route_param("nat=yes")) 
+            {
+                setbflag(FLB_NATB);
+            }
+        }
+    }
 
-	if (!(isflagset(FLT_NATS) || isbflagset(FLB_NATB)))
-		return;
+    if (!(isflagset(FLT_NATS) || isbflagset(FLB_NATB)))
+        return;
 
-	rtpproxy_manage("co");
+    rtpproxy_manage("co");
 
-	if (is_request()) 
-	{
-		if (!has_totag()) 
-		{
-			if(t_is_branch_route()) 
-			{
-				add_rr_param(";nat=yes");
-			}
-		}
-	}
-	if (is_reply()) 
-	{
-		if(isbflagset(FLB_NATB)) 
-		{
-			if(is_first_hop())
-				set_contact_alias();
-		}
-	}
+    if (is_request()) 
+    {
+        if (!has_totag()) 
+        {
+            if(t_is_branch_route()) 
+            {
+                add_rr_param(";nat=yes");
+            }
+        }
+    }
+    if (is_reply()) 
+    {
+        if(isbflagset(FLB_NATB)) 
+        {
+            if(is_first_hop())
+                set_contact_alias();
+        }
+    }
 #!endif
-	return;
+    return;
 }
 
 # URI update for dialog requests
 route[DLGURI] 
 {
 #!ifdef WITH_NAT
-	if(!isdsturiset()) 
-	{
-		handle_ruri_alias();
-	}
+    if(!isdsturiset()) 
+    {
+        handle_ruri_alias();
+    }
 #!endif
-	return;
+    return;
 }
 
 # Routing to foreign domains
 route[SIPOUT] 
 {
-	if (uri==myself) return;
+    if (uri==myself) return;
 
-	append_hf("P-hint: outbound\r\n");
-	route(RELAY);
-	exit;
+    append_hf("P-hint: outbound\r\n");
+    route(RELAY);
+    exit;
 }
 
 # XMLRPC routing
 #!ifdef WITH_XMLRPC
 route[XMLRPC] 
 {
-	# allow XMLRPC from localhost
-	if ((method=="POST" || method=="GET")
-			&& (src_ip==127.0.0.1)) {
-		# close connection only for xmlrpclib user agents (there is a bug in
-		# xmlrpclib: it waits for EOF before interpreting the response).
-		if ($hdr(User-Agent) =~ "xmlrpclib")
-			set_reply_close();
-		set_reply_no_connect();
-		dispatch_rpc();
-		exit;
-	}
-	send_reply("403", "Forbidden");
-	exit;
+    # allow XMLRPC from localhost
+    if ((method=="POST" || method=="GET")
+            && (src_ip==127.0.0.1)) {
+        # close connection only for xmlrpclib user agents (there is a bug in
+        # xmlrpclib: it waits for EOF before interpreting the response).
+        if ($hdr(User-Agent) =~ "xmlrpclib")
+            set_reply_close();
+        set_reply_no_connect();
+        dispatch_rpc();
+        exit;
+    }
+    send_reply("403", "Forbidden");
+    exit;
 }
 #!endif
 
 # Manage outgoing branches
 branch_route[MANAGE_BRANCH] 
 {
-	xdbg("new branch [$T_branch_idx] to $ru\n");
-	route(NATMANAGE);
+    xdbg("new branch [$T_branch_idx] to $ru\n");
+    route(NATMANAGE);
 }
 
 # Manage incoming replies
 onreply_route[MANAGE_REPLY] 
 {
-	xdbg("incoming reply\n");
-	if(status=~"[12][0-9][0-9]")
-		route(NATMANAGE);
+    xdbg("incoming reply\n");
+    if(status=~"[12][0-9][0-9]")
+        route(NATMANAGE);
 }
 
 # Manage failure routing cases
 failure_route[MANAGE_FAILURE] 
 {
-	route(NATMANAGE);
+    route(NATMANAGE);
 
-	if (t_is_canceled()) 
-	{
-		exit;
-	}
+    if (t_is_canceled()) 
+    {
+        exit;
+    }
 
 #!ifdef WITH_BLOCK3XX
-	# block call redirect based on 3xx replies.
-	if (t_check_status("3[0-9][0-9]")) 
-	{
-		t_reply("404","Not found");
-		exit;
-	}
+    # block call redirect based on 3xx replies.
+    if (t_check_status("3[0-9][0-9]")) 
+    {
+        t_reply("404","Not found");
+        exit;
+    }
 #!endif
 
 }

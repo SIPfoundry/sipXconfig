@@ -28,6 +28,7 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String PROXY_SIP_TCP_PORT_SETTING = PROXY_ROOT_SETTING + "/TCP_PORT";
     public static final String PROXY_SIP_UDP_PORT_SETTING = PROXY_ROOT_SETTING + "/UDP_PORT";
     public static final String PROXY_SIP_TLS_PORT_SETTING = PROXY_ROOT_SETTING + "/TLS_PORT";
+    public static final String PROXY_SIP_INGRESS_SRV_ROUTING_SETTING = PROXY_ROOT_SETTING + "/INGRESS_SRV_ROUTING";
     
     /* Presence Settings */
     public static final String PRESENCE_ROOT_SETTING = "kamailio-presence-configuration";
@@ -98,6 +99,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
 
     public int getProxySipTlsPort() {
         return (Integer) getSettingTypedValue(PROXY_SIP_TLS_PORT_SETTING);
+    }
+    
+    public boolean isEnableIngressSrvRouting() {
+        return (Boolean) getSettingTypedValue(PROXY_SIP_INGRESS_SRV_ROUTING_SETTING);
     }
     
     public int getPresenceSipTcpPort() {

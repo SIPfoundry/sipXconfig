@@ -121,6 +121,10 @@
       </type>
       <value>5061</value>
     </setting>
+    <setting name="INGRESS_SRV_ROUTING" advanced="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
   </group>
   <group name="kamailio-presence-configuration">
     <setting name="TCP_PORT" hidden="yes">

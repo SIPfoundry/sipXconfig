@@ -69,7 +69,8 @@ bundle agent kamailio_config {
         comment => "install $(this.promiser)",
         create => "true",
         perms => m("644"),
-        edit_line => kamailio_default_contents();
+        edit_line => kamailio_default_contents(),
+        classes => if_repaired("kamailio_global_changed");
 
       "/etc/rsyslog.d/kamailio-proxy-log.conf"
         comment => "Configure kamailio proxy log",
@@ -236,7 +237,7 @@ bundle edit_line kamailioproxy_config_contents() {
     !sipxproxy::
       "internalProxyFlag" string => "";
     any::
-      "customFlags" string => "$(internalProxyFlag)";
+      "sipXproxyFlag" string => "$(internalProxyFlag)";
 
  insert_lines:
     any::
@@ -336,7 +337,7 @@ bundle agent kamailioproxy_running
       "any" usebundle => rh_chkconfig_status("kamailio-proxy on");
     !kamailioproxy::
       "any" usebundle => rh_chkconfig_status("kamailio-proxy off");
-    kamailioproxy.kamailioproxy_properties_changed.!restart_kamailioproxy::
+    kamailioproxy.(kamailioproxy_properties_changed|kamailio_global_changed).!restart_kamailioproxy::
       "kamailioproxy_properties_changed" usebundle => refresh_sip_service("SIPX_INGRESS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
                            "$(sipx.SIPX_CONFDIR)/kamailio-proxy-config",
                            "$(sipx.SIPX_CONFDIR)/kamailio-proxy-config.cf-before-edit",
@@ -381,7 +382,7 @@ bundle agent kamailiopresence_running
       "any" usebundle => rh_chkconfig_status("kamailio-presence on");
     !kamailiopresence::
       "any" usebundle => rh_chkconfig_status("kamailio-presence off");
-    kamailiopresence.kamailiopresence_properties_changed.!restart_kamailiopresence::
+    kamailiopresence.(kamailiopresence_properties_changed|kamailio_global_changed).!restart_kamailiopresence::
       "kamailiopresence_properties_changed" usebundle => refresh_sip_service("SIPX_PRESENCE_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
                            "$(sipx.SIPX_CONFDIR)/kamailio-presence-config",
                            "$(sipx.SIPX_CONFDIR)/kamailio-presence-config.cf-before-edit",
