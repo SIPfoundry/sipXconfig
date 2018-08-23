@@ -40,6 +40,10 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     public static final String ENABLE_BLA_MESSAGE_QUEUE = PRESENCE_ROOT_SETTING + "/ENABLE_BLA_MESSAGE_QUEUE";
     public static final String ENABLE_POLL_BLA_USER_SETTING = PRESENCE_ROOT_SETTING + "/ENABLE_POLL_BLA_USER_SETTING";
     public static final String BLA_USER_POLL_INTERVAL_SETTING = PRESENCE_ROOT_SETTING + "/BLA_USER_POLL_INTERVAL_SETTING";
+    public static final String ENABLE_ACTIVE_DIALOG_CHECK = PRESENCE_ROOT_SETTING + "/ENABLE_ACTIVE_DIALOG_CHECK";
+    public static final String ENABLE_ACTIVE_DIALOG_COLLATE = PRESENCE_ROOT_SETTING + "/ENABLE_ACTIVE_DIALOG_COLLATE";
+    public static final String ACTIVE_DIALOG_CHECK_PERIOD = PRESENCE_ROOT_SETTING + "/ACTIVE_DIALOG_CHECK_PERIOD";
+    public static final String ACTIVE_DIALOG_COLLATE_PERIOD = PRESENCE_ROOT_SETTING + "/ACTIVE_DIALOG_COLLATE_PERIOD";
 
     public int getLogSetting() {
         return (Integer) getSettingTypedValue(LOG_SETTING);
@@ -127,6 +131,22 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     
     public boolean isEnablePollBLAUser() {
         return (Boolean) getSettingTypedValue(ENABLE_POLL_BLA_USER_SETTING);
+    }
+    
+    public boolean isEnableActiveDialogCheck() {
+        return (Boolean) getSettingTypedValue(ENABLE_ACTIVE_DIALOG_CHECK);
+    }
+    
+    public boolean isEnableActiveDialogCollate() {
+        return (Boolean) getSettingTypedValue(ENABLE_ACTIVE_DIALOG_COLLATE);
+    }
+    
+    public int getActiveDialogCheckPeriod() {
+        return (Integer) getSettingTypedValue(ACTIVE_DIALOG_CHECK_PERIOD);
+    }
+    
+    public int getActiveDialogCollatePeriod() {
+        return (Integer) getSettingTypedValue(ACTIVE_DIALOG_COLLATE_PERIOD);
     }
     
     public boolean isEnableBLAMessageQueue() {

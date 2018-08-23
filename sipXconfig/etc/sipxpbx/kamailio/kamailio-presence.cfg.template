@@ -57,6 +57,9 @@ tcp_connection_lifetime=$(sipx.kamailioTcpConnectionLifetime)
 tcp_conn_wq_max=$(sipx.kamailioTcpWriteQueueSize)
 tcp_rd_buf_size=$(sipx.kamailioTcpReadBufferSize)
 
+dns_srv_lb=on
+use_dns_failover=yes
+
 ####### Custom Parameters #########
 
 
@@ -262,9 +265,16 @@ modparam("presence_xml", "force_active", 1)
 modparam("presence_xml", "disable_bla", 1)
 
 # ----- presence_dialoginfo params -----
+modparam("presence_dialoginfo", "db_url", DBURL)
 modparam("presence_dialoginfo", "force_single_dialog", 1)
 modparam("presence_dialoginfo", "use_dialog_event_collator", $(sipx.kamailioPresenceEnableSipXPlugin))
+modparam("presence_dialoginfo", "enable_active_dialog_check", $(sipx.kamailioPresenceEnableActiveDialogCheck))
+modparam("presence_dialoginfo", "enable_active_dialog_collate", $(sipx.kamailioPresenceEnableActiveDialogCollate))
+modparam("presence_dialoginfo", "dialog_active_check_period", $(sipx.kamailioPresenceActiveCheckPeriod))
+modparam("presence_dialoginfo", "dialog_active_collate_period", $(sipx.kamailioPresenceActiveCollatePeriod))
 modparam("presence_dialoginfo", "dialog_collator_plugin_path", "$(sipx.SIPX_LIBDIR)")
+modparam("presence_dialoginfo", "outbound_proxy", "sip:ip.$(sipx.domain)")
+modparam("presence_dialoginfo", "server_address", "sip:$(sipx.kamailioPresenceBindIp):$(sipx.kamailioPresenceBindPort)")
 modparam("presence_dialoginfo", "dialog_collator_log_file", "$(sipx.SIPX_LOGDIR)/sipx-kamailio-plugin.log")
 modparam("presence_dialoginfo", "dialog_collator_log_level", $(sipx.kamailioPresenceSipXPluginLogLevel))
 
@@ -397,6 +407,9 @@ request_route {
         {
            send_reply("202", "Accepted");
         } else if( $hdr(event)=="dialog;sla" && sipx_handle_bla_notify() ) 
+        {
+           send_reply("200", "OK");
+        } else if( $hdr(event)=="dialog" && dialog_handle_notify() ) 
         {
            send_reply("200", "OK");
         } else 

@@ -149,6 +149,34 @@
       <type refid="true-false" />
       <value>true</value>
     </setting>
+    <setting name="ENABLE_ACTIVE_DIALOG_CHECK" advanced="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
+    <setting name="ENABLE_ACTIVE_DIALOG_COLLATE" advanced="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
+    <setting name="ACTIVE_DIALOG_CHECK_PERIOD" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="ACTIVE_DIALOG_COLLATE_PERIOD" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="ENABLE_BLF_SIPX_PLUGIN">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
+    <setting name="ENABLE_BLF_SIPX_PLUGIN">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
     <setting name="BLF_SIPX_PLUGIN_LOG_SETTING">
       <type refid="pluginLogLevel" />
       <value>6</value>

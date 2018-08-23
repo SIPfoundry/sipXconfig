@@ -114,6 +114,11 @@ public class KamailioConfiguration implements ConfigProvider {
         config.write("kamailioPresenceBLARedisAddress", presenceLocation.getAddress());
         config.write("kamailioPresenceBLARedisPort", Redis.SERVER.getCanonicalPort());
         
+        config.write("kamailioPresenceEnableActiveDialogCheck", settings.isEnableActiveDialogCheck() ? 1 : 0);
+        config.write("kamailioPresenceEnableActiveDialogCollate", settings.isEnableActiveDialogCollate() ? 1 : 0);
+        config.write("kamailioPresenceActiveCheckPeriod", settings.getActiveDialogCheckPeriod());
+        config.write("kamailioPresenceActiveCollatePeriod", settings.getActiveDialogCollatePeriod());
+        
         config.write("kamailioProxyBindIp", location.getAddress());
         config.write("kamailioProxyBindPort", settings.getProxySipTcpPort());
         config.write("kamailioProxyHostName", location.getFqdn());
