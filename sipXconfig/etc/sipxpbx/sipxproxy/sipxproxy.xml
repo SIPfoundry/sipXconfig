@@ -202,6 +202,10 @@
       <type><string/></type>
       <value>^~~rl~</value>
     </setting>
+    <setting name="ADDRESS_EXEMPTED_FROM_AUTHENTICATION" advanced="yes">
+      <type><string/></type>
+      <value></value>
+    </setting>
   </group>
   <group name="alert-info">
     <label>Alert Info</label>

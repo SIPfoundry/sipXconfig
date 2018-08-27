@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.cfgmgt.DeployConfigOnEdit;
 import org.sipfoundry.sipxconfig.feature.Feature;
+import org.sipfoundry.sipxconfig.proxy.ProxyManager;
 import org.sipfoundry.sipxconfig.setting.PersistableSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -165,7 +166,8 @@ public class KamailioSettings extends PersistableSettings implements DeployConfi
     @Override
     public Collection<Feature> getAffectedFeaturesOnChange() {
         return Arrays.asList((Feature) KamailioManager.FEATURE_PRESENCE
-                , (Feature) KamailioManager.FEATURE_PROXY);
+                , (Feature) KamailioManager.FEATURE_PROXY
+                , (Feature) ProxyManager.FEATURE);
     }
 
     @Override
