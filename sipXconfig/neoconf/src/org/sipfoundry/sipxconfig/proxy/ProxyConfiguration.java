@@ -108,7 +108,6 @@ public class ProxyConfiguration implements ConfigProvider, ApplicationContextAwa
         Setting root = settings.getSettings();
         config.writeSettings(root.getSetting("proxy-configuration"));
         config.writeSettings("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));
-        config.writeSettings("SIPX_PROXY.205_subscriptionauth.", root.getSetting("subscriptionauth"));
         config.writeSettings("SIPX_PROXY.350_calleralertinfo.", root.getSetting("alert-info"));
         config.writeSettings("SIPX_PROXY.400_authrules.", root.getSetting("authrules"));
         String xferPlugin = "SIPX_PROXY.200_xfer.";
