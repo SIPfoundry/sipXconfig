@@ -331,6 +331,24 @@
           <boolean />
         </type>
         <value>0</value>
+      </setting>
+      <setting name="transcribe-voicemail">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="transcribe-language">
+        <type>
+          <string />
+        </type>
+        <value>en-US</value>
+      </setting>
+      <setting name="notify-miss-calls">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
       </setting>      
       <setting name="primary-email-voicemail-notification">
         <type>
@@ -382,7 +400,7 @@
         <value>0</value>
       </setting>
     </group>
-    <group name="imap">
+    <group name="imap" hidden="yes">
       <setting name="host">
         <type>
           <hostname />

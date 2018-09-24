@@ -79,6 +79,9 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         Domain domain = manager.getDomainManager().getDomain();
         List<Location> mwiLocations = manager.getFeatureManager().getLocationsForEnabledFeature(Mwi.FEATURE);
         int mwiPort = m_mwi.getSettings().getHttpApiPort();
+        int minVoicemailRecording = settings.getMinVoicemailRecording();
+        String speechApiKey = settings.getSpeechApiKey();
+        
         Setting ivrSettings = settings.getSettings().getSetting("ivr");
         AutoAttendantSettings aaSettings = m_aaManager.getSettings();
         for (Location location : locations) {
@@ -115,7 +118,7 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             try {
                 write(wtr, settings, domain, location, getMwiLocations(mwiLocations, location), mwiPort, restApi,
                         adminApi, apacheApi, imApi, fsEvent, aaSettings, m_adminContext.isHazelcastEnabled(),
-                        getPortalType());
+                        speechApiKey, minVoicemailRecording, getPortalType());
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
@@ -161,7 +164,8 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
 
     void write(Writer wtr, IvrSettings settings, Domain domain, Location location, String mwiAddresses, int mwiPort,
             Address restApi, Address adminApi, Address apacheApi, Address imApi, Address fsEvent,
-            AutoAttendantSettings aaSettings, boolean hzEnabled, int userPortal)
+            AutoAttendantSettings aaSettings, boolean hzEnabled, String speechApiKey, int minVoicemailRecording, 
+            int userPortal)
         throws IOException {
         LoggerKeyValueConfiguration config = LoggerKeyValueConfiguration.equalsSeparated(wtr);
         config.writeSettings(settings.getSettings());
@@ -202,6 +206,8 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
         config.write("aa.dtmf.interDigitTimeout", aaSettings.getInterDigit());
         config.write("aa.dtmf.extraDigitTimeout", aaSettings.getExtraDigit());
         config.write("ivr.hzEnabled", hzEnabled);
+        config.write("ivr.speechApiKey", speechApiKey);
+        config.write("ivr.minVoicemailRecording", minVoicemailRecording);
         config.write("userPortal", userPortal);
     }
 

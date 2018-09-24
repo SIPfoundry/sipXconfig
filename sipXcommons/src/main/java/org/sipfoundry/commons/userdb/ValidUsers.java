@@ -75,8 +75,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_BEGIN_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LEAVE_MESSAGE_END_IM;
 import static org.sipfoundry.commons.mongo.MongoConstants.MOH;
-import static org.sipfoundry.commons.mongo.MongoConstants.MY_BUDDY_GROUP;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
+import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFY_MISS_CALLS;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_CITY;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_COUNTRY;
 import static org.sipfoundry.commons.mongo.MongoConstants.OFFICE_STATE;
@@ -102,6 +102,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_LANGUAGE;
+import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_VOICEMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
 
 import java.util.ArrayList;
@@ -712,6 +714,18 @@ public class ValidUsers {
 
         if (getStringValue(obj, FORWARD_DELETE_VOICEMAIL) != null) {
             user.setForwardDeleteVoicemail(getStringValue(obj, FORWARD_DELETE_VOICEMAIL));
+        }
+        
+        if (getStringValue(obj, TRANSCRIBE_VOICEMAIL) != null) {
+            user.setTranscribeVoicemail(getStringValue(obj, TRANSCRIBE_VOICEMAIL));
+        }
+        
+        if (getStringValue(obj, TRANSCRIBE_LANGUAGE) != null) {
+            user.setTranscribeLanguage(getStringValue(obj, TRANSCRIBE_LANGUAGE));
+        }
+        
+        if (getStringValue(obj, NOTIFY_MISS_CALLS) != null) {
+            user.setNotifyMissCalls(getStringValue(obj, NOTIFY_MISS_CALLS));
         }
 
         user.setEmailAddress(getStringValue(obj, EMAIL));

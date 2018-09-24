@@ -60,7 +60,13 @@ public class PersonalAttendantResource extends UserResource {
         settings.setPersonalAttendantPermission(user.hasPermission(PermissionName.PERSONAL_AUTO_ATTENDANT));
         settings.setDepositVM(user.isDepositVoicemail());
         boolean isForwardDeleteVM = (boolean) user.getSettingTypedValue(MailboxPreferences.FORWARD_DELETE_VOICEMAIL);
-        settings.setForwardDeleteVM(isForwardDeleteVM);        
+        boolean isTranscribeVM = (boolean) user.getSettingTypedValue(MailboxPreferences.TRANSCRIBE_VOICEMAIL);
+        String transcribeLanguage = user.getSettingValue(MailboxPreferences.TRANSCRIBE_LANGUAGE);
+        boolean isNotifyMissCalls = (boolean) user.getSettingTypedValue(MailboxPreferences.NOTIFY_MISS_CALLS);
+        settings.setForwardDeleteVM(isForwardDeleteVM);
+        settings.setTranscribeVM(isTranscribeVM);
+        settings.setTranscribeLanguage(transcribeLanguage);
+        settings.setNotifyMissCalls(isNotifyMissCalls);
         settings.setPlayVMDefaultOptions(user.getPlayVmDefaultOptions());
         settings.setOperator((String) user.getSettingTypedValue(AbstractUser.OPERATOR_SETTING));
 
@@ -98,7 +104,22 @@ public class PersonalAttendantResource extends UserResource {
                 user.setSettingTypedValue(
                         MailboxPreferences.FORWARD_DELETE_VOICEMAIL,
                         settings.getForwardDeleteVM());
-            }            
+            }
+            if (settings.getTranscribeVM() != null) {
+                user.setSettingTypedValue(
+                        MailboxPreferences.TRANSCRIBE_VOICEMAIL,
+                        settings.getTranscribeVM());
+            }
+            if (settings.getTranscribeLanguage() != null) {
+                user.setSettingTypedValue(
+                        MailboxPreferences.TRANSCRIBE_LANGUAGE,
+                        settings.getTranscribeLanguage());
+            }
+            if (settings.getNotifyMissCalls() != null) {
+                user.setSettingTypedValue(
+                        MailboxPreferences.NOTIFY_MISS_CALLS,
+                        settings.getNotifyMissCalls());
+            }
             if (settings.getPlayVMDefaultOptions() != null) {
                 user.setPlayVmDefaultOptions(settings.getPlayVMDefaultOptions());
             }
@@ -147,6 +168,9 @@ public class PersonalAttendantResource extends UserResource {
     private static class AttendantBean {
         private Boolean m_depositVM;
         private Boolean m_forwardDeleteVM;
+        private Boolean m_transcribeVM;
+        private String m_transcribeLanguage;
+        private Boolean m_notifyMissCalls;
         private Boolean m_playVMDefaultOptions;
         private String m_operator;
         private Map<String, String> m_menu;
@@ -168,6 +192,30 @@ public class PersonalAttendantResource extends UserResource {
 
         public void setForwardDeleteVM(Boolean forwardDeleteVM) {
             m_forwardDeleteVM = forwardDeleteVM;
+        }
+        
+        public Boolean getTranscribeVM() {
+            return m_transcribeVM;
+        }
+        
+        public void setTranscribeVM(Boolean transcribeVM) {
+            m_transcribeVM = transcribeVM;
+        }
+        
+        public String getTranscribeLanguage() {
+            return m_transcribeLanguage;
+        }
+        
+        public void setTranscribeLanguage(String language) {
+            m_transcribeLanguage = language;
+        }
+        
+        public Boolean getNotifyMissCalls() {
+            return m_notifyMissCalls;
+        }
+        
+        public void setNotifyMissCalls(Boolean notifyMissCalls) {
+            m_notifyMissCalls = notifyMissCalls;
         }
 
         public Boolean getPlayVMDefaultOptions() {
@@ -223,6 +271,8 @@ public class PersonalAttendantResource extends UserResource {
         public String toString() {
             return "AttendantBean [m_depositVM=" + m_depositVM
                     + ", m_forwardDeleteVM=" + m_forwardDeleteVM
+                    + ", m_transcribeVM=" + m_transcribeVM
+                    + ", m_notifyMissCalls=" + m_notifyMissCalls
                     + ", m_playVMDefaultOptions=" + m_playVMDefaultOptions
                     + ", m_operator=" + m_operator + ", m_menu=" + m_menu
                     + ", m_language=" + m_language + ", m_overrideLanguage="

@@ -250,6 +250,17 @@
   </bean>
   <alias name="voicemailResource" alias="/my/feed/voicemail/{folder}" />
 
+  <bean id="userVoicemailPrefsResource" class="org.sipfoundry.sipxconfig.rest.UserVoicemailPreferencesResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+  </bean>
+  <alias name="userVoicemailPrefsResource" alias="/my/vmprefs" />
+  
   <bean id="voicemailPrefsResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPreferencesResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="modifiable" value="true" />
@@ -259,7 +270,7 @@
       </list>
     </property>
   </bean>
-  <alias name="voicemailPrefsResource" alias="/my/vmprefs" />
+  <alias name="voicemailPrefsResource" alias="/vmprefs/{user}" />
 
   <bean id="contactInformationResource" class="org.sipfoundry.sipxconfig.rest.ContactInformationResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

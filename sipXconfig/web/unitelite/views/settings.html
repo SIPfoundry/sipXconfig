@@ -714,6 +714,15 @@
                   </div>
                 </div>
                 <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Enable MWI</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.enableMwi">
+                    <span class="help-block">
+                      If checked, enable message waiting indication for all registered phone (Requires generate and sent phone profile).
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
                   <label class="col-sm-3 control-label">Announcement</label>
                   <div class="col-sm-9">
                     <select class="form-control"
@@ -725,6 +734,45 @@
                     </span>
                   </div>
                 </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Forward Delete Voicemail</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.forwardDeleteVoicemail">
+                    <span class="help-block">
+                      If checked, the voicemails that were succesfully emailed will be deleted.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Transcribe Voicemail</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.transcribeVoicemail">
+                    <span class="help-block">
+                      If checked, voicemail will include a text transcriptions of your messages.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Transcribe Language</label>
+                  <div class="col-sm-9">
+                    <select class="form-control"
+                      data-ng-model="userSettings.user.vm.transcribeLanguage"
+                      data-ng-options="c.name for c in userSettings.user.vm.language">
+                    </select>
+                    <span class="help-block">
+                      Voicemail prompt callers will hear before leaving a message.
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group clearfix">
+                  <label class="col-sm-3 control-label">Notify Miss Calls</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" class="form-control" data-ng-model="userSettings.user.vm.main.notifyMissCalls">
+                    <span class="help-block">
+                      If checked, user will receive email notification for miss call(s).
+                    </span>
+                  </div>
+                </div>                
                 <div class="form-group clearfix">
                   <label class="col-sm-3 control-label">Email</label>
                   <div class="col-sm-9">

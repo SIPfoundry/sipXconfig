@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.common;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.lowerCase;
 import static org.apache.commons.lang.StringUtils.split;
@@ -147,6 +146,8 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     private UserProfile m_userProfile = new UserProfile();
 
     private boolean m_isShared;
+    
+    private boolean m_isMWI;
 
     private Branch m_branch;
 
@@ -807,6 +808,14 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     public void setIsShared(boolean isShared) {
         m_isShared = isShared;
     }
+    
+    public boolean getIsMWI() {
+        return m_isMWI;
+    }
+
+    public void setIsMWI(boolean isMWI) {
+        m_isMWI = isMWI;
+    }    
 
     public boolean hasImAccount() {
 //        return isNotEmpty(getImId());

@@ -1,0 +1,35 @@
+<fieldset>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel"
+        label="message:label.transcribeVoicemail"
+        description="message:description.transcribeVoicemail">
+        <checkbox jwcid="voicemailTranscribe@Checkbox"
+		    id="voicemail:transcribeVoicemail"
+		    value="ognl:transcribeVoicemail" />
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        label="message:label.transcribeLanguage"
+        description="message:description.transcribeLanguage">
+        <span jwcid="transcribeLanguage@PropertySelection"
+		    id="voicemail:transcribeLanguage"
+		    model="ognl:model"
+		    value="ognl:transcribeLanguage" />
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        label="message:label.notifyMissCalls"
+        description="message:description.notifyMissCalls">
+        <checkbox jwcid="voicemailNotifyMissCalls@Checkbox"
+		    id="voicemail:notifyMissCalls"
+		    value="ognl:notifyMissCalls" />
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        label="message:label.forwardDeleteVoicemail"
+        description="message:description.forwardDeleteVoicemail">
+        <checkbox jwcid="forwardDeleteVoicemail@Checkbox"
+		    id="voicemail:forwardDeleteVoicemail"
+		    value="ognl:forwardDeleteVoicemail" />
+      </tr>
+    </tbody>
+  </table>
+</fieldset>

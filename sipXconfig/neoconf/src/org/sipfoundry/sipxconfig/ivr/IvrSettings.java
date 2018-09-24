@@ -36,6 +36,8 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
     private static final String HTTP_PORT = "ivr/ivr.httpPort";
     private static final String AUDIO_FORMAT = "ivr/audio.format";
     private static final String CLEANUP_VOICEMAIL_HOUR = "ivr/security.cleanupVoicemailHour";
+    private static final String SPEECH_API_KEY = "ivr/speech.apiKey";
+    private static final String MIN_VOICEMAIL_RECORDING = "ivr/ivr.voicemail.minRecording";
     private FeatureManager m_featureManager;
     
     @Override
@@ -68,6 +70,14 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
 
     public String getCleanupVoicemailHour() {
         return getSettingValue(CLEANUP_VOICEMAIL_HOUR);
+    }
+    
+    public String getSpeechApiKey() {
+        return getSettingValue(SPEECH_API_KEY);
+    }
+    
+    public int getMinVoicemailRecording() {
+        return (Integer) getSettingTypedValue(MIN_VOICEMAIL_RECORDING);
     }
     
     @Override
