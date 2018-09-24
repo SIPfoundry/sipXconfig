@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.mail.EmailNotifier;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public abstract class ManageUsers extends SipxBasePage {
@@ -34,6 +35,8 @@ public abstract class ManageUsers extends SipxBasePage {
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
 
     public abstract CoreContext getCoreContext();
+    
+    public abstract EmailNotifier getEmailNotifier();
 
     public abstract Integer getGroupId();
 
@@ -69,6 +72,9 @@ public abstract class ManageUsers extends SipxBasePage {
         Collection groups = getCoreContext().getGroups();
         Collection actions = new ArrayList(groups.size());
 
+        actions.add(new OptGroup(getMessages().getMessage("label.vmOptions")));
+        actions.add(new GenerateVMPinAction(getMessages().getMessage("label.generateAndSendPin"), getCoreContext(), getEmailNotifier()));
+        
         Group removeFromGroup = null;
         for (Iterator i = groups.iterator(); i.hasNext();) {
             Group g = (Group) i.next();
@@ -77,7 +83,7 @@ public abstract class ManageUsers extends SipxBasePage {
                 removeFromGroup = g;
                 continue;
             }
-            if (actions.size() == 0) {
+            if (actions.size() == 2) {
                 actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
             }
             actions.add(new AddToUserGroupAction(g, getCoreContext()));

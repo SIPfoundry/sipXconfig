@@ -15,12 +15,14 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.LanguageCode;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 
@@ -28,6 +30,7 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     private static final String ATTACH_TYPE = "attachType.";
     private static final String VOICEMAIL_TUI_TYPE = "voicemailTuiType.";
     private static final String ACTIVE_GREETING_TYPE = "activeGreeting.";
+    private static final String TRANSCRIBE_LANGUAGE_TYPE = "transcribeLanguage.";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -62,9 +65,13 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     }
 
     public IPropertySelectionModel getActiveGreetingModel() {
-        NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel();
+        NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel<ActiveGreeting>();
         rawModel.setOptions(getPreferences().getOptionsForActiveGreeting(!isDepositCpui()));
         return (new LocalizedOptionModelDecorator(rawModel, getMessages(), ACTIVE_GREETING_TYPE));
+    }
+    
+    public IPropertySelectionModel getTranscribeLanguageModel() {
+        return new StringPropertySelectionModel(getPreferences().getOptionsForTranscribeLanguage());
     }
 
     public void pageBeginRender(PageEvent event) {

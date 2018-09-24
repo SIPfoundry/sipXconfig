@@ -59,6 +59,10 @@ public abstract class UserPhones extends UserBasePage {
     public abstract boolean getIsShared();
 
     public abstract void setIsShared(boolean shared);
+    
+    public abstract boolean getIsMWI();
+
+    public abstract void setIsMWI(boolean shared);
 
     public abstract User getLoadedUser();
     public abstract void setLoadedUser(User user);
@@ -82,6 +86,7 @@ public abstract class UserPhones extends UserBasePage {
         }
         setPrivatePhonebook(getPhonebookManager().getPrivatePhonebook(getLoadedUser()));
         setIsShared(getLoadedUser().getIsShared());
+        setIsMWI(getLoadedUser().getIsMWI());
     }
 
     public void savePrivatePhonebook() {
@@ -95,6 +100,8 @@ public abstract class UserPhones extends UserBasePage {
         }
         User user = getLoadedUser();
         user.setIsShared(getIsShared());
+        user.setIsMWI(getIsMWI());
+
         getCoreContext().saveUser(user);
         TapestryUtils.recordSuccess(this, getMessages().getMessage("userSaved.success"));
     }

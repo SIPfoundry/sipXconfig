@@ -162,11 +162,23 @@
         </enum>
       </type>
     </setting>
+    <setting name="ivr.voicemail.minRecording" advanced="yes">
+      <type>
+        <integer min="1"/>
+      </type>
+      <value>1</value>
+    </setting>
     <setting name="security.cleanupVoicemailHour" advanced="yes">
       <type>
         <integer min="0" max="23"/>
       </type>
       <value>0</value>
-    </setting>    
+    </setting>
+    <setting name="speech.apiKey" advanced="yes">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value></value>
+    </setting>
   </group>
 </model>

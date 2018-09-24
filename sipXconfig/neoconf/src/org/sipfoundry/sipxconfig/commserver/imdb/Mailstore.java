@@ -35,6 +35,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
 import static org.sipfoundry.commons.mongo.MongoConstants.ITEM;
 import static org.sipfoundry.commons.mongo.MongoConstants.LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.MOH;
+import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFY_MISS_CALLS;
 import static org.sipfoundry.commons.mongo.MongoConstants.NOTIFICATION;
 import static org.sipfoundry.commons.mongo.MongoConstants.OPERATOR;
 import static org.sipfoundry.commons.mongo.MongoConstants.PASSWD;
@@ -44,6 +45,8 @@ import static org.sipfoundry.commons.mongo.MongoConstants.PLAY_DEFAULT_VM;
 import static org.sipfoundry.commons.mongo.MongoConstants.PORT;
 import static org.sipfoundry.commons.mongo.MongoConstants.SYNC;
 import static org.sipfoundry.commons.mongo.MongoConstants.TLS;
+import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_VOICEMAIL;
+import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.USERBUSYPROMPT;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
@@ -95,6 +98,9 @@ public class Mailstore extends AbstractDataSetGenerator {
         MailboxPreferences mp = new MailboxPreferences(user);
 
         putOnlyIfNotNull(top, FORWARD_DELETE_VOICEMAIL, user.getSettingValue("voicemail/mailbox/forward-delete-voicemail"));
+        putOnlyIfNotNull(top, TRANSCRIBE_VOICEMAIL, user.getSettingValue("voicemail/mailbox/transcribe-voicemail"));
+        putOnlyIfNotNull(top, TRANSCRIBE_LANGUAGE, user.getSettingValue("voicemail/mailbox/transcribe-language"));
+        putOnlyIfNotNull(top, NOTIFY_MISS_CALLS, user.getSettingValue("voicemail/mailbox/notify-miss-calls"));
 
         String emailAddress = mp.getEmailAddress();
         boolean enableNotification = StringUtils.isNotBlank(emailAddress) && mp.isEmailNotificationEnabled();

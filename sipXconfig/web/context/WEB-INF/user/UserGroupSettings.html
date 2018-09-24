@@ -87,6 +87,7 @@
     <form jwcid="voicemailForm@Form" delegate="bean:validator">
       <span jwcid="vmTui@vm/VoicemailTuiComponent" settings="ognl:settings" />
       <span jwcid="vmSettings@setting/SettingsFieldset" settings="ognl:voicemailSettings" renderGroupTitle="ognl:false" />
+      <span jwcid="vmEmail@vm/VoicemailEmailComponent" settings="ognl:settings" />
       <span jwcid="vmServer@vm/VoicemailServerComponent" settings="ognl:settings" />
       <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
     </form>

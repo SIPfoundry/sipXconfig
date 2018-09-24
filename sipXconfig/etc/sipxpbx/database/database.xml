@@ -487,6 +487,7 @@
   	<antcall target="mask_caller_id_constraint" />
   	<antcall target="migrate_openuc_ccid" />
   	<antcall target="remove_openuc_saa" />
+    <antcall target="add-user-mwi-field" />
   </target>
 
   <target name="plugin-patches">
@@ -1495,6 +1496,9 @@
   </target>
   <target name="remove_openuc_saa" unless="remove_openuc_saa">
     <db-patch patch="remove_openuc_saa" />
+  </target>
+  <target name="add-user-mwi-field" unless="add-user-mwi-field">
+    <db-patch patch="add-user-mwi-field"/>
   </target>
   
   <!--

@@ -28,6 +28,20 @@
       <ref local="mailSenderContextImpl" />
     </property>
   </bean>
+  
+  <bean id="emailNotifierImpl" class="org.sipfoundry.sipxconfig.mail.EmailNotifierImpl" init-method="init">
+    <property name="validUsers" ref="validUsers" />
+    <property name="messages" ref="customEmailNotificationMessages" />
+  </bean>
+  
+  <bean id="emailNotifier" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.mail.EmailNotifier</value>
+    </property>
+    <property name="target">
+      <ref local="emailNotifierImpl" />
+    </property>
+  </bean>
 
   <bean id="mailManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.mail.MailManager"/>
@@ -39,6 +53,19 @@
   </bean>
 
   <bean id="mailManagerConfig" class="org.sipfoundry.sipxconfig.mail.MailConfig">
+  </bean>
+  
+  <bean id="defaultEmailNotificationMessages" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+        <value>org.sipfoundry.sipxconfig.mail.EmailNotification</value>
+    </property>
+  </bean>
+  
+  <bean id="customEmailNotificationMessages" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="parentMessageSource" ref="defaultEmailNotificationMessages"/>
+    <property name="basename">
+        <value>file:${sysdir.etc}/EmailNotification</value>
+    </property>
   </bean>
 
 </beans>

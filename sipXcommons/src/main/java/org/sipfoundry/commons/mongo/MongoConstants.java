@@ -32,6 +32,9 @@ public interface MongoConstants {
     static final String MOH = "moh";
     static final String VOICEMAILTUI = "vcmltui";
     static final String FORWARD_DELETE_VOICEMAIL = "fwddelvm";
+    static final String TRANSCRIBE_VOICEMAIL = "transvm";
+    static final String TRANSCRIBE_LANGUAGE = "translng";
+    static final String NOTIFY_MISS_CALLS = "ntfmsvm";
     static final String EMAIL = "email";
     static final String NOTIFICATION = "notif";
     static final String ATTACH_AUDIO = "attaudio";
@@ -173,6 +176,9 @@ public interface MongoConstants {
 
     // shared user AOR, empty in case not an shared user
     static final String SHARED = "shared";
+    
+    // enable mwi, empty if case not a mwi user
+    static final String MWI = "mwi";
 
     //phones
     static final String SERIAL_NUMBER = "mac";

@@ -6,6 +6,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="emailNotifier" object="spring:emailNotifier"/>
   <property name="groupId" persist="session" />
   <property name="queryText" persist="session" />
   <property name="searchMode" persist="session" />
@@ -45,5 +46,5 @@
     <binding name="actionModel" value="actionModel"/>
     <binding name="validator" value="validator"/>
     <binding name="selectedIds" value="components.userTable.selections.allSelected"/>
-  </component>
+  </component> 
 </page-specification>

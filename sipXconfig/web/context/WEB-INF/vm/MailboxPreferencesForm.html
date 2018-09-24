@@ -62,6 +62,31 @@
              id="user:isForwardDeleteVoicemail"
              value="ognl:preferences.forwardDeleteVoicemail" />
   </tr>
+  <tr jwcid="@common/FieldPanel" for="user:transcribeVoicemail"
+   field="component:transcribeVoicemail"
+   label="message:label.transcribeVoicemail"
+   description="message:description.transcribeVoicemail">
+   <checkbox jwcid="transcribeVoicemail@Checkbox"
+             id="user:transcribeVoicemail"
+             value="ognl:preferences.transcribeVoicemail" />
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:transcribeLanguage"
+    field="component:transcribeLanguage"
+    label="message:label.transcribeLanguage"
+    description="message:description.transcribeLanguage">
+    <select jwcid="transcribeLanguage@PropertySelection"
+      id="user:transcribeLanguage"
+      value="ognl:preferences.transcribeLanguage"
+      model="ognl:transcribeLanguageModel" />
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:notifyMissCalls"
+   field="component:notifyMissCalls"
+   label="message:label.notifyMissCalls"
+   description="message:description.notifyMissCalls">
+   <checkbox jwcid="notifyMissCalls@Checkbox"
+             id="user:notifyMissCalls"
+             value="ognl:preferences.notifyMissCalls" />
+  </tr>
   <tr>
 	<td colspan="2"><h3><label jwcid="@Insert" value="message:label.primaryEmail"/></h3></td>
   </tr>

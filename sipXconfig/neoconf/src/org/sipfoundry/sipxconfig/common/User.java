@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.common;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
 import static org.sipfoundry.commons.mongo.MongoConstants.GROUPS;
 import static org.sipfoundry.commons.mongo.MongoConstants.HOTELING;
+import static org.sipfoundry.commons.mongo.MongoConstants.MWI;
 import static org.sipfoundry.commons.mongo.MongoConstants.SHARED;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMESTAMP;
 import static org.sipfoundry.commons.mongo.MongoConstants.TIMEZONE;
@@ -37,7 +38,6 @@ import org.sipfoundry.sipxconfig.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -205,6 +205,7 @@ public class User extends AbstractUser implements Replicable {
         props.put(VOICEMAIL_ENABLED, isDepositVoicemail());
         props.put(TIMESTAMP, System.currentTimeMillis());
         props.put(HOTELING, getSettingValue("hotelling/enable"));
+        props.put(MWI, getIsMWI());
         String sharedAor = StringUtils.EMPTY;
         if (getIsShared()) {
             sharedAor = getAddrSpec(domain);

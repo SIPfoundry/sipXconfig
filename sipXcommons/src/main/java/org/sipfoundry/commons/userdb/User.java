@@ -36,6 +36,9 @@ public class User {
     private HashMap<String, DistributionList> m_distributionLists;
     private Locale m_locale; // The locale for the UI to present to this user
     private boolean m_forwardDeleteVoicemail;
+    private boolean m_transcribeVoicemail;
+    private boolean m_notifyMissCalls;
+    private String m_transcribeLanguage;
     private String m_emailAddress;
     private String m_altEmailAddress;
     private boolean m_attachAudioToEmail;
@@ -266,6 +269,30 @@ public class User {
 
     public void setForwardDeleteVoicemail(String value) {
         m_forwardDeleteVoicemail = value.equals("1") || value.equals("true");
+    }
+    
+    public boolean isTranscribeVoicemail() {
+        return m_transcribeVoicemail;
+    }
+
+    public void setTranscribeVoicemail(String value) {
+        m_transcribeVoicemail = value.equals("1") || value.equals("true");
+    }
+    
+    public boolean isNotifyMissCalls() {
+        return m_notifyMissCalls;
+    }
+
+    public void setNotifyMissCalls(String value) {
+        m_notifyMissCalls = value.equals("1") || value.equals("true");
+    }
+    
+    public String getTranscribeLanguage() {
+        return m_transcribeLanguage;
+    }
+    
+    public void setTranscribeLanguage(String value) {
+        m_transcribeLanguage = value;
     }
 
     public String getEmailAddress() {
