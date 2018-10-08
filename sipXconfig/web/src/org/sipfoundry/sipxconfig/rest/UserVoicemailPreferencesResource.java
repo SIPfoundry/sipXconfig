@@ -31,6 +31,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 
 public class UserVoicemailPreferencesResource extends UserResource {
     private static final Log LOG = LogFactory.getLog(UserVoicemailPreferencesResource.class);
+    private static final String FREESWITCH_VM_SERVER_SETTING = "permission/voicemail-server/FreeswitchVoicemailServer";
+    private static final String EXCHANGE_VM_SERVER_SETTING = "permission/voicemail-server/ExchangeUMVoicemailServer";
 
     @Override
     public boolean allowDelete() {
@@ -59,6 +61,7 @@ public class UserVoicemailPreferencesResource extends UserResource {
         bean.setTranscribeLanguage(prefs.getTranscribeLanguage());
         bean.setNotifyMissCalls(prefs.isNotifyMissCalls());
         bean.setForwardDeleteVoicemail(prefs.isForwardDeleteVoicemail());
+        bean.setUseInternalVoicemailServer((Boolean)getUserToQuery().getSettingTypedValue(FREESWITCH_VM_SERVER_SETTING));
         if (prefs.isEmailNotificationEnabled()) {
             bean.setEmail(prefs.getEmailAddress());
             bean.setEmailAttachType(prefs.getAttachVoicemailToEmail());
@@ -129,6 +132,10 @@ public class UserVoicemailPreferencesResource extends UserResource {
             if (bean.getAltEmailIncludeAudioAttachment() != null) {
                 prefs.setIncludeAudioAttachmentAlternateEmail(bean.getAltEmailIncludeAudioAttachment());
             }
+            if (bean.getUseInternalVoicemailServer() != null) {
+                user.setSettingTypedValue(FREESWITCH_VM_SERVER_SETTING, bean.getUseInternalVoicemailServer());
+                user.setSettingTypedValue(EXCHANGE_VM_SERVER_SETTING, !bean.getUseInternalVoicemailServer());
+            }
 
             prefs.updateUser(user);
             getCoreContext().saveUser(user);
@@ -151,6 +158,7 @@ public class UserVoicemailPreferencesResource extends UserResource {
         private MailFormat m_altEmailFormat;
         private Boolean m_altEmailIncludeAudioAttachment;
         private Boolean m_voicemailPermission;
+        private Boolean m_useInternalVoicemailServer;
 
         public ActiveGreeting getGreeting() {
             return m_greeting;
@@ -262,6 +270,14 @@ public class UserVoicemailPreferencesResource extends UserResource {
 
         public void setAltEmailIncludeAudioAttachment(Boolean altEmailIncludeAudioAttachment) {
             m_altEmailIncludeAudioAttachment = altEmailIncludeAudioAttachment;
+        }
+        
+        public Boolean getUseInternalVoicemailServer() {
+            return m_useInternalVoicemailServer;
+        }
+        
+        public void setUseInternalVoicemailServer(Boolean useInternalVoicemailServer) {
+            m_useInternalVoicemailServer = useInternalVoicemailServer;
         }
 
         @SuppressWarnings("unused")
