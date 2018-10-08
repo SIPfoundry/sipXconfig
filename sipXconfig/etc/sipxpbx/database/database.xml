@@ -1451,7 +1451,7 @@
     <db-patch patch="openacd-custom-header"/>
   </target>
   <target name="canary_e911" unless="canary_e911">
-    <db-patch patch="canary_e911" />
+    <plsql-patch patch="canary_e911" />
   </target>
   <target name="canary_e911_constraints" unless="canary_e911_constraints">
     <plsql-patch patch="canary_e911_constraints" />
