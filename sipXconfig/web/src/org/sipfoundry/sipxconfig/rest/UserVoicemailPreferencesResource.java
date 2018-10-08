@@ -80,9 +80,10 @@ public class UserVoicemailPreferencesResource extends UserResource {
     // PUT
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
-        if (Boolean.TRUE == getUser().hasVoicemailPermission()) {
+        User user = getUserToQuery();
+        if (Boolean.TRUE == user.hasVoicemailPermission()) {
             VMPreferencesBean bean = JacksonConvert.fromRepresentation(entity, VMPreferencesBean.class);
-            MailboxPreferences prefs = new MailboxPreferences(getUserToQuery());
+            MailboxPreferences prefs = new MailboxPreferences(user);
 
             LOG.debug("Saving VM settings bean:\t" + bean);
 
@@ -129,7 +130,6 @@ public class UserVoicemailPreferencesResource extends UserResource {
                 prefs.setIncludeAudioAttachmentAlternateEmail(bean.getAltEmailIncludeAudioAttachment());
             }
 
-            User user = getUser();
             prefs.updateUser(user);
             getCoreContext().saveUser(user);
         }
