@@ -283,6 +283,7 @@ create table users (
    user_name varchar(255) not null unique,
    value_storage_id int4,
    address_book_entry_id integer,
+   is_mwi boolean not null default false,
    is_shared boolean not null default false,
    branch_id int4,
    user_type char(1),

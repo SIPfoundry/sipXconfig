@@ -1548,6 +1548,7 @@
     <attribute name="patch" />
     <sequential>
       <exec executable="psql" failonerror="true">
+        <env key="PGPASSWORD" value="${sipxconfig.db.password}"/>
         <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
       </exec>
       <mark-patch-applied patch="@{patch}" />
@@ -1560,6 +1561,7 @@
     <attribute name="mark-as" />
     <sequential>
       <exec executable="psql" failonerror="true">
+        <env key="PGPASSWORD" value="${sipxconfig.db.password}"/>
         <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/@{patch}.sql" />
       </exec>
       <mark-patch-applied patch="@{mark-as}" />
@@ -1570,6 +1572,7 @@
     <attribute name="src" />
     <sequential>
       <exec executable="psql" failonerror="true">
+        <env key="PGPASSWORD" value="${sipxconfig.db.password}"/>
         <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f @{src}" />
       </exec>
     </sequential>
