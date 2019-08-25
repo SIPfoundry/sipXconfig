@@ -36,7 +36,14 @@ public abstract class UserPortalNavigation extends BaseComponent {
     @InjectObject(value = "spring:featureManager")
     public abstract FeatureManager getFeatureManager();
 
+    @InjectObject(value = "spring:userMenu")
+    public abstract UserMenuControl getUserMenuControl();
+
     public boolean isVoicemailEnabled() {
-        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
+        return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false) && isShowMenu("voicemail");
+    }
+
+    public boolean isShowMenu(String menu) {
+        return !getUserMenuControl().isHideMenu(menu);
     }
 }

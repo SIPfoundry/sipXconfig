@@ -145,6 +145,18 @@
   </bean>
   <alias name="speedDialResource" alias="/my/speeddial" />
 
+  <bean id="userPersonalAttendantResource" class="org.sipfoundry.sipxconfig.rest.UserPersonalAttendantResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="true" />
+    <property name="variants">
+      <list>
+        <ref bean="jsonFormat"/>
+      </list>
+    </property>
+    <property name="mgr" ref="remoteMailboxManagerImpl"/>
+  </bean>
+  <alias name="userPersonalAttendantResource" alias="/my/voicemail/attendant" />
+
   <bean id="personalAttendantResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="modifiable" value="true" />
@@ -155,7 +167,7 @@
     </property>
     <property name="mgr" ref="remoteMailboxManagerImpl"/>
   </bean>
-  <alias name="personalAttendantResource" alias="/my/voicemail/attendant" />
+  <alias name="personalAttendantResource" alias="/voicemail/attendant/{user}" />
 
   <bean id="personalAttendantLangResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantLangResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
@@ -169,19 +181,33 @@
   </bean>
   <alias name="personalAttendantLangResource" alias="/my/voicemail/attendant/lang" />
 
+  <bean id="userPersonalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.UserPersonalAttendantOperatorResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="userPersonalAttendantOperatorResource" alias="/my/voicemail/operator/{operator}" />
+
+  <bean id="resetUserPersonalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.UserPersonalAttendantOperatorResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="resetUserPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
+
   <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
-  <alias name="personalAttendantOperatorResource" alias="/my/voicemail/operator/{operator}" />
+  <alias name="personalAttendantOperatorResource" alias="/voicemail/operator/{user}/{operator}" />
 
   <bean id="resetPersonalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
-  <alias name="resetPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
+  <alias name="resetPersonalAttendantOperatorResource" alias="/voicemail/operator/{user}" />
 
   <bean id="faxSettingsResource" class="org.sipfoundry.sipxconfig.rest.FaxSettingsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

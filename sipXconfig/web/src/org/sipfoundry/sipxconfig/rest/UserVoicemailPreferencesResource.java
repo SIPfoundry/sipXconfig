@@ -54,7 +54,7 @@ public class UserVoicemailPreferencesResource extends UserResource {
         MailboxPreferences prefs = new MailboxPreferences(getUserToQuery());
         VMPreferencesBean bean = new VMPreferencesBean();
 
-        bean.setVoicemailPermission(getUser().hasVoicemailPermission());
+        bean.setVoicemailPermission(getUserToQuery().hasVoicemailPermission());
         bean.setGreeting(prefs.getActiveGreeting());
         bean.setEnableMwi(prefs.isEnableMwi());
         bean.setTranscribeVoicemail(prefs.isTranscribeVoicemail());
@@ -84,12 +84,17 @@ public class UserVoicemailPreferencesResource extends UserResource {
     @Override
     public void storeRepresentation(Representation entity) throws ResourceException {
         User user = getUserToQuery();
-        if (Boolean.TRUE == user.hasVoicemailPermission()) {
+        User requester = getUser();
+        if (requester.isAdmin() || Boolean.TRUE == user.hasVoicemailPermission()) {
             VMPreferencesBean bean = JacksonConvert.fromRepresentation(entity, VMPreferencesBean.class);
             MailboxPreferences prefs = new MailboxPreferences(user);
 
             LOG.debug("Saving VM settings bean:\t" + bean);
 
+            if (requester.isAdmin() && bean.getVoicemailPermission() != null) {
+                // Only admin can update voicemail permission.
+                user.setVoicemailPermission(bean.getVoicemailPermission());
+            }
             if (bean.getGreeting() != null) {
                 prefs.setActiveGreeting(bean.getGreeting());
             }

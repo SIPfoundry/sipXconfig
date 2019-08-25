@@ -16,9 +16,8 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class PersonalAttendantOperatorResource extends UserPersonalAttendantOperatorResource {
+public class UserPersonalAttendantOperatorResource extends UserResource {
     private String m_operator;
-    private String m_queryUser;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -27,19 +26,23 @@ public class PersonalAttendantOperatorResource extends UserPersonalAttendantOper
         setModifiable(true);
         setReadable(false);
 
-        m_queryUser = (String) getRequest().getAttributes().get("user");
         m_operator = (String) getRequest().getAttributes().get("operator");
     }
 
-    @Override
     public User getUserToQuery() {
-        User user = getUser();
-        if(user.isAdmin()) {
-           // Allow query by user only if logged user is an admin
-           User queryUser = getCoreContext().loadUserByUserName(m_queryUser);
-           return queryUser; 
-        }
-        
-        return user;
+        return getUser();
+    }    
+
+    @Override
+    public boolean allowPut() {
+        return true;
     }
+
+    @Override
+    public void storeRepresentation(Representation entity) throws ResourceException {
+        User user = getUserToQuery();
+        user.getSettings().getSetting("personal-attendant/operator").setValue(m_operator);
+        getCoreContext().saveUser(user);
+    }
+
 }

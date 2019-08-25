@@ -14,270 +14,29 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import static org.sipfoundry.sipxconfig.rest.JacksonConvert.fromRepresentation;
-import static org.sipfoundry.sipxconfig.rest.JacksonConvert.toRepresentation;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.restlet.resource.Representation;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.common.AbstractUser;
-import org.sipfoundry.sipxconfig.common.DialPad;
+import org.restlet.Context;
+import org.restlet.data.Request;
+import org.restlet.data.Response;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.dialplan.AttendantMenuAction;
-import org.sipfoundry.sipxconfig.dialplan.AttendantMenuItem;
-import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantManager;
 
-public class PersonalAttendantResource extends UserResource {
-    private static final Log LOG = LogFactory.getLog(PersonalAttendantResource.class);
-
-    private PersonalAttendantManager m_mgr;
-
+public class PersonalAttendantResource extends UserPersonalAttendantResource {
+    private String m_queryUser;
+    
     @Override
-    public boolean allowPost() {
-        return false;
+    public void init(Context context, Request request, Response response) {
+        super.init(context, request, response);
+        m_queryUser = (String) getRequest().getAttributes().get("user");
     }
-
+    
     @Override
-    public boolean allowDelete() {
-        return false;
-    }
-
-    // GET
-    @Override
-    public Representation represent(Variant variant) throws ResourceException {
-        AttendantBean settings = new AttendantBean();
+    public User getUserToQuery() {
         User user = getUser();
-
-        settings.setPersonalAttendantPermission(user.hasPermission(PermissionName.PERSONAL_AUTO_ATTENDANT));
-        settings.setDepositVM(user.isDepositVoicemail());
-        boolean isForwardDeleteVM = (boolean) user.getSettingTypedValue(MailboxPreferences.FORWARD_DELETE_VOICEMAIL);
-        boolean isTranscribeVM = (boolean) user.getSettingTypedValue(MailboxPreferences.TRANSCRIBE_VOICEMAIL);
-        String transcribeLanguage = user.getSettingValue(MailboxPreferences.TRANSCRIBE_LANGUAGE);
-        boolean isNotifyMissCalls = (boolean) user.getSettingTypedValue(MailboxPreferences.NOTIFY_MISS_CALLS);
-        settings.setForwardDeleteVM(isForwardDeleteVM);
-        settings.setTranscribeVM(isTranscribeVM);
-        settings.setTranscribeLanguage(transcribeLanguage);
-        settings.setNotifyMissCalls(isNotifyMissCalls);
-        settings.setPlayVMDefaultOptions(user.getPlayVmDefaultOptions());
-        settings.setOperator((String) user.getSettingTypedValue(AbstractUser.OPERATOR_SETTING));
-
-        PersonalAttendant att = m_mgr.loadPersonalAttendantForUser(user);
-
-        settings.setLanguage(att.getLanguage());
-        settings.setOverrideLanguage(att.getOverrideLanguage());
-        Map<String, String> menuMap = new LinkedHashMap<String, String>();
-        AttendantMenu menu = att.getMenu();
-
-        if (menu != null) {
-            for (Map.Entry<DialPad, AttendantMenuItem> entry : menu.getMenuItems().entrySet()) {
-                menuMap.put(entry.getKey().getName(), entry.getValue().getParameter());
-            }
-            settings.setMenu(menuMap);
-        }
-
-        LOG.debug("Returning attendant prefs:\t" + settings);
-
-        return toRepresentation(settings);
-    }
-
-    // PUT
-    @Override
-    public void storeRepresentation(Representation entity) throws ResourceException {
-        if (Boolean.TRUE == getUser().hasPermission(PermissionName.PERSONAL_AUTO_ATTENDANT)) {
-            AttendantBean settings = fromRepresentation(entity, AttendantBean.class);
-            LOG.debug("Got attendant prefs:\t" + settings);
-            User user = getUser();
-
-            if (settings.getDepositVM() != null) {
-                user.setDepositVoicemail(settings.getDepositVM());
-            }
-            if (settings.getForwardDeleteVM() != null) {
-                user.setSettingTypedValue(
-                        MailboxPreferences.FORWARD_DELETE_VOICEMAIL,
-                        settings.getForwardDeleteVM());
-            }
-            if (settings.getTranscribeVM() != null) {
-                user.setSettingTypedValue(
-                        MailboxPreferences.TRANSCRIBE_VOICEMAIL,
-                        settings.getTranscribeVM());
-            }
-            if (settings.getTranscribeLanguage() != null) {
-                user.setSettingTypedValue(
-                        MailboxPreferences.TRANSCRIBE_LANGUAGE,
-                        settings.getTranscribeLanguage());
-            }
-            if (settings.getNotifyMissCalls() != null) {
-                user.setSettingTypedValue(
-                        MailboxPreferences.NOTIFY_MISS_CALLS,
-                        settings.getNotifyMissCalls());
-            }
-            if (settings.getPlayVMDefaultOptions() != null) {
-                user.setPlayVmDefaultOptions(settings.getPlayVMDefaultOptions());
-            }
-            if (settings.getOperator() != null) {
-                user.setOperator(settings.getOperator());
-            }
-
-            PersonalAttendant attendant = m_mgr.loadPersonalAttendantForUser(user);
-            Map<String, String> menuMap = settings.getMenu();
-
-            if (menuMap != null) {
-                AttendantMenu menu = new AttendantMenu();
-                for (Map.Entry<String, String> entry : menuMap.entrySet()) {
-                    DialPad dial = DialPad.getByName(entry.getKey());
-                    menu.addMenuItem(dial, AttendantMenuAction.TRANSFER_OUT, entry.getValue());
-                }
-                attendant.setMenu(menu);
-            }
-            if (settings.getLanguage() != null) {
-                attendant.setLanguage(settings.getLanguage());
-            }
-            if (settings.getLanguage() != null) {
-                attendant.setOverrideLanguage(settings.getOverrideLanguage());
-            }
-
-            // try to be smart and don't save what's not present in the request
-            if (menuMap != null || settings.getLanguage() != null || settings.getLanguage() != null) {
-                LOG.debug("Saving attendant prefs:\t" + attendant);
-
-                m_mgr.storePersonalAttendant(attendant);
-            }
-            if (settings.getDepositVM() != null || settings.getPlayVMDefaultOptions() != null
-                || settings.getOperator() != null) {
-                LOG.debug("Saving user");
-
-                getCoreContext().saveUser(user);
-            }
-        }
-    }
-
-    public void setMgr(PersonalAttendantManager mgr) {
-        m_mgr = mgr;
-    }
-
-    // the JSON representation of this is sent to/from the client
-    private static class AttendantBean {
-        private Boolean m_depositVM;
-        private Boolean m_forwardDeleteVM;
-        private Boolean m_transcribeVM;
-        private String m_transcribeLanguage;
-        private Boolean m_notifyMissCalls;
-        private Boolean m_playVMDefaultOptions;
-        private String m_operator;
-        private Map<String, String> m_menu;
-        private String m_language;
-        private Boolean m_overrideLanguage;
-        private Boolean m_personalAttendantPermission;
-
-        public Boolean getDepositVM() {
-            return m_depositVM;
-        }
-
-        public void setDepositVM(Boolean depositVM) {
-            m_depositVM = depositVM;
-        }
-
-        public Boolean getForwardDeleteVM() {
-            return m_forwardDeleteVM;
-        }
-
-        public void setForwardDeleteVM(Boolean forwardDeleteVM) {
-            m_forwardDeleteVM = forwardDeleteVM;
+        if(user.isAdmin()) {
+           // Allow query by user only if logged user is an admin
+           User queryUser = getCoreContext().loadUserByUserName(m_queryUser);
+           return queryUser; 
         }
         
-        public Boolean getTranscribeVM() {
-            return m_transcribeVM;
-        }
-        
-        public void setTranscribeVM(Boolean transcribeVM) {
-            m_transcribeVM = transcribeVM;
-        }
-        
-        public String getTranscribeLanguage() {
-            return m_transcribeLanguage;
-        }
-        
-        public void setTranscribeLanguage(String language) {
-            m_transcribeLanguage = language;
-        }
-        
-        public Boolean getNotifyMissCalls() {
-            return m_notifyMissCalls;
-        }
-        
-        public void setNotifyMissCalls(Boolean notifyMissCalls) {
-            m_notifyMissCalls = notifyMissCalls;
-        }
-
-        public Boolean getPlayVMDefaultOptions() {
-            return m_playVMDefaultOptions;
-        }
-
-        public void setPlayVMDefaultOptions(Boolean playVMDefaultOptions) {
-            m_playVMDefaultOptions = playVMDefaultOptions;
-        }
-
-        public String getOperator() {
-            return m_operator;
-        }
-
-        public void setOperator(String operator) {
-            m_operator = operator;
-        }
-
-        public Map<String, String> getMenu() {
-            return m_menu;
-        }
-
-        public void setMenu(Map<String, String> menu) {
-            m_menu = menu;
-        }
-
-        public String getLanguage() {
-            return m_language;
-        }
-
-        public void setLanguage(String language) {
-            m_language = language;
-        }
-
-        public Boolean getOverrideLanguage() {
-            return m_overrideLanguage;
-        }
-
-        public void setOverrideLanguage(Boolean overrideLanguage) {
-            m_overrideLanguage = overrideLanguage;
-        }
-
-        @SuppressWarnings("unused")
-        public Boolean getPersonalAttendantPermission() {
-            return m_personalAttendantPermission;
-        }
-
-        public void setPersonalAttendantPermission(Boolean personalAttendantPermission) {
-            m_personalAttendantPermission = personalAttendantPermission;
-        }
-
-        @Override
-        public String toString() {
-            return "AttendantBean [m_depositVM=" + m_depositVM
-                    + ", m_forwardDeleteVM=" + m_forwardDeleteVM
-                    + ", m_transcribeVM=" + m_transcribeVM
-                    + ", m_notifyMissCalls=" + m_notifyMissCalls
-                    + ", m_playVMDefaultOptions=" + m_playVMDefaultOptions
-                    + ", m_operator=" + m_operator + ", m_menu=" + m_menu
-                    + ", m_language=" + m_language + ", m_overrideLanguage="
-                    + m_overrideLanguage + ", m_personalAttendantPermission="
-                    + m_personalAttendantPermission + "]";
-        }
+        return user;
     }
 }
