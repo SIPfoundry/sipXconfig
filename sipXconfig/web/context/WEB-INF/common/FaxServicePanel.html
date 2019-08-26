@@ -1,9 +1,12 @@
 <span jwcid="$content$">
 <fieldset>
 <table>
+<span jwcid="@If" condition="ognl:showFax" renderTag="false">
 <tr>
 <td colspan="2"><h3><span key="section.faxservice">Fax Service</span></h3></td>
 </tr>
+</span>
+<span jwcid="@If" condition="ognl:isShowField('faxExtension')" renderTag="false">
 <tr jwcid="@common/FieldPanel"
   field="component:faxExtension"
   label="message:fax.title"
@@ -14,6 +17,8 @@
     disabled="ognl:faxDisabled"
     validators="spring-validators:validSipUserId"/>
 </tr>
+</span>
+<span jwcid="@If" condition="ognl:isShowField('faxDid')" renderTag="false">
 <tr jwcid="@common/FieldPanel"
   field="component:faxDid"
   label="message:faxDid.title"
@@ -24,6 +29,7 @@
     disabled="ognl:faxDisabled"
     validators="spring-validators:validSipUserId"/>
 </tr>
+</span>
 </table>
 </fieldset>
 </span>

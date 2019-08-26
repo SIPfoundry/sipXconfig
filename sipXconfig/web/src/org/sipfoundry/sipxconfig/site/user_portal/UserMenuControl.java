@@ -18,13 +18,14 @@ public class UserMenuControl {
     // overrideable in skin
     private List<String> m_hideMenus;
     private List<String> m_hideInfoTabs;
+    private List<String> m_hideInfoFields;
 
     public UserMenuControl() {
 
     }
 
     public boolean isHideMenu(String menu) {
-        if (menu != null) {
+        if (m_hideMenus != null) {
             return m_hideMenus.contains(menu);
         }
 
@@ -32,8 +33,16 @@ public class UserMenuControl {
     }
 
     public boolean isHideInfoTab(String tab) {
-        if (tab != null) {
+        if (m_hideInfoTabs != null) {
             return m_hideInfoTabs.contains(tab);
+        }
+
+        return false;
+    }
+
+    public boolean isHideInfoField(String field) {
+        if (m_hideInfoFields != null) {
+            return m_hideInfoFields.contains(field);
         }
 
         return false;
@@ -48,6 +57,12 @@ public class UserMenuControl {
     public void setHideInfoTabs(String tab) {
         if (tab != null) {
             m_hideInfoTabs = Arrays.asList(tab.split(","));
+        }
+    }
+
+    public void setHideInfoFields(String field) {
+        if (field != null) {
+            m_hideInfoFields = Arrays.asList(field.split(","));
         }
     }
 }

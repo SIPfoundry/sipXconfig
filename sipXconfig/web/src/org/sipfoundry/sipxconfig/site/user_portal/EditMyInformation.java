@@ -53,6 +53,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     @InjectObject("spring:xmppContactInformationUpdate")
     public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
 
+    @InjectObject(value = "spring:userMenu")
+    public abstract UserMenuControl getUserMenuControl();
+
     public abstract String getPin();
 
     public abstract String getVoicemailPin();
@@ -83,8 +86,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract void setAvailableTabNames(Collection<String> tabNames);
 
     @Persist
-    @InitialValue(value = "literal:extendedInfo")
     public abstract String getTab();
+
+    public abstract void setTab(String tab);
 
     public abstract Block getActionBlockForConferencesTab();
 
@@ -172,29 +176,54 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     private void initAvailableTabs() {
         List<String> tabNames = new ArrayList<String>();
-        tabNames.add("extendedInfo");
-        tabNames.add("info");
-        if (isVoicemailEnabled()) {
-            tabNames.add("distributionLists");
+        if (!getUserMenuControl().isHideInfoTab("extendedInfo")) {
+            tabNames.add("extendedInfo");
+            setDefaultTab("extendedInfo");
         }
-        tabNames.add(TAB_CONFERENCES);
+        if (!getUserMenuControl().isHideInfoTab("info")) {
+            tabNames.add("info");
+            setDefaultTab("info");
+        }
+        if (!getUserMenuControl().isHideInfoTab("distributionLists") && isVoicemailEnabled()) {
+            tabNames.add("distributionLists");
+            setDefaultTab("distributionLists");
+        }
+        if (!getUserMenuControl().isHideInfoTab(TAB_CONFERENCES)) {
+            tabNames.add(TAB_CONFERENCES);
+            setDefaultTab(TAB_CONFERENCES);
+        }
         
         String mohPermissionValue = getLoadedUser().getSettingValue("permission/application/music-on-hold");
-        if (isVoicemailEnabled() && Permission.isEnabled(mohPermissionValue)) {
+        if (!getUserMenuControl().isHideInfoTab("moh") && isVoicemailEnabled() && Permission.isEnabled(mohPermissionValue)) {
             tabNames.add("moh");
+            setDefaultTab("moh");
         }
 
         String paPermissionValue = getLoadedUser().getSettingValue("permission/application/personal-auto-attendant");
-        if (isVoicemailEnabled() && Permission.isEnabled(paPermissionValue)) {
+        if (!getUserMenuControl().isHideInfoTab("menu") && isVoicemailEnabled() && Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");
+            setDefaultTab("menu");
         }
 
-        tabNames.add("timeZone");
+        if (!getUserMenuControl().isHideInfoTab("timeZone")) {
+            tabNames.add("timeZone");
+            setDefaultTab("timeZone");
+        }
         setAvailableTabNames(tabNames);
+    }
+
+    public void setDefaultTab(String tab) {
+        if (getTab() == null) {
+            setTab(tab);
+        }
     }
 
     public boolean isVoicemailEnabled() {
         return (getFeatureManager().isFeatureEnabled(Ivr.FEATURE) ? true : false);
+    }
+
+    public boolean isShowField(String field) {
+        return !getUserMenuControl().isHideInfoField(field);
     }
 
     public boolean isDepositVoicemail() {

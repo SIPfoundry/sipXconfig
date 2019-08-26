@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.site.UserSession;
+import org.sipfoundry.sipxconfig.site.user_portal.UserMenuControl;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 @ComponentClass(allowBody = false)
@@ -48,6 +49,9 @@ public abstract class FaxServicePanel extends BaseComponent implements PageBegin
     @Parameter(required = true)
     public abstract User getUser();
 
+    @Parameter(required = false)
+    public abstract UserMenuControl getUserMenuControl();
+
     public abstract void setUser(User u);
 
     @InjectObject(value = "spring:coreContext")
@@ -63,6 +67,22 @@ public abstract class FaxServicePanel extends BaseComponent implements PageBegin
         }
         setFaxExtension(getUser().getFaxExtension());
         setFaxDid(getUser().getFaxDid());
+    }
+
+    public boolean isShowField(String field) {
+        UserMenuControl menu = getUserMenuControl();
+        if (menu != null) {
+            return !menu.isHideInfoField(field);
+        }
+        return true;
+    }
+
+    public boolean isShowFax() {
+        UserMenuControl menu = getUserMenuControl();
+        if (menu != null) {
+            return !menu.isHideInfoField("faxExtension") || !menu.isHideInfoField("faxDid");
+        }
+        return true;
     }
 
     public void update(User user) {

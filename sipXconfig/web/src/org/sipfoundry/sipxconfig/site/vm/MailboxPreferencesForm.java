@@ -18,6 +18,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.NewEnumPropertySelectionModel;
+import org.sipfoundry.sipxconfig.site.user_portal.UserMenuControl;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
@@ -59,9 +60,20 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
 
     @Parameter(required = false, defaultValue = "ognl:false")
     public abstract boolean isAdvanced();
+    
+    @Parameter(required = false)
+    public abstract UserMenuControl getUserMenuControl();
 
     public boolean isDepositCpui() {
-        return getMailboxManager().isSystemCpui();
+        return getMailboxManager().isSystemCpui() && isShowField("busyPrompt");
+    }
+
+    public boolean isShowField(String field) {
+        UserMenuControl menu = getUserMenuControl();
+        if (menu != null) {
+            return !menu.isHideInfoField(field);
+        }
+        return true;
     }
 
     public IPropertySelectionModel getActiveGreetingModel() {

@@ -14,14 +14,17 @@
 	<form jwcid="infoForm@Form" delegate="bean:validator">
 	  <fieldset>
 	    <table>
-	      <tr jwcid="pin@user/ConfirmPassword"
-	          password="ognl:pin"
-	          passwordDisplayName="message:label.pin"
-	          confirmPasswordDisplayName="message:label.pin2"
-	          passwordMismatchMessage="message:error.pinMismatch"
-	          passwordDescription="message:description.pin"
-	          passwordValidator="spring-validators:validPin,minLength=8,required">
-	      </tr>
+		  <span jwcid="@If" condition="ognl:isShowField('pin')" renderTag="false">
+	        <tr jwcid="pin@user/ConfirmPassword"
+	            password="ognl:pin"
+	            passwordDisplayName="message:label.pin"
+	            confirmPasswordDisplayName="message:label.pin2"
+	            passwordMismatchMessage="message:error.pinMismatch"
+	            passwordDescription="message:description.pin"
+	            passwordValidator="spring-validators:validPin,minLength=8,required">
+		    </tr>
+		  </span>
+		  <span jwcid="@If" condition="ognl:isShowField('voicemailPin')" renderTag="false"></span>
 	      <tr jwcid="voicemail_pin@user/ConfirmPassword"
 	          password="ognl:voicemailPin"
 	          passwordDisplayName="message:label.voicemail.pin"
@@ -31,12 +34,12 @@
 	          passwordValidator="spring-validators:validPin,minLength=4,required">
 	      </tr>	      
 	      <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
-			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
+			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" userMenuControl="ognl:userMenuControl"/>
 	      </span>
 	    </table>
 	  </fieldset>
 	  <span jwcid="@If" condition="ognl:voicemailEnabled">
-		<tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:loadedUser"/>
+		<tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:loadedUser" userMenuControl="ognl:userMenuControl"/>
 	  </span>
 	  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
   </form>
