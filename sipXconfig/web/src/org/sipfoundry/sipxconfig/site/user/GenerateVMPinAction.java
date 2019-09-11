@@ -32,11 +32,11 @@ public class GenerateVMPinAction extends BulkVMAction {
             User user = m_coreContext.loadUser(id);
             String randomPin = RandomStringUtils.randomNumeric(AbstractUser.VOICEMAIL_PIN_LEN);
             user.setVoicemailPin(randomPin);
-            user.setForcePinChange(false);
+            user.setForcePinChange(true);
             m_coreContext.saveUser(user);
             
             // Send email.
-            m_emailNotifier.sendMail(user.getUserName(), "vmpin.generate", createMailArgument(randomPin));
+            m_emailNotifier.sendMail(user.getUserName(), "vmpin.generate", createMailArgument(user, randomPin));
         }
     }
 
@@ -49,9 +49,10 @@ public class GenerateVMPinAction extends BulkVMAction {
         return getClass().getName() + ".generate";
     }
     
-    public Object[] createMailArgument(String pin) {
-        Object[] args = new Object[1];
+    public Object[] createMailArgument(User user, String pin) {
+        Object[] args = new Object[2];
         args[0] = pin;
+        args[1] = user.getUserName();
         return args;
     }
 }

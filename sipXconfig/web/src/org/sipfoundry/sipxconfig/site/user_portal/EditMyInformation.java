@@ -60,6 +60,10 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract String getVoicemailPin();
 
+    public abstract boolean getIsMWI();
+
+    public abstract void setIsMWI(boolean isMWI);
+
     public abstract Conference getCurrentRow();
 
     public abstract void setCurrentRow(Conference currentRow);
@@ -119,6 +123,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         fs.update(user);
         getMailboxPreferences().updateUser(user);
         getMailboxManager().storePersonalAttendant(getPersonalAttendant());
+
+        user.setIsMWI(getIsMWI());
         getCoreContext().saveUser(user);
     }
 
@@ -142,6 +148,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         UserForm.initializePin(getComponent("pin"), this, user);
         UserForm.initializeVoicemailPin(getComponent("voicemail_pin"), this, user);
+        setIsMWI(user.getIsMWI());
 
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {

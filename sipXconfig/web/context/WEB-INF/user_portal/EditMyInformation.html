@@ -24,7 +24,7 @@
 	            passwordValidator="spring-validators:validPin,minLength=8,required">
 		    </tr>
 		  </span>
-		  <span jwcid="@If" condition="ognl:isShowField('voicemailPin')" renderTag="false"></span>
+		  <span jwcid="@If" condition="ognl:isShowField('voicemailPin')" renderTag="false">
 	      <tr jwcid="voicemail_pin@user/ConfirmPassword"
 	          password="ognl:voicemailPin"
 	          passwordDisplayName="message:label.voicemail.pin"
@@ -32,7 +32,18 @@
 	          passwordMismatchMessage="message:error.voicemail.pinMismatch"
 	          passwordDescription="message:description.voicemail.pin"
 	          passwordValidator="spring-validators:validPin,minLength=4,required">
-	      </tr>	      
+		  </tr>
+		  </span>
+		  <span jwcid="@If" condition="ognl:isShowField('mwi')" renderTag="false">
+		  <tr jwcid="@common/FieldPanel" for="isMWI"
+              field="component:isMWI"
+              label="message:label.isMWI"
+              description="message:description.isMWI">
+              <span jwcid="isMWI@Checkbox"
+                id="isMWI"
+                value="ognl:isMWI" />
+		  </tr>        
+		  </span>
 	      <span jwcid="@If" condition="ognl:voicemailEnabled" renderTag="false">
 			<tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" userMenuControl="ognl:userMenuControl"/>
 	      </span>

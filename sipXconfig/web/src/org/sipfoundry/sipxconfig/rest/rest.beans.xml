@@ -109,6 +109,22 @@
   </bean>
   <alias name="voicemailPinResource" alias="/my/voicemail/pin/{pin}" />
 
+  <bean id="voicemailGeneratePinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailGeneratePinResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="emailNotifier" ref="emailNotifier" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="voicemailGeneratePinResource" alias="/voicemail/pin/generate/{user}" />
+
+  <bean id="voicemailGenerateBulkPinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailGenerateBulkPinResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="emailNotifier" ref="emailNotifier" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="voicemailGenerateBulkPinResource" alias="/voicemail/pin/generate" />  
+
   <bean id="imprefsResource" class="org.sipfoundry.sipxconfig.rest.ImSettingsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="modifiable" value="true" />
