@@ -37,19 +37,22 @@ public class RemoteVoicemail implements Voicemail, Comparable {
     private String m_forwardedFromBrief;
     private String m_audioFormat;
     private Date m_timestamp;
+    private Date m_expiryTimestamp;
     private Date m_forwardedTimestamp;
     private int m_durationSecs;
     private long m_contentLength;
     private boolean m_forwarded;
     private String m_forwardedSubject;
 
-    public RemoteVoicemail(Element node, String userId, String folder, TimeZone tz) {
+    public RemoteVoicemail(Element node, String userId, String folder, TimeZone tz, int expiresAt ) {
         m_userId = userId;
         m_folderId = folder;
         m_messageId = node.getAttribute("id");
         m_heard = Boolean.valueOf(node.getAttribute("heard"));
         m_durationSecs = Integer.valueOf(node.getAttribute("duration"));
         m_timestamp = TimeZoneUtils.convertJodaTimezone(new LocalDateTime(new Long(node.getAttribute("received"))),
+                DateTimeZone.getDefault().getID(), tz.getID());
+        m_expiryTimestamp = TimeZoneUtils.convertJodaTimezone(new LocalDateTime(new Long(node.getAttribute("updated"))).plusDays(expiresAt),
                 DateTimeZone.getDefault().getID(), tz.getID());
         m_from = node.getAttribute("fromUri");
         m_fromBrief = node.getAttribute("author");
@@ -128,6 +131,11 @@ public class RemoteVoicemail implements Voicemail, Comparable {
     @Override
     public Date getForwardedTimestamp() {
         return m_forwardedTimestamp;
+    }
+
+    @Override
+    public Date getExpiryTimestamp() {
+        return m_expiryTimestamp;
     }
 
     @Override

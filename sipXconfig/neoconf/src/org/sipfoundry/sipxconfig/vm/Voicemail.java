@@ -43,6 +43,8 @@ public interface Voicemail extends Serializable {
 
     Date getTimestamp();
 
+    Date getExpiryTimestamp();
+
     Date getForwardedTimestamp();
 
     int getDurationsecs();

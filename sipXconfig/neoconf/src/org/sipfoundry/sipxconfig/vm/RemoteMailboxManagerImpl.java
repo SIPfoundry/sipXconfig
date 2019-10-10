@@ -24,8 +24,10 @@ import javax.xml.transform.Source;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
+import org.sipfoundry.sipxconfig.ivr.IvrSettings;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.xml.xpath.NodeMapper;
@@ -48,6 +50,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
     private Address m_lastGoodIvrNode;
+    private IvrSettings m_ivrSettings;
 
     @Override
     public boolean isEnabled() {
@@ -94,6 +97,11 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private List<Voicemail> retrieveVoicemails(List<Address> ivrRestAddresses, String url,
             StringBuilder failedAddresses, StringBuilder messages, final Object... urlVariables) {
 
+        final User user = getCoreContext().loadUserByUserName((String) urlVariables[0]);
+        final String folder = (String) urlVariables[1];
+        final int expiresAt = folder.equals("deleted") ? m_ivrSettings.getVoicemailDeletedExpiry() : 
+                        user.getDaysToKeepVM() != null ? user.getDaysToKeepVM() : 0;
+
         for (Address address : ivrRestAddresses) {
             try {
                 Source voicemails = m_restTemplate.getForObject(address + url, Source.class, urlVariables);
@@ -102,8 +110,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                             @Override
                             public Voicemail mapNode(Node node, int pos) {
                                 return new RemoteVoicemail((Element) node, (String) urlVariables[0],
-                                        (String) urlVariables[1], getCoreContext().loadUserByUserName(
-                                                (String) urlVariables[0]).getTimezone());
+                                    folder, user.getTimezone(), expiresAt);
                             }
                         });
                 setLastGoodIvrNode(address);
@@ -214,6 +221,10 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
     public void setLastGoodIvrNode(Address lastGoodIvrNode) {
         m_lastGoodIvrNode = lastGoodIvrNode;
+    }
+
+    public void setIvrSettings(IvrSettings ivrSettings) {
+        m_ivrSettings = ivrSettings;
     }
 
 }

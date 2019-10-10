@@ -30,7 +30,7 @@
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
        <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="ognl:selections"
-        columns="* !subject,!from,!timestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
+        columns="* !subject,!from,!timestamp,!expiryTimestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
         usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
         <span jwcid="subjectColumnValue@Block">
           <img jwcid="@Image" image="ognl:voicemailIcon" align="absmiddle" />
@@ -61,6 +61,9 @@
             <br/>
             <span jwcid="@Insert" value="ognl:voicemail.forwardedTimestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>
           </span>
+        </span>
+        <span jwcid="expiryTimestampColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:voicemail.expiryTimestamp" format="ognl:tapestry.date(locale)"></span>
         </span>
         <span jwcid="durationColumnValue@Block">
           <span jwcid="@Insert" value="ognl:voicemail.durationsecs * 1000" format="bean:durationFormat"/>
