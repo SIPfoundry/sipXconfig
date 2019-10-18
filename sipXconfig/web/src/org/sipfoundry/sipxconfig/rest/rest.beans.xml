@@ -225,6 +225,13 @@
   </bean>
   <alias name="resetPersonalAttendantOperatorResource" alias="/voicemail/operator/{user}" />
 
+  <bean id="defaultVmOptionResource" class="org.sipfoundry.sipxconfig.rest.DefaultVmOptionResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="defaultVmOptionResource" alias="/voicemail/defaultvmoption/{user}/{flag}" />
+
   <bean id="faxSettingsResource" class="org.sipfoundry.sipxconfig.rest.FaxSettingsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="modifiable" value="false" />

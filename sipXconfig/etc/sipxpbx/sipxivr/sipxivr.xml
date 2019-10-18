@@ -168,15 +168,27 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="ivr.voicemail.disableOperator0" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="security.cleanupVoicemailHour" advanced="yes">
       <type>
         <integer min="0" max="23"/>
       </type>
       <value>0</value>
     </setting>
+    <setting name="security.unexpireSavedInbox" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="speech.apiKey" advanced="yes">
       <type>
-        <string required="yes"/>
+        <string/>
       </type>
       <value></value>
     </setting>

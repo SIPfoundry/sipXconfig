@@ -36,9 +36,11 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
     private static final String HTTP_PORT = "ivr/ivr.httpPort";
     private static final String AUDIO_FORMAT = "ivr/audio.format";
     private static final String CLEANUP_VOICEMAIL_HOUR = "ivr/security.cleanupVoicemailHour";
+    private static final String EXCLUDE_SAVED_INBOX_CLEANUP = "ivr/security.unexpireSavedInbox";
     private static final String VOICEMAIL_DELETED_EXPIRY = "ivr/ivr.voiceMailExpiry";
     private static final String SPEECH_API_KEY = "ivr/speech.apiKey";
     private static final String MIN_VOICEMAIL_RECORDING = "ivr/ivr.voicemail.minRecording";
+    private static final String DISABLE_OPERATOR_0 = "ivr/ivr.voicemail.disableOperator0";
     private FeatureManager m_featureManager;
     
     @Override
@@ -71,6 +73,14 @@ public class IvrSettings extends PersistableSettings implements DeployConfigOnEd
 
     public String getCleanupVoicemailHour() {
         return getSettingValue(CLEANUP_VOICEMAIL_HOUR);
+    }
+
+    public boolean isSavedInboxExcludeCleanup() {
+        return (Boolean) getSettingTypedValue(EXCLUDE_SAVED_INBOX_CLEANUP);
+    }
+
+    public boolean isDisableOperator0() {
+        return (Boolean) getSettingTypedValue(DISABLE_OPERATOR_0);
     }
 
     public int getVoicemailDeletedExpiry() {

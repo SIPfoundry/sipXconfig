@@ -63,7 +63,9 @@
           </span>
         </span>
         <span jwcid="expiryTimestampColumnValue@Block">
-          <span jwcid="@Insert" value="ognl:voicemail.expiryTimestamp" format="ognl:tapestry.date(locale)"></span>
+          <span jwcid="@If" condition="ognl:voicemail.expiryTimestamp">
+            <span jwcid="@Insert" value="ognl:voicemail.expiryTimestamp" format="ognl:tapestry.date(locale)"></span>
+          </span>
         </span>
         <span jwcid="durationColumnValue@Block">
           <span jwcid="@Insert" value="ognl:voicemail.durationsecs * 1000" format="bean:durationFormat"/>

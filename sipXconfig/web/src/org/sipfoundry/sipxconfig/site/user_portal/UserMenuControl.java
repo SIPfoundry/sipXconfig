@@ -19,6 +19,7 @@ public class UserMenuControl {
     private List<String> m_hideMenus;
     private List<String> m_hideInfoTabs;
     private List<String> m_hideInfoFields;
+    private List<String> m_hideOptions;
 
     public UserMenuControl() {
 
@@ -48,6 +49,14 @@ public class UserMenuControl {
         return false;
     }
 
+    public boolean isHideOptions(String field) {
+        if (m_hideOptions != null) {
+            return m_hideOptions.contains(field);
+        }
+
+        return false;
+    }
+
     public void setHideMenus(String menu) {
         if (menu != null) {
             m_hideMenus = Arrays.asList(menu.split(","));
@@ -63,6 +72,12 @@ public class UserMenuControl {
     public void setHideInfoFields(String field) {
         if (field != null) {
             m_hideInfoFields = Arrays.asList(field.split(","));
+        }
+    }
+
+    public void setHideOptions(String field) {
+        if (field != null) {
+            m_hideOptions = Arrays.asList(field.split(","));
         }
     }
 }

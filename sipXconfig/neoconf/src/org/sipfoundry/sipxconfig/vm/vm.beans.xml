@@ -17,7 +17,7 @@
     <property name="xpathTemplate" ref="xpathTemplate"/>
     <property name="restTemplate" ref="restTemplate"/>
     <property name="coreContext" ref="coreContext"/>
-    <property name="ivrSettings" ref="ivrSettings"/>
+    <property name="ivr" ref="ivr" />
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -110,6 +110,14 @@ public class IvrImpl implements FeatureProvider, AddressProvider, Ivr, ProcessPr
     public String getCleanupVoicemailHour() {
         return getSettings().getCleanupVoicemailHour();
     }
+
+    public boolean isDisableOperator0() {
+        return getSettings().isDisableOperator0();
+    }
+
+    public boolean isSavedInboxExcludeCleanup() {
+        return getSettings().isSavedInboxExcludeCleanup();
+    }
     
     public CallPilotSettings getCallPilotSettings() {
         return m_pilotSettingsDao.findOrCreateOne();

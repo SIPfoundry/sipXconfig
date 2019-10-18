@@ -50,7 +50,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
     private Address m_lastGoodIvrNode;
-    private IvrSettings m_ivrSettings;
+    private Ivr m_ivr;
 
     @Override
     public boolean isEnabled() {
@@ -99,8 +99,16 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
 
         final User user = getCoreContext().loadUserByUserName((String) urlVariables[0]);
         final String folder = (String) urlVariables[1];
-        final int expiresAt = folder.equals("deleted") ? m_ivrSettings.getVoicemailDeletedExpiry() : 
-                        user.getDaysToKeepVM() != null ? user.getDaysToKeepVM() : 0;
+        final IvrSettings ivrSettings = m_ivr.getSettings();
+
+        int expires = user.getDaysToKeepVM() != null ? user.getDaysToKeepVM() : 0;
+        if (folder.equals("deleted")) {
+            expires = ivrSettings.getVoicemailDeletedExpiry();
+        } else if (folder.equals("saved") && ivrSettings.isSavedInboxExcludeCleanup()) {
+            expires = 0;
+        }
+
+        final int expiresAt = expires;
 
         for (Address address : ivrRestAddresses) {
             try {
@@ -223,8 +231,9 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
         m_lastGoodIvrNode = lastGoodIvrNode;
     }
 
-    public void setIvrSettings(IvrSettings ivrSettings) {
-        m_ivrSettings = ivrSettings;
+    public void setIvr(Ivr ivr) {
+        m_ivr = ivr;
     }
+
 
 }

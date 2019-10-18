@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.vm;
 
 import java.text.MessageFormat;
 
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -20,10 +21,14 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.site.user_portal.UserMenuControl;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class MailboxPreferencesPage extends UserBasePage {
     public static final String PAGE = "vm/MailboxPreferencesPage";
+
+    @InjectObject(value = "spring:userMenu")
+    public abstract UserMenuControl getUserMenuControl();
 
     @Persist
     public abstract boolean isAdvanced();

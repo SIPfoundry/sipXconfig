@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
@@ -28,6 +30,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 
 public abstract class MailboxPreferencesForm extends BaseComponent implements PageBeginRenderListener {
+    private static final Log LOG = LogFactory.getLog(MailboxPreferencesForm.class);
+
     private static final String ATTACH_TYPE = "attachType.";
     private static final String VOICEMAIL_TUI_TYPE = "voicemailTuiType.";
     private static final String ACTIVE_GREETING_TYPE = "activeGreeting.";
@@ -95,8 +99,10 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
         if (getMailFormatModel() == null) {
             NewEnumPropertySelectionModel<MailFormat> rawModel = new NewEnumPropertySelectionModel<MailFormat>();
             rawModel.setEnumType(MailFormat.class);
+            filterMailFormatOptions(rawModel);
             setMailFormatModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), "mailFormat."));
         }
+
         if (getAlternateEmailNotifyModel() == null) {
             NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel<AttachType>();
             rawModel.setOptions(getPreferences().getAttachOptionsForAlternateEmail());
@@ -108,6 +114,21 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
             String promptDir = getMailboxManager().getStdpromptDirectory();
             rawModel.setOptions(getPreferences().getOptionsForVoicemailTui(promptDir));
             setVoicemailTuiModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), VOICEMAIL_TUI_TYPE));
+        }
+    }
+
+    public void filterMailFormatOptions(NewEnumPropertySelectionModel<MailFormat> rawModel) {
+        UserMenuControl menu = getUserMenuControl();
+        if (menu != null) {
+            if (menu.isHideOptions("MailFormat.FULL")) {
+                rawModel.removeOption(MailFormat.FULL);
+            }
+            if (menu.isHideOptions("MailFormat.MEDIUM")) {
+                rawModel.removeOption(MailFormat.MEDIUM);
+            }
+            if (menu.isHideOptions("MailFormat.BRIEF")) {
+                rawModel.removeOption(MailFormat.BRIEF);
+            }
         }
     }
 }

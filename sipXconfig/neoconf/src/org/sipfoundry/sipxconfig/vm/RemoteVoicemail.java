@@ -52,8 +52,10 @@ public class RemoteVoicemail implements Voicemail, Comparable {
         m_durationSecs = Integer.valueOf(node.getAttribute("duration"));
         m_timestamp = TimeZoneUtils.convertJodaTimezone(new LocalDateTime(new Long(node.getAttribute("received"))),
                 DateTimeZone.getDefault().getID(), tz.getID());
-        m_expiryTimestamp = TimeZoneUtils.convertJodaTimezone(new LocalDateTime(new Long(node.getAttribute("updated"))).plusDays(expiresAt),
+        if (expiresAt > 0) {
+            m_expiryTimestamp = TimeZoneUtils.convertJodaTimezone(new LocalDateTime(new Long(node.getAttribute("updated"))).plusDays(expiresAt),
                 DateTimeZone.getDefault().getID(), tz.getID());
+        }
         m_from = node.getAttribute("fromUri");
         m_fromBrief = node.getAttribute("author");
         m_subject = node.getAttribute("subject");
