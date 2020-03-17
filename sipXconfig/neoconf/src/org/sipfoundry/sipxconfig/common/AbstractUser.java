@@ -86,6 +86,9 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     public static final String DID_SETTING = "voicemail/fax/did";
     public static final String DOMAIN_SETTING = "user-domain/domain";
     public static final String CALLFWD_TIMER = "callfwd/timer";
+    public static final String CALLFWD_MIN_LENGTH = "callfwd/minLength";
+    public static final String CALLFWD_MAX_LENGTH = "callfwd/maxLength";
+    public static final String CALLFWD_ALLOWS_SIPURI = "callfwd/allowSIPURI";
     public static final String OPERATOR_SETTING = "personal-attendant/operator";
     public static final String DEFAULT_VM_OPTION = "personal-attendant/default-vm-option";
     public static final String ON_THE_PHONE_MESSAGE = "im/on-the-phone-message";

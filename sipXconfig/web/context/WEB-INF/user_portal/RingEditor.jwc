@@ -7,6 +7,7 @@
   <parameter name="index" required="yes"/>
   <parameter name="deleteListener" required="yes"/>
   <parameter name="availableSchedules" required="yes"/>
+  <parameter name="numberValidator" required="yes"/>
 
   <!-- B E A N S -->
   <bean name="delayModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
@@ -49,8 +50,7 @@
   </component>
   <component id="number" type="TextField">
     <binding name="value" value="ring.number"/>
-    <binding name="validators" value="spring-validators:validPhoneOrAor,required"/>
-    <binding name="maxlength" value="255"/>
+    <binding name="validators" value="numberValidator"/>
     <binding name="size" value="20"/>
     <binding name="displayName" value="message:label.forward"/>
   </component>

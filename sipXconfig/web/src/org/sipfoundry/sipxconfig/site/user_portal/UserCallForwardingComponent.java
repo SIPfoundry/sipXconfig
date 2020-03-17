@@ -19,7 +19,13 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.validator.MaxLength;
+import org.apache.tapestry.form.validator.MinLength;
+import org.apache.tapestry.form.validator.Pattern;
+import org.apache.tapestry.form.validator.Required;
+import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.forwarding.CallSequence;
@@ -35,6 +41,9 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
 
+    @InjectObject(value = "spring:validHostOrIp")
+    public abstract Validator getValidHostOrIPValidator();
+
     @Persist
     public abstract List<Ring> getRings();
 
@@ -49,6 +58,14 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
     public abstract Ring getRing();
 
     public abstract int getIndex();
+
+    public abstract Integer getForwardMinLength();
+
+    public abstract void setForwardMinLength(Integer length);
+
+    public abstract Integer getForwardMaxLength();
+
+    public abstract void setForwardMaxLength(Integer length);
 
     public abstract List getAvailableSchedules();
 
@@ -70,12 +87,13 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
             setRings(null);
         }
         setCurrentUserId(getUser().getId());
-
+        
         final CallSequence callSequence = getCallSequence();
 
         if (getUserExpiration() == null) {
             setUserExpiration(callSequence.getCfwdTime());
         }
+
         if (getRings() != null) {
             refreshAvailableSchedules();
             return;
@@ -141,6 +159,37 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
 
     public void deleteRing(int position) {
         getRings().remove(position);
+    }
+
+    public List<Validator> getForwardNumberValidator() {
+        List<Validator> validators = new ArrayList<Validator>();
+        validators.add(new Required());
+
+        Pattern pattern = new Pattern();
+        boolean allowSIPURI = (boolean) getUser().getSettingTypedValue(AbstractUser.CALLFWD_ALLOWS_SIPURI);
+        if (allowSIPURI) {
+            pattern.setPattern("([+]?[\\d*]+)|([a-zA-Z0-9-_.!~*\'\\(\\)&=+$,;?/]|%[0-9a-fA-F]{2})+@\\w[-._\\w]*\\w\\.\\w{2,6}");
+            pattern.setMessage("Please enter digits or sip address only, for example: 123 or john@example.com");
+        } else {
+            pattern.setPattern("[+]?[\\d*]+");
+            pattern.setMessage("Please enter valid phone number");
+        }
+        validators.add(pattern);
+
+        Integer length = (Integer) getUser().getSettingTypedValue(AbstractUser.CALLFWD_MAX_LENGTH);
+        if (length != null) {
+            MaxLength maxLen = new MaxLength();
+            maxLen.setMaxLength(length);
+            validators.add(maxLen);
+        }
+
+        length = (Integer) getUser().getSettingTypedValue(AbstractUser.CALLFWD_MIN_LENGTH);
+        if (length != null) {
+            MinLength minLen = new MinLength();
+            minLen.setMinLength(length);
+            validators.add(minLen);
+        }
+        return validators;
     }
 
     public String getFirstCallMsg() {

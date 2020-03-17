@@ -20,7 +20,7 @@
           </tr>
           <!-- iterate here -->
           <tr jwcid="@For" source="ognl:rings" value="ognl:ring" index="ognl:index" volatile="true">
-            <span jwcid="@user_portal/RingEditor" ring="ognl:ring" index="ognl:index" deleteListener="listener:deleteRing" availableSchedules="ognl:availableSchedules"/>
+            <span jwcid="@user_portal/RingEditor" ring="ognl:ring" index="ognl:index" deleteListener="listener:deleteRing" availableSchedules="ognl:availableSchedules" numberValidator="ognl:forwardNumberValidator"/>
           </tr>
           <tr jwcid="@If" condition="ognl:hasVoiceMail">
             <td colspan="4">

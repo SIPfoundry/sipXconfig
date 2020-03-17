@@ -518,6 +518,24 @@
         <integer min="1" max="999" required="yes" />
       </type>
     </setting>
+    <setting name="allowSIPURI">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="minLength">
+      <type>
+        <integer min="1" max="255" required="yes" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="maxLength">
+      <type>
+        <integer min="1" max="255" required="yes" />
+      </type>
+      <value>255</value>
+    </setting>
   </group>
   <group name="moh">
     <setting name="audio-source">
