@@ -98,8 +98,13 @@ Requires: kamailio-mysql >= 4.3
 Requires: kamailio-presence >= 4.3
 Requires: kamailio-sipx >= 4.3
 Requires: kamailio-tls >= 4.3
-Requires: mysql-server
 Requires: redis
+
+%if 0%{?rhel} >= 7
+Requires: mariadb-server
+%else
+Requires: mariadb
+%endif
 
 #
 # XX-10822 Required EPEL rpms are now found in build. Pointing to this repo has
@@ -342,11 +347,15 @@ if grep -q :on <<<`/sbin/chkconfig sipxconfig --list 2>&1`; then
 fi
 
 %triggerin -- freeswitch
-%if %{_vendor} == redhat
+%if 0%{?rhel} >= 7
+systemctl disable freeswitch
+systemctl stop freeswitch
+%else
+%if 0%{?fedora} <= 15 || 0%{?rhel} <= 6
 /sbin/chkconfig freeswitch off
 %endif
-# may not be running, so eat stderr
 /etc/init.d/freeswitch stop 1>/dev/null
+%endif
 
 %postun
 # uninstall lucene index and Jetty scratch dir on every install
