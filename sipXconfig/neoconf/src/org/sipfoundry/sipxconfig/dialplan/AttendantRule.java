@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.commserver.imdb.AliasMapping;
@@ -58,7 +59,7 @@ public class AttendantRule extends DialingRule implements Replicable {
     private String m_did;
     private boolean m_liveAttendant;
     private String m_liveAttendantExtension;
-    private int m_liveAttendantRingFor;
+    private int m_liveAttendantRingFor = 20;
     private boolean m_followUserCallForward;
     private boolean m_liveAttendantEnabled = true;
     private String m_liveAttendantCode;
@@ -180,6 +181,9 @@ public class AttendantRule extends DialingRule implements Replicable {
 
     public void setLiveAttendant(boolean liveAttendant) {
         m_liveAttendant = liveAttendant;
+        if (liveAttendant) {
+            m_liveAttendantEnabled = true;
+        }        
     }
 
     public String getLiveAttendantExtension() {
@@ -276,22 +280,22 @@ public class AttendantRule extends DialingRule implements Replicable {
 
     @Override
     public String getIdentity(String domainName) {
-        if (isLiveAttendant()) {
-            return SipUri.stripSipPrefix(SipUri.format(null, getExtension(), domainName));
-        }
-
-        return null;
+        return SipUri.stripSipPrefix(SipUri.format(null, getExtension(), domainName));
     }
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         String liveContact;
-        if (m_followUserCallForward) {
+        int ringFor = 0;
+        if (isLiveAttendant()) {
+            ringFor = m_liveAttendantRingFor;
+        }
+        if (m_followUserCallForward && m_liveAttendant) {
             liveContact = String.format(LIVE_ATTENDANT_CONTACT, getLiveAttendantExtension(), domainName,
-                m_liveAttendantRingFor);
+            ringFor);
         } else {
             liveContact = String.format(LIVE_ATTENDANT_CONTACT_FWD, getLiveAttendantExtension(), domainName,
-                m_liveAttendantRingFor);
+            ringFor);
         }
 
         if (getSchedule() != null) {
@@ -304,10 +308,13 @@ public class AttendantRule extends DialingRule implements Replicable {
         AliasMapping liveAttendantAlias = new AliasMapping(getExtension(), liveContact, ALIAS_RELATION);
         AliasMapping attendantAlias = new AliasMapping(getExtension(), String.format(ATTENDANT_CONTACT,
             getAttendantIdentity(), domainName), ALIAS_RELATION);
+
         if (m_liveAttendantEnabled) {
             mappings.add(liveAttendantAlias);
         }
-        mappings.add(attendantAlias);
+        if (m_liveAttendant) {
+            mappings.add(attendantAlias);
+        }
 
         String[] aliases = getAttendantAliasesAsArray(getAttendantAliases());
         if (!StringUtils.isEmpty(m_did)) {
@@ -350,6 +357,6 @@ public class AttendantRule extends DialingRule implements Replicable {
      */
     @Override
     public boolean isReplicationEnabled() {
-        return isEnabled() && isLiveAttendant();
+        return isEnabled();
     }
 }

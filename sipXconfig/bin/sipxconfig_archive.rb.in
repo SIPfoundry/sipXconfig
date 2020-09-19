@@ -8,7 +8,7 @@ class ArchiveBase
   def initialize
     @pguser = "postgres"
     @db = "SIPXCONFIG"
-    @tmpdir = "/tmp"
+    @tmpdir = "/var/sipxdata/tmp"
     @libexec = "@SIPX_LIBEXECDIR@"
     @initd = "@SIPX_SERVICEDIR@"
     @bindir = "@SIPX_BINDIR@"
@@ -44,16 +44,20 @@ class Backup < ArchiveBase
   end
 
   def run(params)
-    cmd "pg_dump -U #{@pguser} -F t #{@db} > db.tar" or
+    if params.has_key?(:tmp_dir)
+        @tmpdir=params[:tmp_dir]
+    end
+    cmd "echo Backup uses #{@tmpdir} as temporary dir."
+    cmd "pg_dump -U #{@pguser} -F t #{@db} --file=#{@tmpdir}/db.tar" or
       raise "Could not backup postgres database"
-    cmd "mongodump --db profiles --collection userProfile" or
+    cmd "mongodump --out #{@tmpdir}/dump --db profiles --collection userProfile" or
       raise "Could not backup user profiles database"
-    cmd "mongodump --db profiles --collection fs.files" or
+    cmd "mongodump --out #{@tmpdir}/dump --db profiles --collection fs.files" or
       raise "Could not backup avatar database"
-    cmd "mongodump --db profiles --collection fs.chunks" or
+    cmd "mongodump --out #{@tmpdir}/dump --db profiles --collection fs.chunks" or
       raise "Could not backup avatar database"
 	add_additional_databases()
-    cmd "echo @PACKAGE_VERSION@ > version" or
+    cmd "echo @PACKAGE_VERSION@ > #{@tmpdir}/version" or
       raise "Could not generate version file"
     if params.has_key?(:no_device_files)
       @attachments = [
@@ -91,6 +95,10 @@ class Restore < ArchiveBase
   end
 
   def run(params)
+    if params.has_key?(:tmp_dir)
+        @tmpdir=params[:tmp_dir]
+    end
+    cmd "echo Restore uses #{@tmpdir} as temporary dir."  
     pre_mongo = false
     backup_domain = nil
     backup_sip_domain = nil
@@ -182,7 +190,8 @@ class Restore < ArchiveBase
     sql_exec(@restoredb, "select change_primary_ip_on_restore('#{params[:ipaddress]}');") or
       raise "Failed to update ip address."
 
-    cmd "#{@initd}/sipxconfig stop" if params[:restart]
+    sql_exec("postgres", "select pg_terminate_backend(pid) from pg_stat_activity where datname='sipxconfig';") if params[:restart]
+
     cmd "dropdb -U #{@pguser} #{@db}"
     # alter database command need double quotes if db name is capitalized. Also, first set of double
     # quotes is lost passing thru ruby
@@ -221,6 +230,7 @@ class Restore < ArchiveBase
       puts "Reconfig replica set: mongo --eval \"var oldHost=\\\"#{current_fqdn}\\\", newHost=\\\"#{new_fqdn}\\\"\" #{@bindir}/master-reconfig.js"
       cmd "mongo --eval \"var oldHost=\\\"#{current_fqdn}\\\", newHost=\\\"#{new_fqdn}\\\"\" #{@bindir}/master-reconfig.js" if params[:restart]
     end
+    cmd "systemctl restart sipxconfig" if params[:restart]
   end
 end
 
@@ -251,6 +261,11 @@ class Fetcher
 		"Do not include device uploaded files in backup."){
       @params[:no_device_files] = true
 	}
+
+  opts.on_tail("--tmp-dir <tmp-dir>",
+      "Temporary backup file location"){ |v|
+    @params[:tmp_dir] = v
+  }
 
 	opts.on("--restore <archive>",
 		"Restore the specified Configuration archive."){ |v|

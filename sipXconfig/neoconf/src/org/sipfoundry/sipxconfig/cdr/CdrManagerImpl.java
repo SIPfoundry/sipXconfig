@@ -99,9 +99,6 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     static final String CALLED_NUMBER = "called_number";
     static final String GATEWAY = "gateway";
 
-    private int m_csvLimit;
-    private int m_jsonLimit;
-
     /**
      * CDRs database at the moment is using 'timestamp' type to store UTC time. Postgres
      * 'timestamp' does not store any time zone information and JDBC driver for postgres would
@@ -166,7 +163,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     public void dumpCdrs(Writer writer, Date from, Date to, TimeZone displayTimeZone, CdrSearch search, User user) throws IOException {
         ColumnInfoFactory columnInforFactory = new DefaultColumnInfoFactory(m_tz, displayTimeZone);
         CdrsWriter resultReader = new CdrsCsvWriter(writer, columnInforFactory);
-        dump(resultReader, from, to, displayTimeZone, search, user, m_csvLimit);
+        dump(resultReader, from, to, displayTimeZone, search, user, getSettings().getCsvLimit());
     }
 
     @Override
@@ -177,7 +174,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         // if we cannot see all the result - get only the latest
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setOrder(START_TIME, false);
-        dump(resultReader, null, null, null, cdrSearch, null, m_jsonLimit);
+        dump(resultReader, null, null, null, cdrSearch, null, getSettings().getJsonLimit());
     }
 
     /**
@@ -196,10 +193,29 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             from = TimeZoneUtils.getSameDateWithNewTimezone(from, timezone);
             to = TimeZoneUtils.getSameDateWithNewTimezone(to, timezone);
         }
-        PreparedStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone()) : m_tz, limit, 0);
+
+        int count = (limit == 0 ? getCdrCount(from, to, search, user) : limit);
+        count = (count > MAX_COUNT) ? MAX_COUNT : count;
+
         try {
             resultReader.writeHeader();
-            getJdbcTemplate().query(psc, resultReader);
+
+            int offset = 0;
+            int pages = count / DUMP_PAGE;
+            int remaining = count - pages * DUMP_PAGE;
+
+            for (int i = 0; i < pages; i++) {
+                PreparedStatementCreator psc = new SelectAll(from, to, search, user, (user != null)
+                    ? (user.getTimezone()) : m_tz, DUMP_PAGE, offset);
+                getJdbcTemplate().query(psc, resultReader);
+                offset += DUMP_PAGE;
+            }
+            if (remaining > 0) {
+                PreparedStatementCreator psc = new SelectAll(from, to, search, user, (user != null)
+                    ? (user.getTimezone()) : m_tz, remaining, offset);
+                getJdbcTemplate().query(psc, resultReader);
+            }
+
             resultReader.writeFooter();
         } catch (DataAccessException e) {
             // unwrap IOException that might happen during reading DB
@@ -297,14 +313,6 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         } catch (MalformedURLException e) {
             throw new UserException(e);
         }
-    }
-
-    public void setCsvLimit(int csvLimit) {
-        m_csvLimit = csvLimit;
-    }
-
-    public void setJsonLimit(int jsonLimit) {
-        m_jsonLimit = jsonLimit;
     }
 
     abstract static class CdrsStatementCreator implements PreparedStatementCreator {
@@ -411,17 +419,24 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private final List<Cdr> m_cdrs = new ArrayList<Cdr>();
 
         private final Calendar m_calendar;
+        private final Calendar m_calendarGMT = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         private TimeZone m_systemTimeZone;
 
         private boolean m_privacy;
         private int m_privacyLimit;
-        private String m_privacyExcluded;        
+        private String m_privacyExcluded;
+        private String m_mask = StringUtils.EMPTY;
+        private DateTimeZone m_dateTimeZone;
 
         public CdrsResultReader(TimeZone tz, boolean privacy, int limit, String excluded) {
             m_calendar = Calendar.getInstance(tz);
             m_privacy = privacy;
             m_privacyLimit = limit;
             m_privacyExcluded = excluded;
+            m_dateTimeZone = DateTimeZone.forTimeZone(m_calendar.getTimeZone());
+            for (int i = 0; i < m_privacyLimit; i++) {
+                m_mask += "*";
+            }
         }
 
         public CdrsResultReader(TimeZone tz) {
@@ -435,6 +450,11 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         @Override
         public void processRow(ResultSet rs) throws SQLException {
             Cdr cdr = new Cdr();
+            cdr.setPrivacy(m_privacy);
+            cdr.setPrivacyExcluded(m_privacyExcluded);
+            cdr.setLimit(m_privacyLimit);
+            cdr.setMask(m_mask);
+            
             cdr.setCalleeAor(rs.getString(CALLEE_AOR));
             cdr.setCallerAor(rs.getString(CALLER_AOR));
             cdr.setCallId(rs.getString(CALL_ID));
@@ -443,10 +463,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             cdr.setCalleeRoute(rs.getString(CALLEE_ROUTE));
             cdr.setCalleeContact(rs.getString(CALLEE_CONTACT));
             cdr.setCallerContact(rs.getString(CALLER_CONTACT));
-            Date startTime = rs.getTimestamp(START_TIME, Calendar.getInstance(TimeZone.getTimeZone("GMT")));
+            Date startTime = rs.getTimestamp(START_TIME, m_calendarGMT);
 
-            cdr.setStartTime((new DateTime(startTime).withZone(DateTimeZone.forTimeZone(m_calendar.getTimeZone()))
-                    .toLocalDateTime().toDate()));
+            cdr.setStartTime((new DateTime(startTime).withZone(m_dateTimeZone).toLocalDateTime().toDate()));
             Date connectTime = rs.getTimestamp(CONNECT_TIME, m_calendar);
             cdr.setConnectTime(connectTime);
             cdr.setEndTime(rs.getTimestamp(END_TIME, m_calendar));
@@ -685,8 +704,15 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             return null;
         }
 
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, "sipxcdr-archive --backup %s",
-                "sipxcdr-archive --restore %s");
+        String tmpDir = "";
+        if (manualSettings != null) {
+            String tmpDirectory = manualSettings.getTmpDir();
+            if (StringUtils.isNotBlank(tmpDirectory)) {
+                tmpDir = " --tmp-dir " + tmpDirectory;
+            }
+        }
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, "sipxcdr-archive --backup %s" + tmpDir,
+                "sipxcdr-archive --restore %s" + tmpDir);
         return Collections.singleton(def);
     }
 

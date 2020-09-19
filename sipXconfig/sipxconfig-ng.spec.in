@@ -60,11 +60,12 @@ BuildRequires: sipxcdr-ng-client >= %version
 Source: %name-%version.tar.gz
 
 Requires: postgresql-server
-Requires: mongodb-server >= 2.2.0
+Requires: mongodb-org-server
+Requires: mongodb-org-shell
+Requires: mongodb-org-tools
 Requires: httpd
 # not installed by default on centos 6
 Requires: mod_ssl
-Requires: mongodb >= 2.2
 %if 0%{?fedora} <= 17 && 0%{?fedora} > 0
 Requires: pymongo
 %else
@@ -146,6 +147,8 @@ Obsoletes: sipxpark
 
 # XX-11486 - obsolete sipxevent (event notifier) service should be removed
 Obsoletes: sipxevent
+Obsoletes: mongodb
+Obsoletes: mongodb-server
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
@@ -226,6 +229,17 @@ mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 cp config.log %name.configlog
 make
 
+%pre
+if [ `rpm -qa | grep mongodb-server | wc -l` -gt 0 ] && [ `mongo --quiet --eval "db.isMaster().ismaster"` == true ]; then
+  if [ ! -f /var/sipxdata/tmp/config.json ]; then
+    echo "    ###############################################################"
+    echo "    ## DO A FULL BACKUP BEFORE STARTING THE UPGRADE             ###"
+    echo "    ## THIS UPDATE IMPLIES SIGNIFICANT CORE CHANGES             ###"
+    echo "    ## OTHERWISE YOU MAY LOSE ALL YOUR DATA                     ###"
+    exit 1
+  fi
+fi
+
 %install
 export NO_BRP_CHECK_BYTECODE_VERSION=true
 # makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
@@ -244,6 +258,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc  README  NOTICE  ChangeLog %name.configlog
 %attr(755,root,root) %{_sysconfdir}/init.d/*
+%attr(644,root,root) %{_sysconfdir}/systemd/system/*
+%attr(644,root,root) %{_sysconfdir}/tmpfiles.d/*
+%attr(644,root,root) /usr/lib/systemd/system/*
 %{_datadir}/sipxecs/cfinputs/plugin.d/*.cf
 %{_datadir}/sipxecs/cfinputs/plugin.d/lib/*.cf
 %attr(755,sipx,sipx) %{_bindir}/*
@@ -268,6 +285,10 @@ rm -rf $RPM_BUILD_ROOT
 #    %config(noreplace) %/somedir/somefile
 # otherwise /somedir will have root permissions
 # see http://lists.rpm.org/pipermail/rpm-list/2011-July/000946.html
+
+%dir %attr(755,freeswitch,daemon) %{_sysconfdir}/freeswitch/sipxpbx
+%defattr(644,freeswitch,daemon,755)
+%config(noreplace) %{_sysconfdir}/freeswitch/sipxpbx/*
 
 %defattr(644,root,root,755)
 %config(noreplace) %{sipxpbxconf}/VM_global_library.vm

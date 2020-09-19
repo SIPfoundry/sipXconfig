@@ -53,6 +53,30 @@ def set_nonroot_keys
   exit 1 unless run_command "su - #{$user} sh -c '/usr/sbin/cf-key'"
 end
 
+def disable_selinux
+  puts "Checking SELinux..."
+  enforced = run_command("cat /etc/selinux/config | grep SELINUX=enforcing")
+  if enforced
+    puts "Detected SELinux enforcing, setting SELinux to disabled"
+    run_command("sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config")
+    puts "Rebooting machine to apply SELinux changes"
+    run_command("reboot -h now")
+  else
+    puts "SELinux not set to enforcing"
+  end
+end
+
+def disable_firewalld
+  #harmless if re-run
+  puts "Disabling firewalld..."
+  exit 1 unless run_command "systemctl stop firewalld && systemctl disable firewalld"
+end
+
+def create_pid_folders
+  #harmless if re-run
+  exit 1 unless run_command "systemd-tmpfiles --create"
+end
+
 def set_secondary_role
   return true if File.exists?($secondary_dat)
   puts "Configuring as an additional server..."
@@ -221,7 +245,7 @@ def reset_all
 
   # may not work, but try to shut down whatever is running
   cmd_no_die("#{$bindir}/sipxagent -d stop_sipxecs")
-  cmd_no_die("#{$serviceder}/sipxsupervisor stop")
+  cmd_no_die("/usr/bin/systemctl stop sipxsupervisor.service")
 
   # cannot rely stop_sipxecs worked all the way
   cmd_no_die("killall -9 java")
@@ -247,14 +271,14 @@ def reset_all
   # test if postgres is supposed to be running on the machine
   has_postgres_data = File.directory? "/var/lib/pgsql/data/base"
   if has_postgres_data
-    cmd_no_die("/etc/init.d/postgresql restart")
+    cmd_no_die("/usr/bin/systemctl restart postgresql.service")
   end
 
   # references to project specific data, but we cannot rely that system is
   # in a state that cfengine can run reliably so we must delete straight away
   if has_postgres_data
-    drop_db_if_exists('SIPXCONFIG')
-    drop_db_if_exists('SIPXCDR')
+    drop_db_if_exists('sipxconfig')
+    drop_db_if_exists('sipxcdr')
     drop_db_if_exists('openfire')
   end
   cmd_no_die("#{$bindir}/mongodb-admin --obliterate")
@@ -271,6 +295,14 @@ def cmd_no_die(cmd)
 end
 
 def network_settings
+  # if it is centos 7 use nmtui else use system-config-network-tui
+  os = `uname -r`
+  if os.include? ".el7."
+    tui = "/usr/bin/nmtui"
+  else
+    tui = "/usr/sbin/system-config-network-tui"
+  end
+
   change = false
   while true
     net = get_network(true)
@@ -279,8 +311,8 @@ def network_settings
     reprompt = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
     if reprompt
       change = true
-      system("/usr/sbin/system-config-network-tui")
-      system("/etc/init.d/network reload")
+      system(tui)
+      system("/usr/bin/systemctl reload network.service")
     else
       break
     end
@@ -603,7 +635,10 @@ args.parse!
 raise 'Must run as root' unless Process.uid == 0
 if __FILE__ == $0
 set_root_keys()
+disable_selinux
+create_pid_folders
 network_settings
+disable_firewalld
 custom_hook
 role_settings = nil
 
@@ -617,7 +652,7 @@ while true
 end
 
 def ntpd_running?
- system("/sbin/service ntpd status")
+  system("/bin/systemctl status ntpd.service")
 end
 
 # First pass generated cfdata info

@@ -1,0 +1,48 @@
+#
+# Copyright (C) 2015 sipXcom, certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+
+bundle agent kernel {
+
+  classes:
+    "ipv6_anaconda_disabled" expression => fileexists("/etc/modprobe.d/ipv6.conf");
+
+  files:
+    !ipv6_anaconda_disabled::
+      # disable ipv6
+      "/etc/sysctl.conf"
+        comment => "Check ipv6 support",
+        perms => mog("0644","root","root"),
+        edit_line => disable_ipv6(),
+        classes => if_repaired("apply_kernel_updates");
+
+    mongod::
+      "/etc/sysctl.conf"
+        comment => "Set TCP keepalive value for mongo process",
+        perms => mog("0644","root","root"),
+        edit_line => mongo_keepalive(),
+        classes => if_repaired("apply_kernel_updates");
+
+  commands:
+    apply_kernel_updates::
+      "/sbin/sysctl"
+        comment => "Apply kernel parameters - disable ipv6 support",
+        args => "-p";
+}
+
+bundle edit_line disable_ipv6 {
+  insert_lines:
+    "# sipxecs generated - disable ipv6 support";
+    "net.ipv6.conf.all.disable_ipv6 = 1";
+    "net.ipv6.conf.default.disable_ipv6 = 1";
+    "net.ipv6.conf.lo.disable_ipv6 = 1";
+    "net.ipv6.conf.eth0.disable_ipv6 = 1";
+}
+
+bundle edit_line mongo_keepalive {
+  insert_lines:
+    "# sipxecs generated - mongo keepalive";
+    "net.ipv4.tcp_keepalive_time=300";
+}

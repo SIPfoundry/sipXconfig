@@ -75,15 +75,21 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxcdr
 %attr(755,root,root) %{_bindir}/sipxcdr-archive
 %{_datadir}/sipxecs/cfinputs/plugin.d/sipxcdr.cf
+%attr(644,root,root) %{_sysconfdir}/tmpfiles.d/sipxcdr.conf
+%attr(644,root,root) /usr/lib/systemd/system/*
 %{_sysconfdir}/sipxpbx/cdr/*.sql
 %{_var}/lib/sipxpbx/sipxcallresolver-*.gem
 
 %post
-%define gem_dir %(ruby -rrbconfig -e 'puts File::join(Config::CONFIG["libdir"],"/ruby/gems")')
-%define rb_ver %(ruby -rrbconfig -e 'puts Config::CONFIG["ruby_version"]')
+%define gem_dir %(ruby -rrbconfig -e 'puts File::join(RbConfig::CONFIG["libdir"],"/ruby/gems")')
+%define rb_ver %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["MAJOR"]')
 %define gem_home %{gem_dir}/%{rb_ver}
 
 gem install --no-rdoc --local --install-dir %{gem_home} %{_var}/lib/sipxpbx/sipxcallresolver-*.gem >/dev/null 2>&1
+gem install dbi
+gem install soap4r-ng
+gem install dbd-pg
+
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi

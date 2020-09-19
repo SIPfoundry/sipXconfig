@@ -58,6 +58,8 @@ bundle edit_line sipx_limits_contents {
   insert_lines:
 "sipx soft nofile 4096 
 sipx hard nofile 10240
+sipx soft nproc 8192
+sipx hard nproc 10240
 ";
 }
 
@@ -101,9 +103,9 @@ bundle edit_line sipxsupervisor_allowed_users {
 bundle agent sipxsupervisor_setup {
   methods:
     !src.sipxsupervisor::
-      "any" usebundle => rh_chkconfig_status("sipxsupervisor on");
+      "any" usebundle => rh_systemctl_status("enable sipxsupervisor");
     !src.!sipxsupervisor::
-      "any" usebundle => rh_chkconfig_status("sipxsupervisor off");
+      "any" usebundle => rh_systemctl_status("disable sipxsupervisor");
 }
 
 bundle agent sipxsupervisor_running {

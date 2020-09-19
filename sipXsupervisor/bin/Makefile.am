@@ -4,7 +4,8 @@ EXTRA_DIST = \
 	$(initd_SCRIPTS:=.in) \
 	$(bin_SCRIPTS:=.in) \
 	$(cfmod_SCRIPTS:=.in) \
-	$(libexec_SCRIPTS:=.in)
+	$(libexec_SCRIPTS:=.in) \
+	$(systemd_SCRIPTS:=.in)
 
 libexecdir = @SIPX_LIBEXECDIR@
 libexec_SCRIPTS = \
@@ -33,7 +34,11 @@ initd_SCRIPTS = \
 	sipxlogwatcher \
 	sipxecs
 
-$(libexec_SCRIPTS) $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) : % : %.in Makefile
+systemddir = /usr/lib/systemd/system
+systemd_SCRIPTS = \
+	sipxsupervisor.service
+
+$(libexec_SCRIPTS) $(cfmod_SCRIPTS) $(initd_SCRIPTS) $(bin_SCRIPTS) $(systemd_SCRIPTS) : % : %.in Makefile
 	@$(call SearchAndReplace,$<,$@)
 
-CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS) $(libexec_SCRIPTS) $(cfmod_SCRIPTS)
+CLEANFILES = $(bin_SCRIPTS) $(initd_SCRIPTS) $(libexec_SCRIPTS) $(cfmod_SCRIPTS) $(systemd_SCRIPTS)

@@ -488,6 +488,7 @@
   	<antcall target="migrate_openuc_ccid" />
   	<antcall target="remove_openuc_saa" />
     <antcall target="add-user-mwi-field" />
+    <antcall target="mongo_cannot_see_majority"/>
   </target>
 
   <target name="plugin-patches">
@@ -1500,6 +1501,13 @@
   <target name="add-user-mwi-field" unless="add-user-mwi-field">
     <db-patch patch="add-user-mwi-field"/>
   </target>
+  <target name="add_tmpdir_to_backup" unless="add_tmpdir_to_backup">
+    <db-patch patch="add_tmpdir_to_backup"/>
+  </target>
+  <target name="mongo_cannot_see_majority" unless="mongo_cannot_see_majority">
+  	<db-patch patch="mongo_cannot_see_majority"/>
+  </target>
+  
   
   <!--
     - SUPPORT UTILITIES

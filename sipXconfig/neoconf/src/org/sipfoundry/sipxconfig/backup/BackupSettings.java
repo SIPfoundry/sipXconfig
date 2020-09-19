@@ -18,8 +18,8 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +32,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.beans.factory.annotation.Required;
 
 public class BackupSettings extends PersistableSettings implements DeployConfigOnEdit {
+
+    private static final String TMP_DIR = "general/tmpDir";
+    private static final String MEM = "general/mem";
+
     private static final Log LOG = LogFactory.getLog(BackupSettings.class);
     private String m_localBackupPath;
     private BackupDbSettings m_backupDbSettings;
@@ -81,7 +85,7 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     @Required
     public void setBackupDbSettings(BackupDbSettings backupDbSettings) {
         m_backupDbSettings = backupDbSettings;
-    }
+    }    
 
     @Override
     protected Setting loadSettings() {
@@ -90,6 +94,15 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
 
     public Setting getIncludeDeviceFiles() {
         return m_backupDbSettings.getSettings().getSetting("db/includeDeviceFiles");
+    }
+
+    @JsonIgnore
+    public String getTmpDir() {
+        return (String) getSettingTypedValue(TMP_DIR);
+    }
+
+    public String getMem() {
+        return (String) getSettingTypedValue(MEM);
     }
 
     public Setting getDbSettings() {
@@ -103,7 +116,7 @@ public class BackupSettings extends PersistableSettings implements DeployConfigO
     @Override
     @JsonIgnore
     public Collection<Feature> getAffectedFeaturesOnChange() {
-        return Collections.singleton((Feature) BackupManager.FEATURE);
+        return Arrays.asList((Feature) BackupManager.FEATURE);
     }
 
     @JsonIgnore

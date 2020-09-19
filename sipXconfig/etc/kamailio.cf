@@ -334,9 +334,9 @@ bundle agent kamailioproxy_running
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailioproxy_running");
     kamailioproxy::
-      "any" usebundle => rh_chkconfig_status("kamailio-proxy on");
+      "any" usebundle => rh_systemctl_status("enable kamailio-proxy");
     !kamailioproxy::
-      "any" usebundle => rh_chkconfig_status("kamailio-proxy off");
+      "any" usebundle => rh_systemctl_status("disable kamailio-proxy");
     kamailioproxy.(kamailioproxy_properties_changed|kamailio_global_changed).!restart_kamailioproxy::
       "kamailioproxy_properties_changed" usebundle => refresh_sip_service("SIPX_INGRESS_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
                            "$(sipx.SIPX_CONFDIR)/kamailio-proxy-config",
@@ -379,9 +379,9 @@ bundle agent kamailiopresence_running
     any::
       "any" usebundle => find_sipxservice_by_command("$(service_command)", "kamailiopresence_running");
     kamailiopresence::
-      "any" usebundle => rh_chkconfig_status("kamailio-presence on");
+      "any" usebundle => rh_systemctl_status("enable kamailio-presence");
     !kamailiopresence::
-      "any" usebundle => rh_chkconfig_status("kamailio-presence off");
+      "any" usebundle => rh_systemctl_status("disable kamailio-presence");
     kamailiopresence.(kamailiopresence_properties_changed|kamailio_global_changed).!restart_kamailiopresence::
       "kamailiopresence_properties_changed" usebundle => refresh_sip_service("SIPX_PRESENCE_LOG_LEVEL : (DEBUG|INFO|NOTICE|WARNING|ERR|ERROR|CRIT|ALERT|EMERG)",
                            "$(sipx.SIPX_CONFDIR)/kamailio-presence-config",

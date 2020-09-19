@@ -1,0 +1,15 @@
+[Unit]
+Description=kamailio-presence
+Documentation=http://sipfoundry.org
+After=network.target syslog.target
+
+[Service]
+# see man systemd.service
+Type=oneshot
+ExecStart=@SIPX_SERVICEDIR@/kamailio-presence start
+RemainAfterExit=true
+ExecStop=@SIPX_SERVICEDIR@/kamailio-presence stop
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

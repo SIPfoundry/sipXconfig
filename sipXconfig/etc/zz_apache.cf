@@ -102,9 +102,9 @@ bundle agent apache_sysv_running {
     any::
       "any" usebundle => find_service_by_command("$(service_command)", "apache_running","$(sipx.APACHE2_USER)");
     apache::
-      "any" usebundle => rh_chkconfig_status("httpd on");
+      "any" usebundle => rh_systemctl_status("enable httpd");
     !apache::
-      "any" usebundle => rh_chkconfig_status("httpd off");
+      "any" usebundle => rh_systemctl_status("disable httpd");
 
   commands:
     !apache.apache_running::
@@ -154,7 +154,7 @@ bundle agent apache_sysctl_running {
     apache.apache_running.restart_apache::
       "$(sipx.systemctl)"
         comment => "restart apache",
-        args => "restart";
+        args => "restart $(service)";
 }
 
 bundle agent verify_httpd_user(user,password) {

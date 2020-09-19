@@ -54,6 +54,7 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String POSTGRES_PASSWORD_CONFIRM = "configserver-config/postgres-pwd-confirm";
     private static final String MYSQL_PASSWORD = "configserver-config/mysql-pwd";
     private static final String MYSQL_PASSWORD_CONFIRM = "configserver-config/mysql-pwd-confirm";
+    private static final String SELINUX = "configserver-config/selinux";
 
     private PasswordPolicy m_passwordPolicy;
     private String[] m_logLevelKeys;
@@ -179,6 +180,14 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
 
     public boolean isHazelcastNotification() {
         return (Boolean) getSettingTypedValue(HAZELCAST_NOTIFICATION);
+    }
+
+    public String getSelinux() {
+        return getSettingValue(SELINUX);
+    }
+
+    public boolean isSelinux() {
+        return !StringUtils.equals(getSettingValue(SELINUX), "disabled");
     }
 
     protected static String validateDomainList(String corsDomains) {

@@ -54,6 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,sipx,sipx) %{_sysconfdir}/sipxpbx/sipxprovision
 %config(noreplace) %{_sysconfdir}/sipxpbx/sipxprovision/*
 %attr(755,sipx,sipx) %{_datadir}/java/sipXecs/sipXprovision
+%attr(644,root,root) %{_sysconfdir}/tmpfiles.d/sipxprovision.conf
+%attr(644,root,root) /usr/lib/systemd/system/*
 %{_datadir}/java/sipXecs/sipXprovision/sipXprovision.jar
 %{_datadir}/java/sipXecs/sipXconfig/plugins/provision-cfg-service.jar
 

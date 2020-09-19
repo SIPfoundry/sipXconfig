@@ -101,6 +101,7 @@ public class Cdr implements Serializable {
         m_privacy = privacy;
         m_limit = limit;
         m_privacyExcluded = privacyExcluded;
+
         for (int i = 0; i < m_limit; i++) {
             m_mask += "*";
         }
@@ -122,10 +123,7 @@ public class Cdr implements Serializable {
     }
 
     public String getRecipient() {
-        if(m_calledNumber!=null)
-            return m_calledNumber;
-        else
-            return m_recipient;
+        return m_recipient;
     }
 
     public void setCalleeAor(String calleeAor) {
@@ -242,6 +240,26 @@ public class Cdr implements Serializable {
 
     public void setCallerInternal(boolean callerinternal) {
         m_callerInternal = callerinternal;
+    }
+
+    public void setMask(String mask) {
+        m_mask = mask;
+    }
+
+    public void setPrivacy(boolean privacy) {
+        m_privacy = privacy;
+    }
+
+    public void setLimit(int limit) {
+        m_limit = limit;
+    }
+
+    public int getLimit() {
+        return m_limit;
+    }
+
+    public void setPrivacyExcluded(String privacyExcluded) {
+        m_privacyExcluded = privacyExcluded;
     }
 
     public String getCalleeRoute() {

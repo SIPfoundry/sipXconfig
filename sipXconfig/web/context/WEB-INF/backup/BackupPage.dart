@@ -29,6 +29,7 @@ class BackupPage {
   DataLoader loader;
   String type = 'local';
   SettingEditor dbSettings;
+  SettingEditor generalSettings;
   SettingEditor ftpSettings;
   var timeOfDayFormat = new DateFormat("jm");
   Timer refresh;
@@ -38,6 +39,7 @@ class BackupPage {
     querySelector("#apply").onClick.listen(apply);
     loader = new DataLoader(this.msg, loadForm);
     dbSettings = new SettingEditor(querySelector("#db-settings"));
+    generalSettings = new SettingEditor(querySelector("#general-settings"));
     ftpSettings = new SettingEditor(querySelector("#ftp-settings"));
     inProgress(false);
     refresh = new Timer.periodic(new Duration(seconds: 30), (e) {
@@ -57,6 +59,8 @@ class BackupPage {
   
   loadForm(json) {
     var data = JSON.decode(json);
+    Map <String, Object> generalBackupSettings = getSetting(data['settings'], "general");
+    generalSettings.render(generalBackupSettings);    
     Map <String, Object> backupSettings = getSetting(data['dbSettings'], "db");
     dbSettings.render(backupSettings);
     Map <String, Object> ftpSettings = getSetting(data['settings'], "ftp");
@@ -97,11 +101,13 @@ class BackupPage {
     archives.children.clear();
     Map<String, String> defs = data['definitions'];
     if (defs != null) {
+      var i=0;
       defs.forEach((defId, label) {
+        i++;
         var checked = archiveIds.contains(defId) ? "checked" : "";
         archives.appendHtml('''
 <li>
-  <input type="checkbox" name="definitionIds" value="${defId}" ${checked}/>
+  <input id="backupFiles${i}" type="checkbox" name="definitionIds" value="${defId}" ${checked}/>
   ${label}
 </li>
 ''');              
@@ -196,6 +202,7 @@ class BackupPage {
     msg.error("");
     var meta = new Map<String, Object>();
     meta['dbSettings'] = dbSettings.parseForm();
+    meta['generalSettings'] = generalSettings.parseForm();
     meta['ftpSettings'] = ftpSettings.parseForm();
     meta['backup'] = parseForm();    
     HttpRequest req = new HttpRequest();

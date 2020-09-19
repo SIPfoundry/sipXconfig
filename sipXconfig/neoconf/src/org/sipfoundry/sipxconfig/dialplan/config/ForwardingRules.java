@@ -16,8 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
@@ -39,6 +42,10 @@ import org.springframework.context.ApplicationContextAware;
  * content.
  */
 public class ForwardingRules extends RulesFile implements ApplicationContextAware {
+
+    public static final String REG_ADDRESS = "regAddress";
+    private static final Log LOG = LogFactory.getLog(ForwardingRules.class);
+
     private SbcManager m_sbcManager;
     private List<String> m_routes;
     private SbcDeviceManager m_sbcDeviceManager;
@@ -72,6 +79,9 @@ public class ForwardingRules extends RulesFile implements ApplicationContextAwar
 
     @Override
     public void write(Writer writer) throws IOException {
+        ProxyManager proxyManager = (ProxyManager) m_context.getBean("proxyManager");
+        boolean disableDnsLookup = proxyManager.getSettings().isDNSLookupDisable();
+
         VelocityContext context = new VelocityContext();
         context.put("routes", m_routes);
 
@@ -87,10 +97,28 @@ public class ForwardingRules extends RulesFile implements ApplicationContextAwar
 
         // set required sipx services in context
         context.put("domainName", getDomainName());
-        context.put("proxyAddress", m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS, getLocation()));
-        context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation()));
+        Address proxyAddress = m_addressManager.getSingleAddress(ProxyManager.TCP_ADDRESS, getLocation());
+        context.put("proxyAddress", proxyAddress);
+        if (disableDnsLookup) {
+            context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_UDP, getLocation()));
+        } else {
+            context.put("statusAddress", m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation()));
+        }
+
         context.put("regEventAddress", m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, getLocation()));
-        context.put("regAddress", m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, getLocation()));
+
+        if (disableDnsLookup) {
+            Address regAddress = m_addressManager.getSingleAddress(Registrar.UDP_ADDRESS);
+            context.put(REG_ADDRESS, new Address(Registrar.TCP_ADDRESS, proxyAddress.getAddress(), regAddress.getCanonicalPort()));
+        } else {
+            // Use Local registrar, if not available use global rr SRV record
+            if (m_featureManager.isFeatureEnabled(Registrar.FEATURE, getLocation())) {
+                context.put(REG_ADDRESS, m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, getLocation()));
+            } else {
+                context.put(REG_ADDRESS, new Address(Registrar.TCP_ADDRESS, "rr." + getDomainName(), 0));
+            }
+        }
+        
         context.put("location", getLocation());
 
         List<BridgeSbc> bridgeSbcs = new ArrayList<BridgeSbc>();

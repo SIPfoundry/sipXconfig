@@ -123,9 +123,13 @@ bundle agent security_config {
 bundle edit_line conf_contents {
   insert_lines:
     "[Definition]
-loglevel = 2
+loglevel = INFO
 logtarget = $(sipx.SIPX_LOGDIR)/sipxsecurity.log
-socket = /var/run/fail2ban/fail2ban.sock";
+socket = /var/run/fail2ban/fail2ban.sock
+pidfile = /var/run/fail2ban/fail2ban.pid
+syslogsocket = auto
+dbfile = /var/lib/fail2ban/fail2ban.sqlite3
+dbpurgeage = 86400";
 }
 
 bundle edit_line action_contents {
@@ -220,6 +224,13 @@ bundle agent security_systemctl_running {
         args => "disable $(service)";
 
     !security_running.security::
+      "/usr/bin/sh"
+        comment => "touch log for fail2ban",
+        args => "-c \"[ ! -f $(sipx.SIPX_LOGDIR)/firewall/firewall-sipdos.log ] && { \
+          /usr/bin/mkdir -m 700 $(sipx.SIPX_LOGDIR)/firewall/; \
+          /usr/bin/touch $(sipx.SIPX_LOGDIR)/firewall/firewall-sipdos.log; \
+          /usr/bin/chmod 600 $(sipx.SIPX_LOGDIR)/firewall/firewall-sipdos.log; }\"";
+
       "$(sipx.systemctl)"
         comment => "start fail2ban",
         args => "start $(service)";
@@ -227,6 +238,11 @@ bundle agent security_systemctl_running {
       "$(sipx.systemctl)"
         comment => "enable fail2ban",
         args => "enable $(service)";
+
+    security.security_running.(restart_security|restart_iptables|apply_iptables)::
+      "$(sipx.systemctl)"
+        comment => "restart fail2ban",
+        args => "restart $(service)";
 }
 
 
@@ -239,9 +255,9 @@ bundle agent security_sysv_running {
 
   methods:
     !src.!security::
-      "any" usebundle => rh_chkconfig_status("fail2ban off");
+      "any" usebundle => rh_systemctl_status("disable fail2ban");
     !src.security::
-      "any" usebundle => rh_chkconfig_status("fail2ban on");
+      "any" usebundle => rh_systemctl_status("enable fail2ban");
 
   commands:
     !security.!src.security_running::
