@@ -89,7 +89,7 @@ Requires: freeswitch-timer-posix
 Requires: freeswitch-xml-cdr
 Requires: freeswitch-xml-curl
 Requires: freeswitch-lua
-Requires: oss_core >= %version
+Requires: oss_core-app >= %version
 Requires: sipxacccode-ng >= %version
 Requires: sipxcallcontroller-ng >= %version
 Requires: sipxcdr-ng >= %version

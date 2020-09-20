@@ -319,6 +319,7 @@ bundle agent kamailioproxy_running
 {
   vars:
     any::
+      "service" string => "kamailio-proxy.service";
       "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-proxy.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-proxy";
 
@@ -345,25 +346,34 @@ bundle agent kamailioproxy_running
 
   commands:
     (!kamailioproxy|stop_sipxecs).kamailioproxy_running::
-      "$(daemon)"
-        comment => "stop kamailio",
-        args => "stop";
+      "$(sipx.systemctl)"
+        comment => "stop kamailio-proxy",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable kamailio-proxy",
+        args => "disable $(service)";
 
     kamailioproxy.!kamailioproxy_running.!stop_sipxecs::
-      "$(daemon)"
-        comment => "start kamailio",
-        args => "start";
+      "$(sipx.systemctl)"
+        comment => "start kamailio-proxy",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable kamailio-proxy",
+        args => "enable $(service)";
 
     kamailioproxy.kamailioproxy_running.(restart_kamailioproxy|refresh_kamailioproxy|restart_sipxecs|restart_mysql|mysql_change_password|ssl_repaired)::
-      "$(daemon)"
-        comment => "restart kamailio",
-        args => "restart";
+      "$(sipx.systemctl)"
+        comment => "restart kamailio-proxy",
+        args => "restart $(service)";
 }
 
 bundle agent kamailiopresence_running 
 {
   vars:
     any::
+      "service" string => "kamailio-presence.service";
       "service_command" string => "/usr/sbin/kamailio -f $(sipx.SIPX_CONFDIR)/kamailio-presence.cfg";
       "daemon" string => "$(sipx.SIPX_SERVICEDIR)/kamailio-presence";
 
@@ -390,17 +400,26 @@ bundle agent kamailiopresence_running
 
   commands:
     (!kamailiopresence|stop_sipxecs).kamailiopresence_running::
-      "$(daemon)"
-        comment => "stop kamailio presence",
-        args => "stop";
+      "$(sipx.systemctl)"
+        comment => "stop kamailio-presence",
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable kamailio-presence",
+        args => "disable $(service)";
 
     kamailiopresence.!kamailiopresence_running.!stop_sipxecs::
-      "$(daemon)"
-        comment => "start kamailio presence",
-        args => "start";
+      "$(sipx.systemctl)"
+        comment => "start kamailio-presence",
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable kamailio-presence",
+        args => "enable $(service)";
+
 
     kamailiopresence.kamailiopresence_running.(restart_kamailiopresence|refresh_kamailiopresence|restart_sipxecs|restart_mysql|mysql_change_password)::
-      "$(daemon)"
-        comment => "restart kamailio presence",
-        args => "restart";
+      "$(sipx.systemctl)"
+        comment => "restart kamailio-presence",
+        args => "restart $(service)";
 }

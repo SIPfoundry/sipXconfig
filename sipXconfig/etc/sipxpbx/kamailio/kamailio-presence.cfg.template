@@ -46,6 +46,7 @@ memdbg=5
 memlog=5
 
 log_facility=LOG_LOCAL2
+log_prefix="{$mt $hdr(CSeq) $ci} "
 
 fork=yes
 children=$(sipx.kamailioForkChildren)
@@ -81,7 +82,6 @@ loadmodule "db_mysql.so"
 loadmodule "db_mongodb.so"
 #!endif
 
-loadmodule "mi_fifo.so"
 loadmodule "kex.so"
 loadmodule "corex.so"
 loadmodule "tm.so"
@@ -98,7 +98,6 @@ loadmodule "xlog.so"
 loadmodule "sanity.so"
 loadmodule "ctl.so"
 loadmodule "cfg_rpc.so"
-loadmodule "mi_rpc.so"
 loadmodule "acc.so"
 
 #!ifdef WITH_AUTH
@@ -159,16 +158,6 @@ loadmodule "sipx_bla.so"
 #!endif
 loadmodule "path.so"
 #!endif
-
-# ----------------- setting module-specific parameters ---------------
-
-
-# ----- mi_fifo params -----
-modparam("mi_fifo", "fifo_name", "$(sipx.SIPX_TMPDIR)/kamailio-presence-fifo")
-
-# ----- ctl params -----
-modparam("ctl", "binrpc", "$(sipx.SIPX_TMPDIR)/kamailio-presence.ctl")
-
 
 # ----- tm params -----
 # auto-discard branches from previous serial forking leg

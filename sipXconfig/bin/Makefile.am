@@ -27,8 +27,10 @@ initd_SCRIPTS = \
 systemddir = /usr/lib/systemd/system
 systemd_SCRIPTS = \
 	sipxconfig.service \
-	kamailio-proxy \
-	kamailio-presence \
+	sipxbridge.service \
+	sipxpage.service \
+	kamailio-proxy.service \
+	kamailio-presence.service \
 	mongod-arbiter.service \
 	mongo-local.service \
 	mongo-local-arbiter.service \

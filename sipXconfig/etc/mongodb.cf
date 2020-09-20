@@ -45,11 +45,11 @@ bundle agent mongodb {
 
     any_mongo::
       "any" usebundle => allow_ssh_command("mongodb-admin");
-      "any" usebundle => rh_systemctl_status("enable disable-transparent-hugepages");
+      "any" usebundle => rh_chkconfig_status("disable-transparent-hugepages on");
 
     !any_mongo::
       "any" usebundle => disallow_ssh_command("mongodb-admin");
-      "any" usebundle => rh_systemctl_status("disable disable-transparent-hugepages");
+      "any" usebundle => rh_chkconfig_status("disable-transparent-hugepages off");
 
     any::
       "any" usebundle => mongodb_running;
@@ -169,7 +169,7 @@ bundle agent mongo_local_config {
       "dirs" slist => {
         "/var/lib/mongo-local",
         "/var/run/$(mongodb.id)",
-        "/var/log/mongo/local"
+        "/var/log/mongodb/local"
       };
 
   files:
@@ -291,7 +291,7 @@ bundle agent mongo_local_arbiter_config {
       "dirs" slist => {
         "/var/lib/mongo-local-arbiter",
         "/var/run/$(mongodb.id)",
-        "/var/log/mongo/local"
+        "/var/log/mongodb/local"
       };
 
   files:

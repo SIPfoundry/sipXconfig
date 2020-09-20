@@ -174,34 +174,38 @@ any::
 bundle agent sipxpage_running {
   vars:
     any::
-      "service_command" string => ".*\s-conf\s$(sipx.SIPX_CONFDIR)/sipxpage/conf\s.*";
+      "service" string => "sipxpage.service";
 
-  methods:
+  classes:
     any::
-      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxpage_running");
-    !src.sipxpage::
-      "any" usebundle => rh_systemctl_status("enable sipxpage");
-    !src.!sipxpage::
-      "any" usebundle => rh_systemctl_status("disable sipxpage");
+      "sipxpage_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     (!sipxpage|stop_sipxecs).sipxpage_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+      "$(sipx.systemctl)"
         comment => "stop sipxpage",
-        args => "stop";
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable sipxpage",
+        args => "disable $(service)";
 
     sipxpage.!sipxpage_running.!stop_sipxecs::
-      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+      "$(sipx.systemctl)"
         comment => "start sipxpage",
-        args => "start";
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable sipxpage",
+        args => "enable $(service)";
 
     sipxpage.sipxpage_running.reload_sipxpage::
-      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+      "$(sipx.systemctl)"
         comment => "reload sipxpage",
-        args => "reload";
+        args => "reload $(service)";
 
     sipxpage.sipxpage_running.(restart_sipxecs|restart_sipxpage|java_ssl_repaired)::
-      "$(sipx.SIPX_SERVICEDIR)/sipxpage"
+      "$(sipx.systemctl)"
         comment => "restart sipxpage",
-        args => "asyncrestart";
+        args => "restart $(service)";
 }

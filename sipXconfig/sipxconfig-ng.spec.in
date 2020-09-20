@@ -60,9 +60,9 @@ BuildRequires: sipxcdr-ng-client >= %version
 Source: %name-%version.tar.gz
 
 Requires: postgresql-server
-Requires: mongodb-org-server
-Requires: mongodb-org-shell
-Requires: mongodb-org-tools
+Requires: mongodb-org-server = 3.6.11
+Requires: mongodb-org-shell = 3.6.11
+Requires: mongodb-org-tools = 3.6.11
 Requires: httpd
 # not installed by default on centos 6
 Requires: mod_ssl
@@ -376,6 +376,17 @@ systemctl stop freeswitch
 /sbin/chkconfig freeswitch off
 %endif
 /etc/init.d/freeswitch stop 1>/dev/null
+%endif
+
+%triggerin -- kamailio
+%if 0%{?rhel} >= 7
+systemctl disable kamailio
+systemctl stop kamailio
+%else
+%if 0%{?fedora} <= 15 || 0%{?rhel} <= 6
+/sbin/chkconfig kamailio off
+%endif
+/etc/init.d/kamailio stop 1>/dev/null
 %endif
 
 %postun

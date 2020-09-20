@@ -7,7 +7,7 @@ class ArchiveBase
 
   def initialize
     @pguser = "postgres"
-    @db = "SIPXCONFIG"
+    @db = "sipxconfig"
     @tmpdir = "/var/sipxdata/tmp"
     @libexec = "@SIPX_LIBEXECDIR@"
     @initd = "@SIPX_SERVICEDIR@"
@@ -123,8 +123,11 @@ class Restore < ArchiveBase
 
     cmd "tar -xzOf #{params[:file]} db.tar > #{@tmpdir}/db.tar" or
       raise "Failed to extract database from archive."
+    sql_exec(@restoredb, "DROP EXTENSION plpgsql;") or
+      raise "Cannot drop extension plpgsql"
     cmd "pg_restore -U #{@pguser} -d #{@restoredb} #{@tmpdir}/db.tar" or
       raise "Failed to restore database from archive."
+    sql_exec(@restoredb, "CREATE EXTENSION IF NOT EXISTS plpgsql;")
 
     ant = "-Dsipxconfig.db.name=#{@restoredb}"
     if params.has_key?(:crack_pin)

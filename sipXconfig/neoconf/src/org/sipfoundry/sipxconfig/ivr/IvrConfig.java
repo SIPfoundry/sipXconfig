@@ -16,6 +16,8 @@
  */
 package org.sipfoundry.sipxconfig.ivr;
 
+import static java.lang.String.format;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,6 +29,8 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
@@ -56,11 +60,15 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 import org.springframework.beans.factory.annotation.Required;
 
 public class IvrConfig implements ConfigProvider, AlarmProvider {
+
+    private static final Log LOG = LogFactory.getLog(IvrConfig.class);
+
     private Ivr m_ivr;
     private Mwi m_mwi;
     private AutoAttendantManager m_aaManager;
     private AdminContext m_adminContext;
     private LocationsManager m_locationsManager;
+    private String m_mailstoreDirectory;
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -94,6 +102,16 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
             try {
                 CfengineModuleConfiguration config = new CfengineModuleConfiguration(w);
                 config.writeClass("sipxivr", enabled);
+
+                try {
+                    Process p = Runtime.getRuntime().exec(format("setfacl -Rm d:u:freeswitch:rwX,u:freeswitch:rwX %s/..", m_mailstoreDirectory));
+                    p.waitFor();
+                    p.destroy();
+                    LOG.info(format("Provide freeswitch rights for voicemail path directory: %s", m_mailstoreDirectory));
+                } catch (Exception ex) {
+                    LOG.error("Cannot provide freeswitch rights to voicemail path directory", ex);
+                }
+
                 if (location.isPrimary()) {
                     config.write("CLEANUP_VOICEMAIL_HOUR", settings.getCleanupVoicemailHour());
                 }
@@ -250,5 +268,10 @@ public class IvrConfig implements ConfigProvider, AlarmProvider {
 
     public void setAdminContext(AdminContext adminContext) {
         m_adminContext = adminContext;
+    }
+
+    @Required
+    public void setMailstoreDirectory(String mailstoreDirectory) {
+        m_mailstoreDirectory = mailstoreDirectory;
     }
 }

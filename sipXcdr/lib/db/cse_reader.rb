@@ -71,8 +71,8 @@ class CseReader < Dao
     @log.error("Loss of connection to database #{@database_url} - retrying to connect after sleep") if @log
     if !@stop.wait
        dbh.disconnect
-       retry
     end
+    retry
   rescue
     @log.error("Exception in reader thread: <#{$!}> - Database = #{@database_url}") if @log
     # save current exception so that we can re-raise it

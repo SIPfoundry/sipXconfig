@@ -11,6 +11,8 @@ public interface CdrLogParams {
 
     public static final String LIMIT = "limit";
 
+    public static final String OFFSET = "offset";
+
     public static final String FROMDATE = "fromdate";
 
 }

@@ -11,7 +11,7 @@
 prog=oss_core
 exec="@SIPX_BINDIR@/${prog}"
 config="@SIPX_CONFDIR@/sbc_config.cfg"
-pidfile="@SIPX_RUNDIR@/sbc_core.pid"
+pidfile="@SIPX_RUNDIR@/sbc_core/sbc_core.pid"
 
 # TODO replace this with sipx user
 user=root

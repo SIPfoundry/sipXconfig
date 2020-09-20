@@ -162,34 +162,38 @@ any::
 bundle agent sipxbridge_running {
   vars:
     any::
-      "service_command" string => ".*\s-conf\s$(sipx.SIPX_CONFDIR)/sipxbridge/conf\s.*";
+      "service" string => "sipxbridge.service";    
 
-  methods:
+  classes:
     any::
-      "any" usebundle => find_sipxservice_by_command_regex("$(service_command)","sipxbridge_running");
-    !src.sipxbridge::
-      "any" usebundle => rh_systemctl_status("enable sipxbridge");
-    !src.!sipxbridge::
-      "any" usebundle => rh_systemctl_status("disable sipxbridge");
+      "sipxbridge_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:
     (!sipxbridge|stop_sipxecs).sipxbridge_running::
-      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+      "$(sipx.systemctl)"
         comment => "stop sipxbridge",
-        args => "stop";
+        args => "stop $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "disable sipxbridge",
+        args => "disable $(service)";
 
     sipxbridge.!sipxbridge_running.!stop_sipxecs::
-      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+      "$(sipx.systemctl)"
         comment => "start sipxbridge",
-        args => "start";
+        args => "start $(service)";
+
+      "$(sipx.systemctl)"
+        comment => "enable sipxbridge",
+        args => "enable $(service)";
 
     sipxbridge.sipxbridge_running.reload_sipxbridge::
-      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+      "$(sipx.systemctl)"
         comment => "reload sipxbridge",
-        args => "reload";
+        args => "reload $(service)";
 
     sipxbridge.sipxbridge_running.(restart_sipxecs|restart_sipxbridge|java_ssl_repaired)::
-      "$(sipx.SIPX_SERVICEDIR)/sipxbridge"
+      "$(sipx.systemctl)"
         comment => "restart sipxbridge",
-        args => "asyncrestart";
+        args => "restart $(service)";
 }

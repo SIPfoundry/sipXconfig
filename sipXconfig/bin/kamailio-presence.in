@@ -17,7 +17,7 @@ PROG=kamailio-presence
 KAM=/usr/sbin/kamailio
 KAMCFG=@SIPX_CONFDIR@/$PROG.cfg
 PID_FILE=@SIPX_RUNDIR@/$PROG/$PROG.pid
-LOCK_FILE=@SIPX_LOCKDIR@/$PROG
+LOCK_FILE=@SIPX_LOCKDIR@/$PROG/$PROG
 DEFAULTS=@SIPX_CONFDIR@/kamailio.default
 RETVAL=0
 RUN_KAMAILIO=no
@@ -47,7 +47,7 @@ check_kamailio_config ()
 
 
 start() {
-	check_kamailio_config
+  check_kamailio_config
   if [ "$1" != "debug" ]; then
       check_fork
   fi

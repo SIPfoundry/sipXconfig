@@ -12,6 +12,9 @@ Url:      http://www.pingtel.com
 
 Obsoletes: @PACKAGE_OBSOLETE_NAME@
 BuildRequires: automake
+BuildRequires: checkpolicy
+BuildRequires: policycoreutils
+BuildRequires: policycoreutils-python
 
 Source:   %name-%version.tar.gz
 Obsoletes: %name-devel
@@ -70,10 +73,10 @@ infrastruture might already have like puppet, chef or even cfengine.
 %package selinux
 #Group: Telcommunications
 #Vendor: SIPfoundry
-Summary: SipXcom policy
+Summary: Sipfoundry policy
 
 %description selinux
-Selinux policy for sipxcom
+Selinux policy for Sipfoundry
 
 %prep
 %setup -q

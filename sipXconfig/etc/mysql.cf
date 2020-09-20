@@ -145,11 +145,15 @@ bundle agent mysql_sysv_running {
 
 bundle agent mysql_sysctl_running {
   vars:
-    any::
+    mariadb_installed::
+      "service" string => "mariadb.service";
+
+    !mariadb_installed::
       "service" string => "mysqld.service";
 
   classes:
     fedora16_or_greater::
+      "mariadb_installed" expression => fileexists("/usr/lib/systemd/system/mariadb.service");
       "mysql_running" expression => returnszero("$(sipx.systemctl) is-active $(service)","noshell");
 
   commands:

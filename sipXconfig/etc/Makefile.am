@@ -94,7 +94,11 @@ dist_mibs_DATA = \
 tmpfilesddir = ${sysconfdir}/tmpfiles.d
 tmpfilesd_SCRIPTS = \
 	sipxconfig.conf \
-	mongodb-sync.conf
+	sipxbridge.conf \
+	sipxpage.conf \
+	mongodb-sync.conf \
+	kamailio.conf \
+	oss_core.conf
 
 systemddir = ${sysconfdir}/systemd/system
 systemd_SCRIPTS = \

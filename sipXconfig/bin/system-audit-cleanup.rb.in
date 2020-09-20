@@ -2,7 +2,7 @@ class SystemAuditCleanup
 
   def initialize
     @pguser = "postgres"
-    @db = "SIPXCONFIG"
+    @db = "sipxconfig"
     @sql = "select system_audit_cleanup();"
   end
 

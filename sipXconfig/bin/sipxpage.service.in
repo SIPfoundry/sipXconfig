@@ -1,0 +1,15 @@
+[Unit]
+Description=sipxpage
+Documentation=http://sipfoundry.org
+After=network.target syslog.target
+
+[Service]
+# see man systemd.service
+Type=oneshot
+ExecStart=@SIPX_SERVICEDIR@/sipxpage start
+RemainAfterExit=true
+ExecStop=@SIPX_SERVICEDIR@/sipxpage stop
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -17,7 +17,7 @@ PROG=kamailio-proxy
 KAM=/usr/sbin/kamailio
 KAMCFG=@SIPX_CONFDIR@/$PROG.cfg
 PID_FILE=@SIPX_RUNDIR@/$PROG/$PROG.pid
-LOCK_FILE=@SIPX_LOCKDIR@/$PROG
+LOCK_FILE=@SIPX_LOCKDIR@/$PROG/$PROG
 DEFAULTS=@SIPX_CONFDIR@/kamailio.default
 RETVAL=0
 RUN_KAMAILIO=no
@@ -47,23 +47,6 @@ check_kamailio_config ()
 
 
 start() {
-  #check if dns is able to resolve internal proxy srv record
-  dig +short -t SRV _sip._tcp.ip.$KAM_DOMAIN | grep -v -e '^$' > /dev/null
-  status=$?
-  if [ $status -ne 0 ]; then
-    echo "Waiting for DNS to resolve required SRV records..."
-    i=0
-    while [[ $status -ne 0 && $i -lt 10 ]]
-      do
-      sleep 1
-        dig +short -t SRV _sip._tcp.ip.$KAM_DOMAIN | grep -v -e '^$' > /dev/null
-    status=$?
-    i=$(expr $i + 1)
-    done
-
-    [ $status -ne 0 ] && { echo_failure; echo; exit $ENOSCKT; }
-  fi
-
   check_kamailio_config
   if [ "$1" != "debug" ]; then
     check_fork
