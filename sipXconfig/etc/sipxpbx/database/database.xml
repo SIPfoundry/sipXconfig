@@ -489,6 +489,8 @@
   	<antcall target="remove_openuc_saa" />
     <antcall target="add-user-mwi-field" />
     <antcall target="mongo_cannot_see_majority"/>
+    <antcall target="hotelling-pin" />
+    <antcall target="add-user-hotelling-field" />
   </target>
 
   <target name="plugin-patches">
@@ -1507,7 +1509,12 @@
   <target name="mongo_cannot_see_majority" unless="mongo_cannot_see_majority">
   	<db-patch patch="mongo_cannot_see_majority"/>
   </target>
-  
+  <target name="hotelling-pin" unless="hotelling-pin">
+	  <db-patch patch="hotelling-pin"/>
+  </target>
+  <target name="add-user-hotelling-field" unless="add-user-hotelling-field">
+	  <db-patch patch="add-user-hotelling-field"/>
+  </target>
   
   <!--
     - SUPPORT UTILITIES

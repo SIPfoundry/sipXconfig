@@ -105,12 +105,14 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         User user = getUser();
         user.setVoicemailPin(getPasswordPolicy().getVoicemailPin());
         user.setPin(getPasswordPolicy().getPassword());
+        user.setHotellingPin(getPasswordPolicy().getHotellingPin());
     }
 
     public void generateDefaultPasswords() {
         User user = getUser();
         user.setVoicemailPin(getAdminContext().getDefaultVmPin());
         user.setPin(getAdminContext().getDefaultPassword());
+        user.setHotellingPin(getAdminContext().getDefaultHPin());
     }
 
     public IPage extensionPools(IRequestCycle cycle) {

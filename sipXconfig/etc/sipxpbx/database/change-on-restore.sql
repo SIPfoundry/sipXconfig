@@ -79,6 +79,7 @@ begin
 		update users
           set pintoken = new_passwd,
               voicemail_pintoken = md5(my_user.user_name || ':' || new_pin)
+              hotelling_pintoken = md5(my_user.user_name || ':' || new_pin)
         where user_name = my_user.user_name;
 	end loop;
 end;	

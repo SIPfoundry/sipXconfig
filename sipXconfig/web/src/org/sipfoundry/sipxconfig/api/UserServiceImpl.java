@@ -76,6 +76,7 @@ public class UserServiceImpl implements UserService {
         }
         myUser.setPin(addUser.getPin());
         myUser.setVoicemailPin(addUser.getVmpin());
+        myUser.setHotellingPin(addUser.getHpin());
         if (apiUser.getBranchName() != null) {
             myUser.setBranch(m_branchManager.getBranch(apiUser.getBranchName()));
         }

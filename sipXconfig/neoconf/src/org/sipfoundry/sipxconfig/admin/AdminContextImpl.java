@@ -202,6 +202,11 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
     }
 
     @Override
+    public String getDefaultHPin() {
+        return getSettings().getDefaultHPin();
+    }
+
+    @Override
     public int getAge() {
         return getSettings().getAge();
     }

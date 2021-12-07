@@ -43,6 +43,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     private static final String EMPTY_PIN = "";
     private static final String PIN = "pin";
     private static final String VOICEMAIL_PIN = "voicemail_pin";
+    private static final String HOTELLING_PIN = "hotelling_pin";
     private static final String RENDER = "render";
 
     public abstract CoreContext getCoreContext();
@@ -61,6 +62,10 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     public abstract String getVoicemalPin();
 
     public abstract void setVoicemailPin(String voicemailPin);
+
+    public abstract String getHotellingPin();
+
+    public abstract void setHotellingPin(String hotellingPin);
 
     public abstract String getAliasesString();
 
@@ -98,8 +103,10 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     public void emptyPasswords(IRequestCycle cycle) {
         setPin(EMPTY_PIN);
         setVoicemailPin(EMPTY_PIN);
+        setHotellingPin(EMPTY_PIN);
         PropertyUtils.write(getComponent(PIN), CONFIRM_PASSWORD, EMPTY_PIN);
         PropertyUtils.write(getComponent(VOICEMAIL_PIN), CONFIRM_PASSWORD, EMPTY_PIN);
+        PropertyUtils.write(getComponent(HOTELLING_PIN), CONFIRM_PASSWORD, EMPTY_PIN);
         cycle.getResponseBuilder().updateComponent(RENDER);
     }
 
@@ -119,6 +126,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             initializePin(getComponent(PIN), this, getUser());
             initializeVoicemailPin(getComponent(VOICEMAIL_PIN), this, getUser());
+            initializeHotellingPin(getComponent(HOTELLING_PIN), this, getUser());
 
             if (getGroupsString() == null) {
                 setGroupsString(user.getGroupsNames());
@@ -138,6 +146,7 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
             // Update the user's PIN and aliases
             updatePin(this, getUser(), getCoreContext().getAuthorizationRealm());
             updateVoicemailPin(this, getUser());
+            updateHotellingPin(this, getUser());
 
             String groupsString = getGroupsString();
             if (groupsString != null) {
@@ -209,6 +218,22 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
         }
     }
 
+    /**
+     * For an existing user with a non-empty PIN, init the displayed PIN to be the dummy PIN to
+     * make it clear that the PIN is not empty.
+     */
+    public static void initializeHotellingPin(IComponent confirmPassword, EditPinComponent editPin, User user) {
+        if (editPin.getHotellingPin() == null) {
+            if (user.isNew()) {
+                editPin.setHotellingPin(user.getClearHotellingPin());
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, user.getClearHotellingPin());
+            } else {
+                editPin.setHotellingPin(DUMMY_PIN);
+                PropertyUtils.write(confirmPassword, CONFIRM_PASSWORD, DUMMY_PIN);
+            }
+        }
+    }
+
     /*
      * Update the user's PIN
      */
@@ -227,6 +252,15 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             // Having updated the user, scrub the PIN field for security
             editPin.setVoicemailPin(null);
+        }
+    }
+
+    public static void updateHotellingPin(EditPinComponent editPin, User user) {
+        if (!(editPin.getHotellingPin() == null) && !editPin.getHotellingPin().equals(DUMMY_PIN)) {
+            user.setHotellingPin(editPin.getHotellingPin());
+
+            // Having updated the user, scrub the PIN field for security
+            editPin.setHotellingPin(null);
         }
     }
 

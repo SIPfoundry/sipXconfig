@@ -66,6 +66,14 @@
 	      passwordDescription="message:description.voicemail.pin"
 	      passwordValidator="spring-validators:validPin,minLength=4,required">
 	  </tr>
+	  <tr jwcid="hotelling_pin@user/ConfirmPassword"
+	      password="ognl:hotellingPin"
+	      passwordDisplayName="message:label.hotelling.pin"
+	      confirmPasswordDisplayName="message:label.hotelling.pin2"
+	      passwordMismatchMessage="message:error.hotelling.pinMismatch"
+	      passwordDescription="message:description.hotelling.pin"
+	      passwordValidator="spring-validators:validPin,minLength=4,required">
+	  </tr>
       <tr class="form-actions" jwcid="@common/FieldPanel" for="user:empty"
         field="component:empty"
         label="message:empty.label"      

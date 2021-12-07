@@ -50,6 +50,8 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
     private static final String DEFAULT_PASSWORD_CONFIRM = "configserver-config/password-default-confirm";
     private static final String VMPIN_DEFAULT = "configserver-config/vmpin-default";
     private static final String VMPIN_DEFAULT_CONFIRM = "configserver-config/vmpin-default-confirm";
+    private static final String HPIN_DEFAULT = "configserver-config/hpin-default";
+    private static final String HPIN_DEFAULT_CONFIRM = "configserver-config/hpin-default-confirm";
     private static final String POSTGRES_PASSWORD = "configserver-config/postgres-pwd";
     private static final String POSTGRES_PASSWORD_CONFIRM = "configserver-config/postgres-pwd-confirm";
     private static final String MYSQL_PASSWORD = "configserver-config/mysql-pwd";
@@ -92,9 +94,17 @@ public class AdminSettings extends PersistableSettings implements DeployConfigOn
         return getSettingValue(VMPIN_DEFAULT);
     }
 
+    public String getDefaultHPin() {
+        return getSettingValue(HPIN_DEFAULT);
+    }
+
     public String getDefaultVmPinConfirmed() {
         return getSettingValue(VMPIN_DEFAULT_CONFIRM);
     }    
+
+    public String getDefaultHPinConfirmed() {
+        return getSettingValue(HPIN_DEFAULT_CONFIRM);
+    }  
 
     public String getPostgresPassword() {
         return getSettingValue(POSTGRES_PASSWORD);

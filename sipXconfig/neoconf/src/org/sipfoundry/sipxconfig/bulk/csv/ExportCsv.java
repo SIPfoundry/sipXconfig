@@ -127,6 +127,7 @@ public class ExportCsv {
         if (!user.isAdmin()) {
             Index.PIN.set(row, user.getPintoken());
             Index.VOICEMAIL_PIN.set(row, user.getVoicemailPintoken());
+            Index.HOTELLING_PIN.set(row, user.getHotellingPintoken());
         }
         
         // XMPP

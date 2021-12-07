@@ -42,6 +42,8 @@ public interface AdminContext {
 
     String getDefaultVmPin();
 
+    String getDefaultHPin();
+
     int getAge();
 
     public int getPageImportSize();

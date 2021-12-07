@@ -22,8 +22,12 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.hoteling.HotelingLocator;
+import org.sipfoundry.sipxconfig.hoteling.HotelingManager;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
@@ -39,6 +43,12 @@ public abstract class UserPhones extends UserBasePage {
 
     @InjectObject(value = "spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
+
+    @InjectObject(value = "spring:phoneModelSource")
+    public abstract ModelSource<PhoneModel> getModelSource();
+
+    @InjectObject(value = "spring:hotelingLocator")
+    public abstract HotelingLocator getHotelingLocator();
 
     @InjectPage(value = AddExistingPhone.PAGE)
     public abstract AddExistingPhone getAddExistingPhonePage();
@@ -64,6 +74,10 @@ public abstract class UserPhones extends UserBasePage {
 
     public abstract void setIsMWI(boolean shared);
 
+    public abstract boolean getIsHotelling();
+
+    public abstract void setIsHotelling(boolean hotelling);
+
     public abstract User getLoadedUser();
     public abstract void setLoadedUser(User user);
 
@@ -87,6 +101,7 @@ public abstract class UserPhones extends UserBasePage {
         setPrivatePhonebook(getPhonebookManager().getPrivatePhonebook(getLoadedUser()));
         setIsShared(getLoadedUser().getIsShared());
         setIsMWI(getLoadedUser().getIsMWI());
+        setIsHotelling(getLoadedUser().getIsHotelling());
     }
 
     public void savePrivatePhonebook() {
@@ -101,8 +116,32 @@ public abstract class UserPhones extends UserBasePage {
         User user = getLoadedUser();
         user.setIsShared(getIsShared());
         user.setIsMWI(getIsMWI());
+        user.setIsHotelling(getIsHotelling());
 
         getCoreContext().saveUser(user);
+        if(getIsHotelling()) {
+            generateUser(user);
+        } else {
+            removeUser(user);
+        }
         TapestryUtils.recordSuccess(this, getMessages().getMessage("userSaved.success"));
+    }
+
+    public void generateUser(User user) {
+        if (getHotelingLocator().isHotellingEnabled()) {
+            HotelingManager hotelingManager = getHotelingLocator().getHotellingBean();
+            if (hotelingManager != null) {
+                hotelingManager.generate(user);
+            }
+        }
+    }
+
+    public void removeUser(User user) {
+        if (getHotelingLocator().isHotellingEnabled()) {
+            HotelingManager hotelingManager = getHotelingLocator().getHotellingBean();
+            if (hotelingManager != null) {
+                hotelingManager.remove(user);
+            }
+        }
     }
 }

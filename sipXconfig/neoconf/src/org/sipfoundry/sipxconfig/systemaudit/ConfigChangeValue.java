@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 public class ConfigChangeValue extends BeanWithId {
 
     public static final List<String> EXCEPTED_PROPERTIES = Arrays.asList(
-            "pintoken", "sip_password", "voicemailPintoken");
+            "pintoken", "sip_password", "voicemailPintoken", "hotellingPintoken");
 
     private ConfigChange m_configChange;
     private String m_propertyName;

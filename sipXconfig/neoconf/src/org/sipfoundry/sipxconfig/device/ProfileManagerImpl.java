@@ -47,6 +47,10 @@ public class ProfileManagerImpl implements ProfileManager {
         m_systemAuditManager.onConfigChangeAction(d, ConfigChangeAction.SEND_PROFILE, null, null, null);
     }
 
+    public final void generateProfile(Device device) {
+        generate(device);
+    }
+
     public final void restartDevices(Collection<Integer> devices, Date restartTime) {
         for (Integer id : devices) {
             restartDevice(id, restartTime);

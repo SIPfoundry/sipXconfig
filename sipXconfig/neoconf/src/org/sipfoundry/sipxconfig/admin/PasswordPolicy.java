@@ -59,4 +59,5 @@ public interface PasswordPolicy extends SettingVisitor {
     String getDefaultPolicy();
     String getPassword();
     String getVoicemailPin();
+    String getHotellingPin();
 }

@@ -52,4 +52,9 @@ public class PasswordPolicyImpl implements PasswordPolicy {
         return null;
     }
 
+    @Override
+    public String getHotellingPin() {
+        return null;
+    }
+
 }

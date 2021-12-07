@@ -68,6 +68,7 @@ import org.sipfoundry.sipxconfig.time.NtpManager;
  */
 public abstract class AbstractUser extends BeanWithGroups implements SystemAuditable {
     public static final int VOICEMAIL_PIN_LEN = 4;
+    public static final int HOTELLING_PIN_LEN = 4;
     public static final int PASSWORD_LEN = 8;
     public static final String GROUP_RESOURCE_ID = "user";
     public static final String NOT_AVAILABLE = "N/A";
@@ -136,7 +137,11 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
 
     private String m_voicemailPintoken;
 
+    private String m_hotellingPintoken;
+
     private String m_clearVoicemailPin;
+
+    private String m_clearHotellingPin;
 
     private String m_lastName;
 
@@ -151,6 +156,8 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
     private boolean m_isShared;
     
     private boolean m_isMWI;
+
+    private boolean m_isHotelling;
 
     private Branch m_branch;
 
@@ -198,6 +205,21 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
         // pin
         m_clearVoicemailPin = voicemailPin;
         setVoicemailPintoken(Md5Encoder.digestEncryptPassword(m_userName, pin2));
+    }
+
+    public String getHotellingPintoken() {
+        return defaultString(m_hotellingPintoken, EMPTY);
+    }
+
+    public void setHotellingPintoken(String hotellingPintoken) {
+        m_hotellingPintoken = hotellingPintoken;
+    }
+
+    public void setHotellingPin(String hotellingPin) {
+        String pin2 = defaultString(hotellingPin, EMPTY); // handle null
+        // pin
+        m_clearHotellingPin = hotellingPin;
+        setHotellingPintoken(Md5Encoder.digestEncryptPassword(m_userName, pin2));
     }
 
     public String getFirstName() {
@@ -820,6 +842,14 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
         m_isMWI = isMWI;
     }    
 
+    public boolean getIsHotelling() {
+        return m_isHotelling;
+    }
+
+    public void setIsHotelling(boolean isHotelling) {
+        m_isHotelling = isHotelling;
+    }    
+
     public boolean hasImAccount() {
 //        return isNotEmpty(getImId());
     	return false;
@@ -910,8 +940,13 @@ public abstract class AbstractUser extends BeanWithGroups implements SystemAudit
         return m_clearVoicemailPin;
     }
 
+    public String getClearHotellingPin() {
+        return m_clearHotellingPin;
+    }
+
     public void clearPasswords() {
         m_clearVoicemailPin = null;
+        m_clearHotellingPin = null;
     }
 
     public boolean isNotified() {

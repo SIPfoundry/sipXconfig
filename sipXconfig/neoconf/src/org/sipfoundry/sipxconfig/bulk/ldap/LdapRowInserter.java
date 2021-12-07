@@ -129,6 +129,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             m_userMapper.setPin(user, attrs);
             m_userMapper.setVoicemailPin(user, attrs);
             m_userMapper.setSipPassword(user, attrs);
+            m_userMapper.setHotellingPin(user, attrs);
 
             Collection<String> groupNames = m_userMapper.getGroupNames(searchResult);
 
