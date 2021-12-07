@@ -197,6 +197,14 @@ public class CsvRowInserter extends RowInserter<String[]> {
                 user.setVoicemailPintoken(Md5Encoder.digestEncryptPassword(userName, voicemailPin));
             }
         }
+        String hotellingPin = Index.HOTELLING_PIN.get(row);
+        if (!StringUtils.isEmpty(hotellingPin)) {
+            if (isHashed(hotellingPin)) {
+                user.setHotellingPintoken(hotellingPin);
+            } else {
+                user.setHotellingPintoken(Md5Encoder.digestEncryptPassword(userName, hotellingPin));
+            }
+        }
 
         Index.FIRST_NAME.setProperty(user, row);
         Index.LAST_NAME.setProperty(user, row);

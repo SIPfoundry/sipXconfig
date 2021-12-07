@@ -60,6 +60,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract String getVoicemailPin();
 
+    public abstract String getHotellingPin();
+
     public abstract boolean getIsMWI();
 
     public abstract void setIsMWI(boolean isMWI);
@@ -118,6 +120,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         User user = getUserForEditing();
         UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
         UserForm.updateVoicemailPin(this, user);
+        UserForm.updateHotellingPin(this, user);
 
         FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
         fs.update(user);
@@ -148,6 +151,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         UserForm.initializePin(getComponent("pin"), this, user);
         UserForm.initializeVoicemailPin(getComponent("voicemail_pin"), this, user);
+        UserForm.initializeHotellingPin(getComponent("hotelling_pin"), this, user);
         setIsMWI(user.getIsMWI());
 
         MailboxManager mailMgr = getMailboxManager();

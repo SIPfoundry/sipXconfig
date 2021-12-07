@@ -23,6 +23,7 @@ public class User {
     private String m_uri;
     private String m_pintoken;
     private String m_voicemailPintoken;
+    private String m_hotellingPintoken;
     private String m_passtoken;
     private String m_sipPassword;
     private boolean m_inDirectory;
@@ -164,6 +165,14 @@ public class User {
         m_voicemailPintoken = voicemailPintoken;
     }
 
+    public String getHotellingPintoken() {
+        return m_hotellingPintoken;
+    }
+
+    public void setHotellingPintoken(String hotellingPinToken) {
+        m_hotellingPintoken = hotellingPinToken;
+    }
+
     public void setPasstoken(String passtoken) {
         m_passtoken = passtoken;
     }
@@ -253,6 +262,10 @@ public class User {
 
     public boolean isVoicemailPinCorrect(String pin) {
         return m_voicemailPintoken.equals(hashPin(pin));
+    }
+
+    public boolean isHotellingPinCorrect(String pin) {
+        return m_hotellingPintoken.equals(hashPin(pin));
     }
 
     public Locale getLocale() {

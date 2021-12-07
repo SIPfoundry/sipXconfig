@@ -1293,6 +1293,10 @@
               ]
             },
 
+            ht: {
+              pass: null
+            },
+
             conf: {
               main: null,
               changeConf: function () {
@@ -1360,6 +1364,7 @@
               saveImBot();
               saveVm();
               saveVmPass();
+              saveHtPass();
               saveConf();
 
               function savePassword() {
@@ -1428,6 +1433,17 @@
                 } else {
                   var pass = angular.copy(secondary.settings.user.vm.pass);
                   restService.putVmPin(pass).catch(function (err) {
+                    console.log(err);
+                  })
+                }
+              }
+
+              function saveHtPass() {
+                if (secondary.settings.user.ht.pass === null) {
+                  return
+                } else {
+                  var pass = angular.copy(secondary.settings.user.ht.pass);
+                  restService.putHtPin(pass).catch(function (err) {
                     console.log(err);
                   })
                 }

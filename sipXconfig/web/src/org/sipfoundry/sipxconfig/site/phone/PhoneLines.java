@@ -18,8 +18,10 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -45,6 +47,10 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
     @InjectPage(value = EditLine.PAGE)
     public abstract EditLine getEditLinePage();
 
+    public abstract boolean getIsHotelling();
+
+    public abstract void setIsHotelling(boolean hotelling);
+
     public Collection getLines() {
         return getPhone().getLines();
     }
@@ -66,6 +72,7 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
         PhoneContext context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId());
         setPhone(phone);
+        setIsHotelling(phone.isHotellingEnabled());
     }
 
     public IPage addExternalLine(Integer phoneId) {
@@ -82,6 +89,9 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
     }
 
     public IPage addLine(Integer phoneId) {
+        if (getIsHotelling()) {
+            throw new HotellingMaxLineException();
+        }
         checkMaxLines(phoneId);
         AddPhoneUser page = getAddPhoneUserPage();
         page.setPhoneId(phoneId);
@@ -97,7 +107,13 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
     public void deleteLine() {
         PhoneContext context = getPhoneContext();
         Phone phone = getPhone();
-
+        if (getIsHotelling()) {
+            if (phone.getLines().size() > 1) {
+                throw new HotellingMaxLineException();
+            } else if (phone.getLines().size() < 1) {
+                throw new HotellingNoLineException();
+            }
+        }
         // hack, avoid hibernate exception on unsaved valuestorage objects
         // on orphaned lines
         context.storePhone(phone);
@@ -129,6 +145,22 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
         return ManagePhones.PAGE;
     }
 
+    public void saveHotelling() {
+        PhoneContext context = getPhoneContext();
+        Phone phone = getPhone();
+        if (getIsHotelling()) {
+            if (phone.getLines().size() > 1) {
+                throw new HotellingMaxLineException();
+            } else if (phone.getLines().size() < 1) {
+                throw new HotellingNoLineException();
+            }
+        }
+
+        phone.setHotellingEnabled(getIsHotelling());
+        context.storePhone(phone);
+        TapestryUtils.recordSuccess(this, getMessages().getMessage("hotellingSaved.success"));
+    }
+
     public void apply() {
         PhoneContext dao = getPhoneContext();
         dao.storePhone(getPhone());
@@ -145,5 +177,17 @@ public abstract class PhoneLines extends PhoneBasePage implements PageBeginRende
 
     public int getMaxLineCount() {
         return getPhone().getModel().getMaxLineCount();
+    }
+
+    public static class HotellingMaxLineException extends UserException {
+        HotellingMaxLineException() {
+            super("&error.hotellingMaxLine");
+        }
+    }
+
+    public static class HotellingNoLineException extends UserException {
+        HotellingNoLineException() {
+            super("&error.hotellingNoLine");
+        }
     }
 }

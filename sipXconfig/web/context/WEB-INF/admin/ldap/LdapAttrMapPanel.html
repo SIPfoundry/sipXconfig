@@ -67,7 +67,17 @@
     	<input jwcid="voicemailPin@PropertySelection" id="user:voicemailPin", value="ognl:attrMap.attribute['voicemailPin']"
     		model="ognl:attributesOptionalSelectionModel"
     		displayName="message:label.voicemailPin"/>
-    </tr>    
+    </tr>
+    
+    <tr jwcid="@common/FieldPanel" id="hotellingPinPanel"
+    	for="user:hotellingPin"
+        field="component:hotellingPin"
+        label="message:label.hotellingPin"
+        description="message:description.hotellingPin">
+    	<input jwcid="hotellingPin@PropertySelection" id="user:hotellingPin", value="ognl:attrMap.attribute['hotellingPin']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.hotellingPin"/>
+    </tr> 
     
     <tr jwcid="defaultPin" />
     <tr jwcid="sipPasswordPanel">

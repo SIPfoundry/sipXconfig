@@ -288,6 +288,7 @@ create table users (
    branch_id int4,
    user_type char(1),
    voicemail_pintoken varchar(255),
+   hotelling_pintoken varchar(255),
    notified boolean not null default false,
    primary key (user_id)
 );

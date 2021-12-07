@@ -32,4 +32,10 @@ public interface HotelingManager {
      */
     void generate(Group g);
 
+    /**
+     * remove  user.
+     * @param user
+     */
+    void remove(User user);
+
 }

@@ -102,6 +102,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.VALID_USER;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAILTUI;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_ENABLED;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOTELLING_PINTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_LANGUAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.TRANSCRIBE_VOICEMAIL;
 import static org.sipfoundry.commons.mongo.MongoConstants.UNIFIED_MESSAGING_LANGUAGE;
@@ -686,6 +687,7 @@ public class ValidUsers {
         user.setSipPassword(getStringValue(obj, PASSTOKEN));
         user.setPintoken(getStringValue(obj, PINTOKEN));
         user.setVoicemailPintoken(getStringValue(obj, VOICEMAIL_PINTOKEN));
+        user.setHotellingPintoken(getStringValue(obj, HOTELLING_PINTOKEN));
         user.setTimeZone(getStringValue(obj, TIMEZONE));
         String htl = getStringValue(obj, HOTELING);
         if (htl != null) {

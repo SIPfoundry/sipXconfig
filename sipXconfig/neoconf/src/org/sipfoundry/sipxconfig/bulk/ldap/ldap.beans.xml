@@ -17,6 +17,9 @@
         <entry key="sipPassword">
           <null />
         </entry>
+        <entry key="hotellingPin">
+          <null />
+        </entry> 
         <entry key="firstName" value="givenName" />
         <entry key="lastName" value="sn" />
         <entry key="emailAddress" value="mail" />

@@ -58,6 +58,7 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
     private static final String PHONE_SIP_EXCEPTION = "&phone.sip.exception";
     private static final String PHONE_LINE_NOT_VALID = "&phone.line.not.valid";
     private static final String E911_SETTING_PATH = "e911/location";
+    private static final String HOTELLING_ENABLE_PATH = "hotelling/enable";
 
     private String m_description;
     
@@ -361,6 +362,21 @@ public abstract class Phone extends Device implements Replicable, SystemAuditabl
             return;
         }
         setSettingTypedValue(E911_SETTING_PATH, id);
+    }
+
+    public Boolean isHotellingEnabled() {
+        if (getSettingTypedValue(HOTELLING_ENABLE_PATH) == null) {
+            LOG.error("Unable to locate hotelling settings");
+            return new Boolean(false);
+        }
+        Boolean result = (Boolean) getSettingTypedValue(HOTELLING_ENABLE_PATH);
+        LOG.error("Phone Hotelling Feature: " + result.toString());
+        return result;
+    }
+
+    public void setHotellingEnabled(Boolean enable) {
+        LOG.error("Saving Hotelling Feature: " + enable.toString());
+        setSettingTypedValue(HOTELLING_ENABLE_PATH, enable);
     }
 
     @Override

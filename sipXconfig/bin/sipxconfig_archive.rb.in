@@ -158,6 +158,11 @@ class Restore < ArchiveBase
       sql_exec(@restoredb, "update users set voicemail_pintoken = md5(user_name || ':#{params[:reset_pin]}')") or
           raise "Failed to reset pins."
     end
+
+    if params.has_key?(:reset_pin)
+      sql_exec(@restoredb, "update users set hotelling_pintoken = md5(user_name || ':#{params[:reset_pin]}')") or
+          raise "Failed to reset pins."
+    end
     
     backup_fqdn = sql_exec_output(@restoredb, "select fqdn from location where primary_location='TRUE' LIMIT 1").split("\n")[0]
     _backup_domain = sql_exec_output(@restoredb, "select name from domain LIMIT 1").split("\n")[0]

@@ -87,6 +87,11 @@ public abstract class EditAdmin extends PageWithCallback implements PageBeginRen
         if (!StringUtils.equals(defaultVmPin, defaultVmPinConfirmed)) {
             throw new UserException(getMessages().getMessage("error.unconfirmed.pin"));
         }
+        String defaultHPin = getSettings().getDefaultHPin();
+        String defaultHPinConfirmed = getSettings().getDefaultHPinConfirmed();
+        if (!StringUtils.equals(defaultHPin, defaultHPinConfirmed)) {
+            throw new UserException(getMessages().getMessage("error.unconfirmed.hpin"));
+        }
         String defaultPostgresPassword = getSettings().getPostgresPassword();
         String defaultPostgresPasswordConfirmed = getSettings().getPostgresPasswordConfirmed();
         if (!StringUtils.equals(defaultPostgresPassword, defaultPostgresPasswordConfirmed)) {

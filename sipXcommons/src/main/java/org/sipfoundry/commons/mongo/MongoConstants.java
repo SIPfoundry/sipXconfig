@@ -95,6 +95,7 @@ public interface MongoConstants {
     static final String PASSTOKEN = "pstk";
     static final String PINTOKEN = "pntk";
     static final String VOICEMAIL_PINTOKEN = "vpntk";
+    static final String HOTELLING_PINTOKEN = "hpntk";
     static final String AUTHTYPE = "authtp";
     static final String IDENTITY = "ident";
     static final String UID = "uid";

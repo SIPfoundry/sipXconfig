@@ -660,6 +660,20 @@ uw.service('restService', [
       return deferred.promise;
     }
 
+    this.putHtPin = function (d) {
+      var deferred = $q.defer();
+
+      sipRest.putHtPin(d).
+        success(function (data) {
+          deferred.resolve(data);
+        }).
+        error(function (e) {
+          deferred.reject(e);
+        })
+
+      return deferred.promise;
+    }
+
     this.getKeepAlive = function () {
       var deferred = $q.defer();
 
@@ -1062,6 +1076,13 @@ uw.service('restService', [
           return request(authHeaders({
             method: 'PUT',
             url:    baseRest + '/my/voicemail/pin/' + data,
+            data:   data
+          }))
+        },
+        putHtPin: function (data) {
+          return request(authHeaders({
+            method: 'PUT',
+            url:    baseRest + '/my/hotelling/pin/' + data,
             data:   data
           }))
         },

@@ -123,7 +123,14 @@
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
-  <alias name="voicemailGenerateBulkPinResource" alias="/voicemail/pin/generate" />  
+  <alias name="voicemailGenerateBulkPinResource" alias="/voicemail/pin/generate" />
+
+  <bean id="hotellingPinResource" class="org.sipfoundry.sipxconfig.rest.HotellingPinResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="hotellingPinResource" alias="/my/hotelling/pin/{pin}" />
 
   <bean id="imprefsResource" class="org.sipfoundry.sipxconfig.rest.ImSettingsResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />

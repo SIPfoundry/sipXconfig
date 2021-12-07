@@ -15,6 +15,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.PASSTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.PINTOKEN;
 import static org.sipfoundry.commons.mongo.MongoConstants.REALM;
 import static org.sipfoundry.commons.mongo.MongoConstants.VOICEMAIL_PINTOKEN;
+import static org.sipfoundry.commons.mongo.MongoConstants.HOTELLING_PINTOKEN;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.callgroup.CallGroup;
@@ -44,6 +45,7 @@ public class Credentials extends AbstractDataSetGenerator {
             }
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
             insertVoicemailPin(top, user.getVoicemailPintoken());
+            insertHotellingPin(top, user.getHotellingPintoken());
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             insertCredential(top, realm, callGroup.getSipPassword(), callGroup.getSipPasswordHash(realm), DIGEST);
@@ -69,6 +71,12 @@ public class Credentials extends AbstractDataSetGenerator {
     private static void insertVoicemailPin(DBObject top, String vpintoken) {
         if (!StringUtils.isEmpty(vpintoken)) {
             top.put(VOICEMAIL_PINTOKEN, vpintoken);
+        }
+    }
+
+    private static void insertHotellingPin(DBObject top, String hpintoken) {
+        if (!StringUtils.isEmpty(hpintoken)) {
+            top.put(HOTELLING_PINTOKEN, hpintoken);
         }
     }
 

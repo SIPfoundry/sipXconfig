@@ -31,4 +31,8 @@ public interface EditPinComponent {
     void setVoicemailPin(String voicemailPin);
 
     String getVoicemailPin();
+
+    void setHotellingPin(String hotellingPin);
+
+    String getHotellingPin();
 }

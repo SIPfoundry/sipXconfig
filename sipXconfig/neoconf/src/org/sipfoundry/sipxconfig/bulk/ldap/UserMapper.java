@@ -135,6 +135,15 @@ public class UserMapper implements NameClassPairMapper {
         }
     }
 
+    public void setHotellingPin(User user, Attributes attrs) throws NamingException {
+        String hotellingPin = getHotellingPin(attrs, user.isNew());
+        OverwritePinBean overwritePinBean = m_ldapManager.retriveOverwritePin();
+        boolean overwritePin = (overwritePinBean == null || overwritePinBean.isValue());
+        if (hotellingPin != null && (user.isNew() || overwritePin)) {
+            user.setHotellingPin(hotellingPin);
+        }
+    }
+
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
         Set<String> groupNames = new HashSet<String>();
         // group names in the current entry
@@ -319,6 +328,15 @@ public class UserMapper implements NameClassPairMapper {
 
     public String getVoicemailPin(Attributes attrs, boolean newUser) throws NamingException {
         String pin = getValue(attrs, Index.VOICEMAIL_PIN);
+        if (pin == null && newUser) {
+            // for new users consider default pin
+            pin = getAttrMap().getDefaultPin();
+        }
+        return pin;
+    }
+
+    public String getHotellingPin(Attributes attrs, boolean newUser) throws NamingException {
+        String pin = getValue(attrs, Index.HOTELLING_PIN);
         if (pin == null && newUser) {
             // for new users consider default pin
             pin = getAttrMap().getDefaultPin();
